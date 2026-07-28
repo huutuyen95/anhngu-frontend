@@ -24,7 +24,8 @@ Nguồn: [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max
 |-----------|--------|
 | Product type | Education / learning app (học viên) + light admin |
 | Style | Flat / Soft UI / Accessible — rõ ràng, tập trung nhiệm vụ học |
-| Brand | Xem **[DESIGN-SYSTEM.md](../../DESIGN-SYSTEM.md)** — primary `#002854`, accent `#F5AC3D`, font Quicksand |
+| Brand | **Lumen** ưu tiên: Ocean `#0E4A5C` · Coral `#FF6B4A` — mocks [lumen/](../../mocks/lumen/). Docs cũ navy/amber chỉ tham khảo. |
+| UI wireframes | [UI-WIREFRAMES.md](../../UI-WIREFRAMES.md) + mocks Lumen |
 | Tránh | Purple AI gradients, emoji-as-icon, dark-mode mặc định, hero marketing / balloon / FAB AI |
 | Stack | Next.js App Router + CSS/Tailwind — bám design system, đừng invent palette mới |
 
@@ -113,7 +114,7 @@ lib/
 
 ## Workflow ngắn
 
-1. Xác định bề mặt (học viên / GV) và một job/section.
+1. Xác định bề mặt (học viên / GV) và một job/section — đọc [UI-WIREFRAMES.md](../../UI-WIREFRAMES.md) nếu màn đã wireframe.
 2. Đặt code đúng tầng (Architecture) + bám DESIGN-SYSTEM.
 3. Ship checklist a11y + responsive trước khi coi là xong.
 
