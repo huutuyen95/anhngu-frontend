@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Archivo:wght@600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+body { margin:0; background:#EFE9DA; font-family:'Quicksand',sans-serif; color:#3A3330; }
+a { color:#F2793B; } a:hover { color:#D65F27; }
+input::placeholder { color:#B5AC9C; }
+</style>
+</helmet>
+<section style="padding:48px 48px 0; display:flex; flex-direction:column; gap:48px; font-family:'Quicksand',sans-serif; color:#3A3330">
+
+  <div style="width:1440px; background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:18px 22px; display:flex; flex-direction:column; gap:14px">
+    <div style="display:flex; align-items:center; gap:12px">
+      <span style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:15px; padding:5px 16px; border-radius:999px">Prototype bấm được</span>
+      <span style="color:#8A8073; font-size:14px; font-weight:600">Bấm nút trong màn để đi tiếp — Đăng nhập, Làm bài ngay, Xong phần…, Nộp bài, hoặc dùng menu bên dưới</span>
+      <span style="margin-left:auto; font-family:'Baloo 2'; font-weight:700; font-size:16px">Đang xem: {{ screenLabel }}</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+      <span style="font-size:11px; font-weight:700; letter-spacing:.6px; color:#8A8073; margin-right:2px">ADMIN</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5a" style-hover="background:#FDEBDD">Tổng quan</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="1c" style-hover="background:#FDEBDD">Học sinh</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5b" style-hover="background:#FDEBDD">Lớp học</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5c" style-hover="background:#FDEBDD">Kho đề</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5d" style-hover="background:#FDEBDD">Soạn đề</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5e" style-hover="background:#FDEBDD">Chấm bài</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5f" style-hover="background:#FDEBDD">Kết quả</span>
+      <span style="width:1px; height:22px; background:#EFE7D4; margin:0 6px"></span>
+      <span style="font-size:11px; font-weight:700; letter-spacing:.6px; color:#8A8073; margin-right:2px">STUDENT</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5g" style-hover="background:#FDEBDD">Trang chủ</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5h" style-hover="background:#FDEBDD">Trước khi thi</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5i" style-hover="background:#E4F5FD">Listening</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5j" style-hover="background:#EFECFC">Speaking</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5k" style-hover="background:#F1F8DE">Reading</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5l" style-hover="background:#FFF3D3">Writing</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5m" style-hover="background:#FDEBDD">Kết quả</span>
+      <span style="width:1px; height:22px; background:#EFE7D4; margin:0 6px"></span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="1b" style-hover="background:#FDEBDD">Đăng nhập</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="1d" style-hover="background:#FDEBDD">Quiz tính giờ</span>
+      <span style="border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer" data-goto="1a" style-hover="background:#FDEBDD">Design System</span>
+    </div>
+  </div>
+
+  <!-- ══ 5a · ADMIN DASHBOARD ══ -->
+  <div id="5a" style="width:1440px; display:{{ d5a }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5a</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Admin — Tổng quan</span>
+    </div>
+    <div style="width:1440px; height:900px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex">
+      <div style="width:236px; background:#fff; border-right:1.5px solid #EFE7D4; display:flex; flex-direction:column; padding:24px 14px; box-sizing:border-box">
+        <div style="display:flex; align-items:center; gap:10px; padding:0 8px">
+          <div style="width:38px; height:38px; border-radius:12px; background:#F2793B; box-shadow:0 3px 0 #D65F27; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; font-weight:800; font-size:16px; color:#fff">LE</div>
+          <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:15px; line-height:1.1">Learn English</div><div style="font-size:11px; font-weight:700; color:#8A8073; letter-spacing:.5px">ADMIN</div></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:3px; margin-top:26px">
+          <div style="padding:10px 14px; border-radius:999px; background:#FDEBDD; color:#D65F27; font-weight:700; font-size:14px" data-goto="5a">Tổng quan</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="1c">Học sinh</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5b">Lớp học</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5c">Đề thi</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Từ vựng</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Tài liệu &amp; Bài giảng</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5f">Kết quả làm bài</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px; display:flex; align-items:center" data-goto="5e">Chấm bài <span style="background:#FFF3D3; color:#B8860B; font-size:12px; font-weight:700; padding:2px 9px; border-radius:999px; margin-left:auto">9</span></div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Báo cáo</div>
+        </div>
+        <div style="margin-top:auto; display:flex; align-items:center; gap:10px; padding:11px; border:1.5px solid #EFE7D4; border-radius:18px">
+          <div style="width:34px; height:34px; border-radius:50%; background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:14px">U</div>
+          <div><div style="font-weight:700; font-size:14px">Cô Uyên</div><div style="font-size:12px; color:#8A8073; font-weight:600">Giáo viên</div></div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; padding:28px 32px; box-sizing:border-box; overflow:hidden; gap:18px">
+        <div style="display:flex; align-items:center">
+          <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:26px">Chào cô Uyên!</div><div style="font-size:14px; color:#8A8073; font-weight:600">Hôm nay có 9 bài Writing &amp; Speaking đang chờ cô chấm</div></div>
+          <div style="margin-left:auto; display:flex; gap:10px">
+            <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:9px 18px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer" data-goto="5b">Tạo lớp mới</div>
+            <div style="background:#F2793B; color:#fff; border-radius:999px; padding:10px 20px; font-family:'Baloo 2'; font-weight:700; font-size:14px; box-shadow:0 3px 0 #D65F27; cursor:pointer" data-goto="5d">+ Tạo đề thi</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:16px">
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+            <div style="width:38px; height:38px; border-radius:12px; background:#FDEBDD; display:flex; align-items:center; justify-content:center; font-size:17px">👥</div>
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:32px; margin-top:12px; line-height:1">86</div>
+            <div style="font-size:13px; font-weight:700; color:#8A8073">Học sinh đang học</div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+            <div style="width:38px; height:38px; border-radius:12px; background:#EFECFC; display:flex; align-items:center; justify-content:center; font-size:17px">📝</div>
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:32px; margin-top:12px; line-height:1">4</div>
+            <div style="font-size:13px; font-weight:700; color:#8A8073">Bài thi đang mở</div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+            <div style="width:38px; height:38px; border-radius:12px; background:#FFF3D3; display:flex; align-items:center; justify-content:center; font-size:17px">✍️</div>
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:32px; margin-top:12px; line-height:1; color:#B8860B">9</div>
+            <div style="font-size:13px; font-weight:700; color:#8A8073">Chờ chấm Writing / Speaking</div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+            <div style="width:38px; height:38px; border-radius:12px; background:#F1F8DE; display:flex; align-items:center; justify-content:center; font-size:17px">📈</div>
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:32px; margin-top:12px; line-height:1; color:#5E8418">7.4</div>
+            <div style="font-size:13px; font-weight:700; color:#8A8073">Điểm trung bình tuần này</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:16px; flex:1; overflow:hidden">
+          <div style="flex:1; background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:22px; display:flex; flex-direction:column; overflow:hidden">
+            <div style="display:flex; align-items:center"><div style="font-family:'Baloo 2'; font-weight:700; font-size:18px">Bài thi gần đây</div><a href="#5c" style="margin-left:auto; font-size:13px; font-weight:700; text-decoration:none">Xem tất cả</a></div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:14px">
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:16px; padding:13px 14px">
+                <div style="width:40px; height:40px; border-radius:12px; background:#EFECFC; display:flex; align-items:center; justify-content:center; font-size:16px">📖</div>
+                <div style="flex:1"><div style="font-weight:700; font-size:14px">Unit 5 — Mini Test (4 kỹ năng)</div><div style="font-size:12px; font-weight:600; color:#8A8073">Lớp 6A1 · 20 câu · 45 phút · hạn 20/07</div></div>
+                <div style="text-align:right"><div style="font-weight:700; font-size:14px">24/28</div><div style="font-size:12px; color:#8A8073; font-weight:600">đã nộp</div></div>
+                <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px">Đang mở</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:16px; padding:13px 14px">
+                <div style="width:40px; height:40px; border-radius:12px; background:#E4F5FD; display:flex; align-items:center; justify-content:center; font-size:16px">🎧</div>
+                <div style="flex:1"><div style="font-weight:700; font-size:14px">Listening Practice 03</div><div style="font-size:12px; font-weight:600; color:#8A8073">Lớp 7B2 · 15 câu · 20 phút · hạn 22/07</div></div>
+                <div style="text-align:right"><div style="font-weight:700; font-size:14px">9/22</div><div style="font-size:12px; color:#8A8073; font-weight:600">đã nộp</div></div>
+                <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px">Đang mở</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:16px; padding:13px 14px">
+                <div style="width:40px; height:40px; border-radius:12px; background:#FFF3D3; display:flex; align-items:center; justify-content:center; font-size:16px">✍️</div>
+                <div style="flex:1"><div style="font-weight:700; font-size:14px">Writing — My summer holiday</div><div style="font-size:12px; font-weight:600; color:#8A8073">Lớp 8C1 · 1 đề · 30 phút · đã đóng 15/07</div></div>
+                <div style="text-align:right"><div style="font-weight:700; font-size:14px">18/18</div><div style="font-size:12px; color:#8A8073; font-weight:600">đã nộp</div></div>
+                <span style="background:#FFF3D3; color:#B8860B; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px">Chờ chấm</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:16px; padding:13px 14px">
+                <div style="width:40px; height:40px; border-radius:12px; background:#F1F8DE; display:flex; align-items:center; justify-content:center; font-size:16px">🗣️</div>
+                <div style="flex:1"><div style="font-weight:700; font-size:14px">Speaking Part 1 — Daily routine</div><div style="font-size:12px; font-weight:600; color:#8A8073">Lớp 6A2 · 3 prompt · đã đóng 12/07</div></div>
+                <div style="text-align:right"><div style="font-weight:700; font-size:14px">16/16</div><div style="font-size:12px; color:#8A8073; font-weight:600">đã nộp</div></div>
+                <span style="background:#EFECFC; color:#5D4FB8; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px">Đã chấm</span>
+              </div>
+            </div>
+          </div>
+          <div style="width:330px; display:flex; flex-direction:column; gap:16px">
+            <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:18px">Việc cần làm</div>
+              <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px">
+                <div style="display:flex; align-items:center; gap:10px; background:#FFF3D3; border-radius:14px; padding:12px 14px"><span style="font-size:15px">✍️</span><div style="flex:1"><div style="font-weight:700; font-size:13px">6 bài Writing chờ chấm</div><div style="font-size:12px; color:#8A8073; font-weight:600">Lớp 8C1</div></div><span style="font-weight:700; font-size:13px; color:#B8860B" data-goto="5e">→</span></div>
+                <div style="display:flex; align-items:center; gap:10px; background:#EFECFC; border-radius:14px; padding:12px 14px"><span style="font-size:15px">🗣️</span><div style="flex:1"><div style="font-weight:700; font-size:13px">3 bài Speaking chờ nghe</div><div style="font-size:12px; color:#8A8073; font-weight:600">Lớp 6A2</div></div><span style="font-weight:700; font-size:13px; color:#5D4FB8" data-goto="5e">→</span></div>
+                <div style="display:flex; align-items:center; gap:10px; background:#FBF7EA; border-radius:14px; padding:12px 14px"><span style="font-size:15px">🔔</span><div style="flex:1"><div style="font-weight:700; font-size:13px">4 học sinh chưa làm bài</div><div style="font-size:12px; color:#8A8073; font-weight:600">Nhắc trước hạn 20/07</div></div><span style="font-weight:700; font-size:13px; color:#8A8073">→</span></div>
+              </div>
+            </div>
+            <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px; flex:1">
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:18px">Điểm trung bình theo kỹ năng</div>
+              <div style="display:flex; flex-direction:column; gap:14px; margin-top:16px">
+                <div><div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700"><span>Listening</span><span style="color:#8A8073">7.8</span></div><div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:6px"><div style="height:100%; width:78%; border-radius:999px; background:#56C2EE"></div></div></div>
+                <div><div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700"><span>Speaking</span><span style="color:#8A8073">6.9</span></div><div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:6px"><div style="height:100%; width:69%; border-radius:999px; background:#8C7DE6"></div></div></div>
+                <div><div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700"><span>Reading</span><span style="color:#8A8073">8.1</span></div><div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:6px"><div style="height:100%; width:81%; border-radius:999px; background:#9CCC3C"></div></div></div>
+                <div><div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700"><span>Writing</span><span style="color:#8A8073">6.4</span></div><div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:6px"><div style="height:100%; width:64%; border-radius:999px; background:#FFC94D"></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5b · ADMIN LỚP HỌC ══ -->
+  <div id="5b" style="width:1440px; display:{{ d5b }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5b</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Admin — Quản lý lớp học</span>
+    </div>
+    <div style="width:1440px; height:760px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex">
+      <div style="width:236px; background:#fff; border-right:1.5px solid #EFE7D4; display:flex; flex-direction:column; padding:24px 14px; box-sizing:border-box">
+        <div style="display:flex; align-items:center; gap:10px; padding:0 8px">
+          <div style="width:38px; height:38px; border-radius:12px; background:#F2793B; box-shadow:0 3px 0 #D65F27; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; font-weight:800; font-size:16px; color:#fff">LE</div>
+          <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:15px; line-height:1.1">Learn English</div><div style="font-size:11px; font-weight:700; color:#8A8073; letter-spacing:.5px">ADMIN</div></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:3px; margin-top:26px">
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5a">Tổng quan</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="1c">Học sinh</div>
+          <div style="padding:10px 14px; border-radius:999px; background:#FDEBDD; color:#D65F27; font-weight:700; font-size:14px" data-goto="5b">Lớp học</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5c">Đề thi</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Từ vựng</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Tài liệu &amp; Bài giảng</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5f">Kết quả làm bài</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5e">Chấm bài</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Báo cáo</div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; padding:28px 32px; box-sizing:border-box; overflow:hidden; gap:18px">
+        <div style="display:flex; align-items:center">
+          <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:26px">Lớp học</div><div style="font-size:14px; color:#8A8073; font-weight:600">5 lớp · học sinh được gán vào lớp để nhận nhiệm vụ</div></div>
+          <div style="margin-left:auto; display:flex; gap:10px">
+            <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:9px 18px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer">Lớp đã lưu trữ</div>
+            <div style="background:#F2793B; color:#fff; border-radius:999px; padding:10px 20px; font-family:'Baloo 2'; font-weight:700; font-size:14px; box-shadow:0 3px 0 #D65F27; cursor:pointer" data-goto="5b">+ Tạo lớp</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px">
+          <sc-for list="{{ classes }}" as="c" hint-placeholder-count="6">
+            <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+              <div style="display:flex; align-items:center; gap:12px">
+                <div style="width:44px; height:44px; border-radius:14px; background:{{ c.tint }}; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; font-weight:700; font-size:16px; color:{{ c.ink }}">{{ c.short }}</div>
+                <div style="flex:1"><div style="font-family:'Baloo 2'; font-weight:700; font-size:18px; line-height:1.2">{{ c.name }}</div><div style="font-size:12px; font-weight:600; color:#8A8073">{{ c.schedule }}</div></div>
+                <span style="font-size:16px; color:#C9C0AF">⋯</span>
+              </div>
+              <div style="display:flex; gap:10px; margin-top:16px">
+                <div style="flex:1; background:#FBF7EA; border-radius:14px; padding:10px 12px"><div style="font-family:'Baloo 2'; font-weight:700; font-size:19px">{{ c.students }}</div><div style="font-size:11px; font-weight:700; color:#8A8073">HỌC SINH</div></div>
+                <div style="flex:1; background:#FBF7EA; border-radius:14px; padding:10px 12px"><div style="font-family:'Baloo 2'; font-weight:700; font-size:19px">{{ c.tasks }}</div><div style="font-size:11px; font-weight:700; color:#8A8073">BÀI ĐANG MỞ</div></div>
+                <div style="flex:1; background:#FBF7EA; border-radius:14px; padding:10px 12px"><div style="font-family:'Baloo 2'; font-weight:700; font-size:19px">{{ c.avg }}</div><div style="font-size:11px; font-weight:700; color:#8A8073">ĐIỂM TB</div></div>
+              </div>
+              <div style="display:flex; gap:8px; margin-top:14px">
+                <div style="flex:1; text-align:center; border:1.5px solid #EFE7D4; border-radius:999px; padding:8px; font-weight:700; font-size:13px; cursor:pointer" data-goto="1c">Học sinh</div>
+                <div style="flex:1; text-align:center; border:1.5px solid #EFE7D4; border-radius:999px; padding:8px; font-weight:700; font-size:13px; cursor:pointer" data-goto="5f">Giao bài</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5c · ADMIN ĐỀ THI ══ -->
+  <div id="5c" style="width:1440px; display:{{ d5c }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5c</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Admin — Kho đề thi</span>
+    </div>
+    <div style="width:1440px; height:820px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex">
+      <div style="width:236px; background:#fff; border-right:1.5px solid #EFE7D4; display:flex; flex-direction:column; padding:24px 14px; box-sizing:border-box">
+        <div style="display:flex; align-items:center; gap:10px; padding:0 8px">
+          <div style="width:38px; height:38px; border-radius:12px; background:#F2793B; box-shadow:0 3px 0 #D65F27; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; font-weight:800; font-size:16px; color:#fff">LE</div>
+          <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:15px; line-height:1.1">Learn English</div><div style="font-size:11px; font-weight:700; color:#8A8073; letter-spacing:.5px">ADMIN</div></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:3px; margin-top:26px">
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5a">Tổng quan</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="1c">Học sinh</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5b">Lớp học</div>
+          <div style="padding:10px 14px; border-radius:999px; background:#FDEBDD; color:#D65F27; font-weight:700; font-size:14px" data-goto="5c">Đề thi</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Từ vựng</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Tài liệu &amp; Bài giảng</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5f">Kết quả làm bài</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5e">Chấm bài</div>
+          <div style="padding:10px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Báo cáo</div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; padding:28px 32px; box-sizing:border-box; overflow:hidden; gap:16px">
+        <div style="display:flex; align-items:center">
+          <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:26px">Kho đề thi</div><div style="font-size:14px; color:#8A8073; font-weight:600">12 đề · mỗi đề gồm các phần Listening / Speaking / Reading / Writing</div></div>
+          <div style="margin-left:auto; display:flex; gap:10px">
+            <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:9px 18px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer">Import từ Word</div>
+            <div style="background:#F2793B; color:#fff; border-radius:999px; padding:10px 20px; font-family:'Baloo 2'; font-weight:700; font-size:14px; box-shadow:0 3px 0 #D65F27; cursor:pointer" data-goto="5d">+ Tạo đề thi</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px">
+          <div style="background:#3A3330; color:#fff; border-radius:999px; padding:8px 16px; font-weight:700; font-size:13px">Tất cả (12)</div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:999px; padding:8px 16px; font-weight:700; font-size:13px; color:#8A8073">Đủ 4 kỹ năng (5)</div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:999px; padding:8px 16px; font-weight:700; font-size:13px; color:#8A8073">Listening (3)</div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:999px; padding:8px 16px; font-weight:700; font-size:13px; color:#8A8073">Speaking (2)</div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:999px; padding:8px 16px; font-weight:700; font-size:13px; color:#8A8073">Reading (1)</div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:999px; padding:8px 16px; font-weight:700; font-size:13px; color:#8A8073">Writing (1)</div>
+          <input type="text" value="" placeholder="Tìm đề thi..." style="margin-left:auto; width:240px; height:38px; border:1.5px solid #EFE7D4; border-radius:999px; padding:0 16px; font-family:'Quicksand'; font-size:13px; font-weight:600; outline:none; background:#fff; color:#3A3330" />
+        </div>
+        <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; overflow:hidden; flex:1; display:flex; flex-direction:column">
+          <div style="display:grid; grid-template-columns:2.2fr 1.5fr 90px 90px 1fr 120px; align-items:center; background:#FBF7EA; border-bottom:1.5px solid #EFE7D4; padding:0 20px; height:46px; font-size:12px; font-weight:700; letter-spacing:.4px; color:#8A8073">
+            <div>TÊN ĐỀ</div><div>KỸ NĂNG</div><div>SỐ CÂU</div><div>THỜI GIAN</div><div>TRẠNG THÁI</div><div>HÀNH ĐỘNG</div>
+          </div>
+          <sc-for list="{{ exams }}" as="e" hint-placeholder-count="7">
+            <div style="display:grid; grid-template-columns:2.2fr 1.5fr 90px 90px 1fr 120px; align-items:center; border-bottom:1px solid #F5EFDF; padding:0 20px; height:64px; font-size:14px" style-hover="background:#FDFBF3">
+              <div><div style="font-weight:700">{{ e.name }}</div><div style="font-size:12px; font-weight:600; color:#8A8073">{{ e.meta }}</div></div>
+              <div style="display:flex; gap:5px">
+                <span style="background:{{ e.lBg }}; color:{{ e.lInk }}; font-weight:700; font-size:11px; padding:4px 9px; border-radius:999px">L</span>
+                <span style="background:{{ e.sBg }}; color:{{ e.sInk }}; font-weight:700; font-size:11px; padding:4px 9px; border-radius:999px">S</span>
+                <span style="background:{{ e.rBg }}; color:{{ e.rInk }}; font-weight:700; font-size:11px; padding:4px 9px; border-radius:999px">R</span>
+                <span style="background:{{ e.wBg }}; color:{{ e.wInk }}; font-weight:700; font-size:11px; padding:4px 9px; border-radius:999px">W</span>
+              </div>
+              <div style="font-weight:600; color:#8A8073">{{ e.questions }}</div>
+              <div style="font-weight:600; color:#8A8073">{{ e.minutes }}′</div>
+              <div><span style="background:{{ e.statusBg }}; color:{{ e.statusInk }}; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px">{{ e.status }}</span></div>
+              <div style="display:flex; gap:6px">
+                <div style="padding:6px 12px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:12px; color:#8A8073; cursor:pointer" data-goto="5d">Sửa</div>
+                <div style="padding:6px 12px; background:#FDEBDD; border-radius:999px; font-weight:700; font-size:12px; color:#D65F27; cursor:pointer" data-goto="5f">Giao bài</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ══ 5d · ADMIN TẠO ĐỀ 4 KỸ NĂNG ══ -->
+  <div id="5d" style="width:1440px; display:{{ d5d }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5d</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Admin — Soạn đề 4 kỹ năng</span>
+      <span style="color:#8A8073; font-size:14px">đang ở phần Listening</span>
+    </div>
+    <div style="width:1440px; height:880px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column">
+      <div style="height:64px; background:#fff; border-bottom:1.5px solid #EFE7D4; display:flex; align-items:center; padding:0 28px; gap:14px; flex-shrink:0">
+        <div style="width:36px; height:36px; border-radius:12px; border:1.5px solid #EFE7D4; display:flex; align-items:center; justify-content:center; color:#8A8073; cursor:pointer">←</div>
+        <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:17px; line-height:1.2">Unit 5 — Mini Test (4 kỹ năng)</div><div style="font-size:12px; font-weight:600; color:#8A8073">Nháp · tự động lưu lúc 15:02</div></div>
+        <div style="margin-left:auto; display:flex; gap:10px">
+          <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:9px 18px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer">Xem trước</div>
+          <div style="background:#F2793B; color:#fff; border-radius:999px; padding:10px 20px; font-family:'Baloo 2'; font-weight:700; font-size:14px; box-shadow:0 3px 0 #D65F27; cursor:pointer" data-goto="5c">Lưu &amp; giao bài</div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; gap:20px; padding:22px 28px; box-sizing:border-box; overflow:hidden">
+        <div style="width:280px; flex-shrink:0; display:flex; flex-direction:column; gap:14px">
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:18px">
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">CÁC PHẦN CỦA ĐỀ</div>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:12px">
+              <div style="display:flex; align-items:center; gap:10px; border:2px solid #56C2EE; background:#E4F5FD; border-radius:14px; padding:11px 12px; cursor:pointer"><span style="font-size:15px">🎧</span><div style="flex:1"><div style="font-weight:700; font-size:14px">Listening</div><div style="font-size:11px; font-weight:700; color:#2380A8">6 câu · 12 phút</div></div><span style="font-weight:700; color:#2380A8">›</span></div>
+              <div style="display:flex; align-items:center; gap:10px; border:1.5px solid #EFE7D4; border-radius:14px; padding:11px 12px; cursor:pointer"><span style="font-size:15px">🗣️</span><div style="flex:1"><div style="font-weight:700; font-size:14px">Speaking</div><div style="font-size:11px; font-weight:700; color:#8A8073">3 prompt · 8 phút</div></div><span style="font-weight:700; color:#C9C0AF">›</span></div>
+              <div style="display:flex; align-items:center; gap:10px; border:1.5px solid #EFE7D4; border-radius:14px; padding:11px 12px; cursor:pointer"><span style="font-size:15px">📖</span><div style="flex:1"><div style="font-weight:700; font-size:14px">Reading</div><div style="font-size:11px; font-weight:700; color:#8A8073">10 câu · 15 phút</div></div><span style="font-weight:700; color:#C9C0AF">›</span></div>
+              <div style="display:flex; align-items:center; gap:10px; border:1.5px solid #EFE7D4; border-radius:14px; padding:11px 12px; cursor:pointer"><span style="font-size:15px">✍️</span><div style="flex:1"><div style="font-weight:700; font-size:14px">Writing</div><div style="font-size:11px; font-weight:700; color:#8A8073">1 đề · 10 phút</div></div><span style="font-weight:700; color:#C9C0AF">›</span></div>
+              <div style="display:flex; align-items:center; justify-content:center; gap:8px; border:1.5px dashed #D8CFBC; border-radius:14px; padding:11px 12px; font-weight:700; font-size:13px; color:#8A8073; cursor:pointer">+ Thêm phần</div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:18px; flex:1">
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">CÀI ĐẶT CHUNG</div>
+            <div style="display:flex; flex-direction:column; gap:12px; margin-top:12px; font-size:13px; font-weight:700">
+              <div style="display:flex; align-items:center">Tổng thời gian <span style="margin-left:auto; color:#8A8073">45 phút</span></div>
+              <div style="display:flex; align-items:center">Tổng điểm <span style="margin-left:auto; color:#8A8073">10.0</span></div>
+              <div style="display:flex; align-items:center">Trộn câu hỏi <div style="margin-left:auto; width:40px; height:22px; border-radius:999px; background:#9CCC3C; position:relative"><div style="position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%; background:#fff"></div></div></div>
+              <div style="display:flex; align-items:center">Cho xem đáp án sau khi nộp <div style="margin-left:auto; width:40px; height:22px; border-radius:999px; background:#D8CFBC; position:relative"><div style="position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff"></div></div></div>
+              <div style="display:flex; align-items:center">Số lần làm lại <span style="margin-left:auto; color:#8A8073">1 lần</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1; background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:24px; display:flex; flex-direction:column; gap:16px; overflow:hidden">
+          <div style="display:flex; align-items:center; gap:12px">
+            <span style="background:#56C2EE; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:13px; padding:5px 14px; border-radius:999px">LISTENING</span>
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:20px">Part 1 — Listen and choose</div>
+            <div style="margin-left:auto; display:flex; gap:8px">
+              <div style="padding:8px 14px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:13px; color:#8A8073; cursor:pointer">Cài đặt phần</div>
+              <div style="padding:8px 14px; background:#FDEBDD; color:#D65F27; border-radius:999px; font-weight:700; font-size:13px; cursor:pointer">+ Thêm câu hỏi</div>
+            </div>
+          </div>
+          <div style="border:1.5px solid #EFE7D4; border-radius:18px; padding:18px; background:#FBF7EA">
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">FILE NGHE CỦA PHẦN NÀY</div>
+            <div style="display:flex; align-items:center; gap:14px; margin-top:12px">
+              <div style="width:44px; height:44px; border-radius:50%; background:#56C2EE; color:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; box-shadow:0 3px 0 #3AA5D3; cursor:pointer">▶</div>
+              <div style="flex:1">
+                <div style="font-weight:700; font-size:14px">unit5-listening-part1.mp3</div>
+                <div style="height:6px; border-radius:999px; background:#E4DFCE; margin-top:8px"><div style="height:100%; width:0%; border-radius:999px; background:#56C2EE"></div></div>
+              </div>
+              <div style="font-size:13px; font-weight:700; color:#8A8073">02:14</div>
+              <div style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700">Số lần phát <span style="border:1.5px solid #EFE7D4; background:#fff; border-radius:10px; padding:5px 12px">2</span></div>
+              <div style="padding:8px 14px; border:1.5px solid #EFE7D4; background:#fff; border-radius:999px; font-weight:700; font-size:13px; color:#8A8073; cursor:pointer">Thay file</div>
+            </div>
+          </div>
+          <div style="border:1.5px solid #EFE7D4; border-radius:18px; padding:20px">
+            <div style="display:flex; align-items:center; gap:10px">
+              <span style="font-size:14px; color:#C9C0AF; cursor:grab">⠿</span>
+              <span style="background:#E4F5FD; color:#2380A8; font-weight:700; font-size:12px; padding:4px 10px; border-radius:999px">Câu 1 · Trắc nghiệm</span>
+              <span style="font-size:12px; font-weight:700; color:#8A8073">0.5 điểm</span>
+              <div style="margin-left:auto; display:flex; gap:8px; font-size:13px; font-weight:700; color:#8A8073"><span style="cursor:pointer">Nhân bản</span><span style="cursor:pointer; color:#C1442F">Xoá</span></div>
+            </div>
+            <input type="text" value="Where is the boy going after school?" style="margin-top:14px; height:46px; border:1.5px solid #EFE7D4; border-radius:12px; padding:0 14px; font-family:'Quicksand'; font-size:15px; font-weight:600; width:100%; box-sizing:border-box; outline:none; color:#3A3330" />
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px">
+              <div style="display:flex; align-items:center; gap:10px; border:1.5px solid #9CCC3C; background:#F1F8DE; border-radius:12px; padding:10px 12px"><div style="width:30px; height:30px; border-radius:9px; background:#9CCC3C; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center">A</div><span style="font-weight:700; font-size:14px">To the library</span><span style="margin-left:auto; font-size:12px; font-weight:700; color:#5E8418">Đáp án đúng</span></div>
+              <div style="display:flex; align-items:center; gap:10px; border:1.5px solid #EFE7D4; border-radius:12px; padding:10px 12px"><div style="width:30px; height:30px; border-radius:9px; background:#FBF7EA; color:#8A8073; font-family:'Baloo 2'; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center">B</div><span style="font-weight:600; font-size:14px; color:#8A8073">To the park</span></div>
+              <div style="display:flex; align-items:center; gap:10px; border:1.5px solid #EFE7D4; border-radius:12px; padding:10px 12px"><div style="width:30px; height:30px; border-radius:9px; background:#FBF7EA; color:#8A8073; font-family:'Baloo 2'; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center">C</div><span style="font-weight:600; font-size:14px; color:#8A8073">To his house</span></div>
+              <div style="display:flex; align-items:center; justify-content:center; border:1.5px dashed #D8CFBC; border-radius:12px; padding:10px 12px; font-weight:700; font-size:13px; color:#8A8073; cursor:pointer">+ Thêm đáp án</div>
+            </div>
+          </div>
+          <div style="border:1.5px solid #EFE7D4; border-radius:18px; padding:20px">
+            <div style="display:flex; align-items:center; gap:10px">
+              <span style="font-size:14px; color:#C9C0AF; cursor:grab">⠿</span>
+              <span style="background:#E4F5FD; color:#2380A8; font-weight:700; font-size:12px; padding:4px 10px; border-radius:999px">Câu 2 · Điền từ</span>
+              <span style="font-size:12px; font-weight:700; color:#8A8073">0.5 điểm</span>
+              <div style="margin-left:auto; display:flex; gap:8px; font-size:13px; font-weight:700; color:#8A8073"><span style="cursor:pointer">Nhân bản</span><span style="cursor:pointer; color:#C1442F">Xoá</span></div>
+            </div>
+            <input type="text" value="The class starts at ______ o'clock." style="margin-top:14px; height:46px; border:1.5px solid #EFE7D4; border-radius:12px; padding:0 14px; font-family:'Quicksand'; font-size:15px; font-weight:600; width:100%; box-sizing:border-box; outline:none; color:#3A3330" />
+            <div style="display:flex; gap:10px; margin-top:12px; align-items:center">
+              <div style="font-size:13px; font-weight:700; color:#8A8073">Đáp án chấp nhận:</div>
+              <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:13px; padding:6px 12px; border-radius:999px">eight</span>
+              <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:13px; padding:6px 12px; border-radius:999px">8</span>
+              <span style="border:1.5px dashed #D8CFBC; color:#8A8073; font-weight:700; font-size:13px; padding:6px 12px; border-radius:999px; cursor:pointer">+ thêm</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:center; gap:8px; border:1.5px dashed #D8CFBC; border-radius:16px; padding:14px; font-family:'Baloo 2'; font-weight:600; font-size:15px; color:#8A8073; cursor:pointer">+ Thêm câu hỏi vào phần Listening</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5e · ADMIN CHẤM WRITING / SPEAKING ══ -->
+  <div id="5e" style="width:1440px; display:{{ d5e }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5e</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Admin — Chấm Writing &amp; Speaking</span>
+    </div>
+    <div style="width:1440px; height:860px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column">
+      <div style="height:64px; background:#fff; border-bottom:1.5px solid #EFE7D4; display:flex; align-items:center; padding:0 28px; gap:14px; flex-shrink:0">
+        <div style="width:36px; height:36px; border-radius:12px; border:1.5px solid #EFE7D4; display:flex; align-items:center; justify-content:center; color:#8A8073; cursor:pointer">←</div>
+        <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:17px; line-height:1.2">Writing — My summer holiday · Lớp 8C1</div><div style="font-size:12px; font-weight:600; color:#8A8073">Bài 3 / 6 chờ chấm</div></div>
+        <div style="margin-left:auto; display:flex; gap:10px">
+          <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:9px 18px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer">Bỏ qua</div>
+          <div style="background:#F2793B; color:#fff; border-radius:999px; padding:10px 20px; font-family:'Baloo 2'; font-weight:700; font-size:14px; box-shadow:0 3px 0 #D65F27; cursor:pointer">Lưu &amp; bài tiếp theo →</div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; gap:20px; padding:22px 28px; box-sizing:border-box; overflow:hidden">
+        <div style="width:230px; flex-shrink:0; background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:16px; display:flex; flex-direction:column">
+          <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">HÀNG CHỜ</div>
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:12px">
+            <div style="display:flex; align-items:center; gap:9px; border-radius:12px; padding:9px 10px; background:#F1F8DE"><div style="width:28px; height:28px; border-radius:50%; background:#9CCC3C; color:#fff; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center">L</div><span style="font-weight:700; font-size:13px; flex:1">Khánh Linh</span><span style="font-size:12px; font-weight:700; color:#5E8418">8.0</span></div>
+            <div style="display:flex; align-items:center; gap:9px; border-radius:12px; padding:9px 10px; background:#F1F8DE"><div style="width:28px; height:28px; border-radius:50%; background:#56C2EE; color:#fff; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center">N</div><span style="font-weight:700; font-size:13px; flex:1">Thu Ngân</span><span style="font-size:12px; font-weight:700; color:#5E8418">7.5</span></div>
+            <div style="display:flex; align-items:center; gap:9px; border-radius:12px; padding:9px 10px; background:#FDEBDD; border:1.5px solid #F2793B"><div style="width:28px; height:28px; border-radius:50%; background:#8C7DE6; color:#fff; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center">H</div><span style="font-weight:700; font-size:13px; flex:1">Gia Hân</span><span style="font-size:12px; font-weight:700; color:#D65F27">đang chấm</span></div>
+            <div style="display:flex; align-items:center; gap:9px; border-radius:12px; padding:9px 10px"><div style="width:28px; height:28px; border-radius:50%; background:#FFC94D; color:#fff; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center">H</div><span style="font-weight:600; font-size:13px; flex:1; color:#8A8073">Đức Huy</span></div>
+            <div style="display:flex; align-items:center; gap:9px; border-radius:12px; padding:9px 10px"><div style="width:28px; height:28px; border-radius:50%; background:#E5604C; color:#fff; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center">P</div><span style="font-weight:600; font-size:13px; flex:1; color:#8A8073">Quang Phúc</span></div>
+            <div style="display:flex; align-items:center; gap:9px; border-radius:12px; padding:9px 10px"><div style="width:28px; height:28px; border-radius:50%; background:#8C7DE6; color:#fff; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center">C</div><span style="font-weight:600; font-size:13px; flex:1; color:#8A8073">Bảo Châu</span></div>
+          </div>
+          <div style="margin-top:auto; background:#FBF7EA; border-radius:14px; padding:12px; font-size:12px; font-weight:600; color:#8A8073">Đã chấm 2 / 6 bài · còn lại khoảng 12 phút</div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:14px; overflow:hidden">
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:22px; flex:1; display:flex; flex-direction:column; overflow:hidden">
+            <div style="display:flex; align-items:center; gap:12px">
+              <div style="width:38px; height:38px; border-radius:50%; background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center">H</div>
+              <div style="flex:1"><div style="font-weight:700; font-size:15px">Lê Gia Hân</div><div style="font-size:12px; font-weight:600; color:#8A8073">Nộp 15/07 lúc 20:48 · 168 từ · 26 phút</div></div>
+              <span style="background:#FFF3D3; color:#B8860B; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px">Chờ chấm</span>
+            </div>
+            <div style="background:#FBF7EA; border-radius:16px; padding:14px 16px; margin-top:14px; font-size:14px; font-weight:600">
+              <span style="font-size:12px; font-weight:700; color:#8A8073; letter-spacing:.4px">ĐỀ BÀI</span>
+              <div style="margin-top:6px">Write about your last summer holiday (120–180 words). Where did you go, who did you go with, and what did you like most?</div>
+            </div>
+            <div style="margin-top:14px; font-size:15px; font-weight:500; line-height:1.75; color:#3A3330; overflow:hidden">
+              Last summer my family went to Da Nang for five days. We travelled by plane and it was my first flight, so I was very excited. Every morning I <span style="background:#FDE7E2; border-bottom:2px solid #E5604C">swim</span> in the sea with my younger brother and in the afternoon we visited some famous places such as Ba Na Hills and the Dragon Bridge.<br><br>The food was amazing. I especially liked mi quang and fresh seafood. My mother <span style="background:#FFF3D3; border-bottom:2px solid #FFC94D">said that the trip is</span> the best holiday of our family. On the last day we bought some souvenirs for my grandparents.<br><br>I think travelling helps me learn a lot of new things and practise my English with foreign tourists. I hope my family can go there again next year.
+            </div>
+            <div style="margin-top:auto; display:flex; gap:10px; padding-top:14px">
+              <div style="padding:8px 14px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:13px; color:#8A8073; cursor:pointer">Bôi lỗi ngữ pháp</div>
+              <div style="padding:8px 14px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:13px; color:#8A8073; cursor:pointer">Thêm ghi chú tại chỗ</div>
+              <div style="padding:8px 14px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:13px; color:#8A8073; cursor:pointer">So với bài mẫu</div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px; flex-shrink:0">
+            <div style="display:flex; align-items:center; gap:12px">
+              <span style="background:#EFECFC; color:#5D4FB8; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px">Bài Speaking kèm theo</span>
+              <div style="width:38px; height:38px; border-radius:50%; background:#8C7DE6; color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 0 #6F60CC; cursor:pointer">▶</div>
+              <div style="flex:1; display:flex; align-items:flex-end; gap:3px; height:32px">
+                <div style="flex:1; background:#8C7DE6; height:40%; border-radius:2px"></div><div style="flex:1; background:#8C7DE6; height:70%; border-radius:2px"></div><div style="flex:1; background:#8C7DE6; height:55%; border-radius:2px"></div><div style="flex:1; background:#8C7DE6; height:90%; border-radius:2px"></div><div style="flex:1; background:#8C7DE6; height:65%; border-radius:2px"></div><div style="flex:1; background:#8C7DE6; height:35%; border-radius:2px"></div><div style="flex:1; background:#D8D1F5; height:75%; border-radius:2px"></div><div style="flex:1; background:#D8D1F5; height:50%; border-radius:2px"></div><div style="flex:1; background:#D8D1F5; height:85%; border-radius:2px"></div><div style="flex:1; background:#D8D1F5; height:45%; border-radius:2px"></div><div style="flex:1; background:#D8D1F5; height:60%; border-radius:2px"></div><div style="flex:1; background:#D8D1F5; height:30%; border-radius:2px"></div>
+              </div>
+              <span style="font-size:13px; font-weight:700; color:#8A8073">0:38 / 1:20</span>
+              <div style="padding:7px 12px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:12px; color:#8A8073">Tốc độ 1.0×</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:300px; flex-shrink:0; background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px; display:flex; flex-direction:column">
+          <div style="font-family:'Baloo 2'; font-weight:700; font-size:18px">Thang điểm</div>
+          <div style="display:flex; flex-direction:column; gap:14px; margin-top:14px">
+            <div>
+              <div style="display:flex; align-items:center; font-size:13px; font-weight:700">Task achievement <span style="margin-left:auto; color:#8A8073">2.0 / 2.5</span></div>
+              <div style="display:flex; gap:5px; margin-top:7px">
+                <div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F5EFDF"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; font-size:13px; font-weight:700">Grammar <span style="margin-left:auto; color:#8A8073">1.5 / 2.5</span></div>
+              <div style="display:flex; gap:5px; margin-top:7px">
+                <div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F5EFDF"></div><div style="flex:1; height:26px; border-radius:8px; background:#F5EFDF"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; font-size:13px; font-weight:700">Vocabulary <span style="margin-left:auto; color:#8A8073">2.0 / 2.5</span></div>
+              <div style="display:flex; gap:5px; margin-top:7px">
+                <div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F5EFDF"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; font-size:13px; font-weight:700">Coherence <span style="margin-left:auto; color:#8A8073">2.0 / 2.5</span></div>
+              <div style="display:flex; gap:5px; margin-top:7px">
+                <div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F2793B"></div><div style="flex:1; height:26px; border-radius:8px; background:#F5EFDF"></div>
+              </div>
+            </div>
+          </div>
+          <div style="background:#FDEBDD; border-radius:16px; padding:14px; margin-top:16px; display:flex; align-items:center">
+            <div style="font-weight:700; font-size:14px; color:#D65F27">Tổng điểm</div>
+            <div style="margin-left:auto; font-family:'Baloo 2'; font-weight:700; font-size:28px; color:#D65F27">7.5</div>
+          </div>
+          <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073; margin-top:16px">NHẬN XÉT CHO HỌC SINH</div>
+          <div style="border:1.5px solid #EFE7D4; border-radius:14px; padding:12px; margin-top:8px; font-size:13px; font-weight:600; line-height:1.6; flex:1">Bài viết đủ ý và có cảm xúc. Em chú ý dùng quá khứ đơn cho cả bài nhé: "I swim" → "I swam", "the trip is" → "the trip was".</div>
+          <div style="display:flex; gap:8px; margin-top:12px">
+            <div style="flex:1; text-align:center; border:1.5px solid #EFE7D4; border-radius:999px; padding:9px; font-weight:700; font-size:13px; cursor:pointer">Chèn mẫu</div>
+            <div style="flex:1; text-align:center; background:#3A3330; color:#fff; border-radius:999px; padding:9px; font-weight:700; font-size:13px; cursor:pointer">Gửi nhận xét</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5f · ADMIN KẾT QUẢ ══ -->
+  <div id="5f" style="width:1440px; display:{{ d5f }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5f</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Admin — Kết quả bài thi theo 4 kỹ năng</span>
+    </div>
+    <div style="width:1440px; height:800px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column">
+      <div style="height:64px; background:#fff; border-bottom:1.5px solid #EFE7D4; display:flex; align-items:center; padding:0 28px; gap:14px; flex-shrink:0">
+        <div style="width:36px; height:36px; border-radius:12px; border:1.5px solid #EFE7D4; display:flex; align-items:center; justify-content:center; color:#8A8073; cursor:pointer">←</div>
+        <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:17px; line-height:1.2">Unit 5 — Mini Test (4 kỹ năng) · Lớp 6A1</div><div style="font-size:12px; font-weight:600; color:#8A8073">24/28 đã nộp · hạn 20/07</div></div>
+        <div style="margin-left:auto; display:flex; gap:10px">
+          <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:9px 18px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer">Xuất Excel</div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:9px 18px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer">Nhắc 4 em chưa nộp</div>
+          <div style="background:#F2793B; color:#fff; border-radius:999px; padding:10px 20px; font-family:'Baloo 2'; font-weight:700; font-size:14px; box-shadow:0 3px 0 #D65F27; cursor:pointer">Công bố điểm</div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; padding:22px 28px; box-sizing:border-box; overflow:hidden; gap:16px">
+        <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:14px">
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:20px; padding:16px"><div style="font-size:12px; font-weight:700; color:#8A8073">ĐIỂM TRUNG BÌNH</div><div style="font-family:'Baloo 2'; font-weight:700; font-size:28px; margin-top:4px">7.4</div></div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:20px; padding:16px"><div style="font-size:12px; font-weight:700; color:#2380A8">LISTENING</div><div style="font-family:'Baloo 2'; font-weight:700; font-size:28px; margin-top:4px">7.8</div></div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:20px; padding:16px"><div style="font-size:12px; font-weight:700; color:#5D4FB8">SPEAKING</div><div style="font-family:'Baloo 2'; font-weight:700; font-size:28px; margin-top:4px">6.9</div></div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:20px; padding:16px"><div style="font-size:12px; font-weight:700; color:#5E8418">READING</div><div style="font-family:'Baloo 2'; font-weight:700; font-size:28px; margin-top:4px">8.1</div></div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:20px; padding:16px"><div style="font-size:12px; font-weight:700; color:#B8860B">WRITING</div><div style="font-family:'Baloo 2'; font-weight:700; font-size:28px; margin-top:4px">6.4</div></div>
+        </div>
+        <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; overflow:hidden; flex:1; display:flex; flex-direction:column">
+          <div style="display:grid; grid-template-columns:1.8fr 90px 90px 90px 90px 90px 1.1fr 110px; align-items:center; background:#FBF7EA; border-bottom:1.5px solid #EFE7D4; padding:0 20px; height:46px; font-size:12px; font-weight:700; letter-spacing:.4px; color:#8A8073">
+            <div>HỌC SINH</div><div>LISTEN</div><div>SPEAK</div><div>READ</div><div>WRITE</div><div>TỔNG</div><div>THỜI GIAN NỘP</div><div>CHI TIẾT</div>
+          </div>
+          <sc-for list="{{ results }}" as="r" hint-placeholder-count="8">
+            <div style="display:grid; grid-template-columns:1.8fr 90px 90px 90px 90px 90px 1.1fr 110px; align-items:center; border-bottom:1px solid #F5EFDF; padding:0 20px; height:58px; font-size:14px" style-hover="background:#FDFBF3">
+              <div style="display:flex; align-items:center; gap:10px"><div style="width:32px; height:32px; border-radius:50%; background:{{ r.avatarBg }}; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px">{{ r.initial }}</div><span style="font-weight:700">{{ r.name }}</span></div>
+              <div style="font-weight:700; color:#2380A8">{{ r.l }}</div>
+              <div style="font-weight:700; color:#5D4FB8">{{ r.s }}</div>
+              <div style="font-weight:700; color:#5E8418">{{ r.r }}</div>
+              <div style="font-weight:700; color:{{ r.wInk }}">{{ r.w }}</div>
+              <div><span style="background:{{ r.totalBg }}; color:{{ r.totalInk }}; font-family:'Baloo 2'; font-weight:700; font-size:15px; padding:4px 12px; border-radius:999px">{{ r.total }}</span></div>
+              <div style="font-weight:600; color:#8A8073; font-size:13px">{{ r.submitted }}</div>
+              <div style="padding:6px 12px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:12px; color:#8A8073; cursor:pointer; width:fit-content" data-goto="5e">Xem bài</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ══ 5g · STUDENT TRANG CHỦ ══ -->
+  <div id="5g" style="width:1440px; display:{{ d5g }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5g</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Student — Trang chủ</span>
+    </div>
+    <div style="width:1440px; height:910px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex">
+      <div style="width:224px; background:#fff; border-right:1.5px solid #EFE7D4; display:flex; flex-direction:column; padding:24px 14px; box-sizing:border-box">
+        <div style="display:flex; align-items:center; gap:10px; padding:0 8px">
+          <div style="width:38px; height:38px; border-radius:12px; background:#F2793B; box-shadow:0 3px 0 #D65F27; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; font-weight:800; font-size:16px; color:#fff">LE</div>
+          <div style="font-family:'Baloo 2'; font-weight:700; font-size:15px">Learn English</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:3px; margin-top:26px">
+          <div style="padding:11px 14px; border-radius:999px; background:#FDEBDD; color:#D65F27; font-weight:700; font-size:14px" data-goto="5g">Trang chủ</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5g">Nhiệm vụ của em</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5h">Bài thi</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Từ vựng</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Tài liệu</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5m">Kết quả của em</div>
+        </div>
+        <div style="margin-top:auto; background:#FFF3D3; border-radius:18px; padding:14px; text-align:center">
+          <div style="font-size:22px">🔥</div>
+          <div style="font-family:'Baloo 2'; font-weight:700; font-size:20px; margin-top:2px">8 ngày</div>
+          <div style="font-size:12px; font-weight:700; color:#B8860B">Chuỗi học liên tiếp</div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; padding:28px 32px; box-sizing:border-box; overflow:hidden; gap:18px">
+        <div style="display:flex; align-items:center">
+          <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:28px">Chào Minh Anh 👋</div><div style="font-size:14px; color:#8A8073; font-weight:600">Em còn 1 bài thi phải làm trước 20/07 nhé</div></div>
+          <div style="margin-left:auto; display:flex; align-items:center; gap:10px; border:1.5px solid #EFE7D4; border-radius:999px; padding:5px 14px 5px 5px; background:#fff">
+            <div style="width:32px; height:32px; border-radius:50%; background:#56C2EE; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px">M</div>
+            <div><div style="font-weight:700; font-size:13px">Minh Anh</div><div style="font-size:11px; font-weight:600; color:#8A8073">Lớp 6A1</div></div>
+          </div>
+        </div>
+        <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:24px; display:flex; align-items:center; gap:24px">
+          <div style="flex:1">
+            <span style="background:#FDE7E2; color:#C1442F; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px">Còn 2 ngày</span>
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:24px; margin-top:10px">Unit 5 — Mini Test (4 kỹ năng)</div>
+            <div style="font-size:14px; font-weight:600; color:#8A8073; margin-top:4px">20 câu · 45 phút · làm 1 lần duy nhất · cần tai nghe và micro</div>
+            <div style="display:flex; gap:8px; margin-top:14px">
+              <span style="background:#E4F5FD; color:#2380A8; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px">🎧 Listening</span>
+              <span style="background:#EFECFC; color:#5D4FB8; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px">🗣️ Speaking</span>
+              <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px">📖 Reading</span>
+              <span style="background:#FFF3D3; color:#B8860B; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px">✍️ Writing</span>
+            </div>
+          </div>
+          <div style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:17px; padding:16px 34px; border-radius:999px; box-shadow:0 4px 0 #D65F27; cursor:pointer" data-goto="5h">Làm bài ngay</div>
+        </div>
+        <div style="display:flex; gap:18px; flex:1; overflow:hidden">
+          <div style="flex:1; background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:22px; display:flex; flex-direction:column; overflow:hidden">
+            <div style="display:flex; align-items:center"><div style="font-family:'Baloo 2'; font-weight:700; font-size:19px">Nhiệm vụ của em</div><a href="#5g" style="margin-left:auto; font-size:13px; font-weight:700; text-decoration:none">Xem tất cả</a></div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:14px">
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:16px; padding:13px 14px">
+                <div style="width:42px; height:42px; border-radius:13px; background:#E4F5FD; display:flex; align-items:center; justify-content:center; font-size:17px">🎧</div>
+                <div style="flex:1"><div style="font-weight:700; font-size:14px">Listening Practice 03</div><div style="font-size:12px; font-weight:600; color:#8A8073">15 câu · 20 phút · hạn 22/07</div></div>
+                <div style="background:#FDEBDD; color:#D65F27; font-weight:700; font-size:13px; padding:8px 18px; border-radius:999px; cursor:pointer">Bắt đầu</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:16px; padding:13px 14px">
+                <div style="width:42px; height:42px; border-radius:13px; background:#EFECFC; display:flex; align-items:center; justify-content:center; font-size:17px">🗣️</div>
+                <div style="flex:1"><div style="font-weight:700; font-size:14px">Speaking — Talk about your family</div><div style="font-size:12px; font-weight:600; color:#8A8073">3 prompt · thu âm · hạn 24/07</div></div>
+                <div style="background:#FDEBDD; color:#D65F27; font-weight:700; font-size:13px; padding:8px 18px; border-radius:999px; cursor:pointer">Bắt đầu</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:16px; padding:13px 14px; background:#FBF7EA">
+                <div style="width:42px; height:42px; border-radius:13px; background:#F1F8DE; display:flex; align-items:center; justify-content:center; font-size:17px">📖</div>
+                <div style="flex:1"><div style="font-weight:700; font-size:14px">Reading — Festivals around the world</div><div style="font-size:12px; font-weight:600; color:#8A8073">Đã nộp 08/07 · 8.0 điểm</div></div>
+                <div style="border:1.5px solid #EFE7D4; color:#8A8073; font-weight:700; font-size:13px; padding:8px 18px; border-radius:999px; cursor:pointer">Xem lại</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:16px; padding:13px 14px; background:#FBF7EA">
+                <div style="width:42px; height:42px; border-radius:13px; background:#FFF3D3; display:flex; align-items:center; justify-content:center; font-size:17px">✍️</div>
+                <div style="flex:1"><div style="font-weight:700; font-size:14px">Writing — My summer holiday</div><div style="font-size:12px; font-weight:600; color:#8A8073">Đã nộp 15/07 · cô đang chấm</div></div>
+                <span style="background:#FFF3D3; color:#B8860B; font-weight:700; font-size:12px; padding:6px 14px; border-radius:999px">Chờ chấm</span>
+              </div>
+            </div>
+          </div>
+          <div style="width:320px; display:flex; flex-direction:column; gap:18px">
+            <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:22px">
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:19px">Kỹ năng của em</div>
+              <div style="display:flex; flex-direction:column; gap:13px; margin-top:14px">
+                <div><div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700"><span>🎧 Listening</span><span style="color:#8A8073">8.5</span></div><div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:6px"><div style="height:100%; width:85%; border-radius:999px; background:#56C2EE"></div></div></div>
+                <div><div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700"><span>🗣️ Speaking</span><span style="color:#8A8073">7.5</span></div><div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:6px"><div style="height:100%; width:75%; border-radius:999px; background:#8C7DE6"></div></div></div>
+                <div><div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700"><span>📖 Reading</span><span style="color:#8A8073">9.0</span></div><div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:6px"><div style="height:100%; width:90%; border-radius:999px; background:#9CCC3C"></div></div></div>
+                <div><div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700"><span>✍️ Writing</span><span style="color:#8A8073">7.0</span></div><div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:6px"><div style="height:100%; width:70%; border-radius:999px; background:#FFC94D"></div></div></div>
+              </div>
+            </div>
+            <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:22px; flex:1">
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:19px">Từ vựng hôm nay</div>
+              <div style="font-size:13px; font-weight:600; color:#8A8073; margin-top:2px">12 / 20 thẻ đã ôn</div>
+              <div style="height:10px; border-radius:999px; background:#F0EADA; margin-top:12px"><div style="height:100%; width:60%; border-radius:999px; background:#F2793B"></div></div>
+              <div style="background:#E4F5FD; border-radius:16px; padding:16px; margin-top:16px; text-align:center">
+                <div style="font-family:'Baloo 2'; font-weight:700; font-size:24px">souvenir</div>
+                <div style="font-size:13px; font-weight:600; color:#2380A8; margin-top:2px">/ˈsuːvəniər/ · quà lưu niệm</div>
+              </div>
+              <div style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:15px; height:44px; border-radius:999px; box-shadow:0 3px 0 #D65F27; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:14px">Ôn tiếp 8 thẻ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5h · STUDENT MÀN CHỜ VÀO THI ══ -->
+  <div id="5h" style="width:1440px; display:{{ d5h }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5h</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Student — Trước khi vào thi (kiểm tra thiết bị)</span>
+    </div>
+    <div style="width:1440px; height:820px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; align-items:center; justify-content:center; padding:40px; box-sizing:border-box">
+      <div style="width:900px; background:#fff; border:1.5px solid #EFE7D4; border-radius:28px; padding:36px">
+        <div style="text-align:center">
+          <div style="font-family:'Baloo 2'; font-weight:700; font-size:30px">Unit 5 — Mini Test (4 kỹ năng)</div>
+          <div style="font-size:15px; font-weight:600; color:#8A8073; margin-top:4px">Lớp 6A1 · 45 phút · làm 1 lần duy nhất · hạn 20/07</div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-top:26px">
+          <div style="background:#E4F5FD; border-radius:20px; padding:18px"><div style="font-size:20px">🎧</div><div style="font-family:'Baloo 2'; font-weight:700; font-size:17px; margin-top:8px">Listening</div><div style="font-size:13px; font-weight:700; color:#2380A8">6 câu · 12 phút</div><div style="font-size:12px; font-weight:600; color:#3A3330; margin-top:6px">Mỗi đoạn được phát tối đa 2 lần</div></div>
+          <div style="background:#EFECFC; border-radius:20px; padding:18px"><div style="font-size:20px">🗣️</div><div style="font-family:'Baloo 2'; font-weight:700; font-size:17px; margin-top:8px">Speaking</div><div style="font-size:13px; font-weight:700; color:#5D4FB8">3 prompt · 8 phút</div><div style="font-size:12px; font-weight:600; color:#3A3330; margin-top:6px">Chuẩn bị 20s, nói tối đa 60s</div></div>
+          <div style="background:#F1F8DE; border-radius:20px; padding:18px"><div style="font-size:20px">📖</div><div style="font-family:'Baloo 2'; font-weight:700; font-size:17px; margin-top:8px">Reading</div><div style="font-size:13px; font-weight:700; color:#5E8418">10 câu · 15 phút</div><div style="font-size:12px; font-weight:600; color:#3A3330; margin-top:6px">Đọc đoạn văn rồi trả lời</div></div>
+          <div style="background:#FFF3D3; border-radius:20px; padding:18px"><div style="font-size:20px">✍️</div><div style="font-family:'Baloo 2'; font-weight:700; font-size:17px; margin-top:8px">Writing</div><div style="font-size:13px; font-weight:700; color:#B8860B">1 đề · 10 phút</div><div style="font-size:12px; font-weight:600; color:#3A3330; margin-top:6px">Viết 120–180 từ</div></div>
+        </div>
+        <div style="display:flex; gap:16px; margin-top:24px">
+          <div style="flex:1; border:1.5px solid #EFE7D4; border-radius:20px; padding:18px">
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">KIỂM TRA THIẾT BỊ</div>
+            <div style="display:flex; align-items:center; gap:12px; margin-top:14px">
+              <div style="width:36px; height:36px; border-radius:11px; background:#F1F8DE; display:flex; align-items:center; justify-content:center; font-size:15px">🎧</div>
+              <div style="flex:1"><div style="font-weight:700; font-size:14px">Tai nghe</div><div style="font-size:12px; font-weight:600; color:#5E8418">Đã nhận thiết bị</div></div>
+              <div style="padding:7px 14px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:12px; color:#8A8073; cursor:pointer">Phát thử</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; margin-top:12px">
+              <div style="width:36px; height:36px; border-radius:11px; background:#F1F8DE; display:flex; align-items:center; justify-content:center; font-size:15px">🎙️</div>
+              <div style="flex:1"><div style="font-weight:700; font-size:14px">Micro</div><div style="font-size:12px; font-weight:600; color:#5E8418">Nghe rõ giọng em</div></div>
+              <div style="display:flex; align-items:flex-end; gap:2px; height:20px">
+                <div style="width:4px; background:#9CCC3C; height:40%; border-radius:2px"></div><div style="width:4px; background:#9CCC3C; height:75%; border-radius:2px"></div><div style="width:4px; background:#9CCC3C; height:55%; border-radius:2px"></div><div style="width:4px; background:#E4DFCE; height:30%; border-radius:2px"></div><div style="width:4px; background:#E4DFCE; height:20%; border-radius:2px"></div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; margin-top:12px">
+              <div style="width:36px; height:36px; border-radius:11px; background:#F1F8DE; display:flex; align-items:center; justify-content:center; font-size:15px">📶</div>
+              <div style="flex:1"><div style="font-weight:700; font-size:14px">Kết nối mạng</div><div style="font-size:12px; font-weight:600; color:#5E8418">Ổn định · bài làm được lưu tự động</div></div>
+            </div>
+          </div>
+          <div style="width:320px; background:#FBF7EA; border-radius:20px; padding:18px">
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">EM CẦN LƯU Ý</div>
+            <div style="display:flex; flex-direction:column; gap:9px; margin-top:12px; font-size:13px; font-weight:600; line-height:1.5">
+              <div>· Làm lần lượt 4 phần, không quay lại phần đã xong.</div>
+              <div>· Đồng hồ chạy liên tục kể cả khi em thoát ra.</div>
+              <div>· Phần Speaking cần nói trong phòng yên tĩnh.</div>
+              <div>· Bài tự động nộp khi hết thời gian.</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px; margin-top:24px">
+          <div style="display:flex; align-items:center; gap:9px; font-size:13px; font-weight:700"><div style="width:18px; height:18px; border-radius:6px; background:#F2793B"></div>Em đã đọc và hiểu các lưu ý trên</div>
+          <div style="margin-left:auto; display:flex; gap:10px">
+            <div style="border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:12px 24px; font-family:'Baloo 2'; font-weight:600; font-size:15px; cursor:pointer" data-goto="5g">Để sau</div>
+            <div style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:16px; padding:13px 32px; border-radius:999px; box-shadow:0 4px 0 #D65F27; cursor:pointer" data-goto="5i">Bắt đầu làm bài</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5i · STUDENT LISTENING ══ -->
+  <div id="5i" style="width:1440px; display:{{ d5i }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5i</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Student — Phần 1 · Listening</span>
+      <span style="color:#8A8073; font-size:14px">đồng hồ chạy thật</span>
+    </div>
+    <div style="width:1440px; height:860px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column">
+      <div style="height:66px; background:#fff; border-bottom:1.5px solid #EFE7D4; display:flex; align-items:center; padding:0 28px; gap:12px; flex-shrink:0">
+        <div style="font-family:'Baloo 2'; font-weight:700; font-size:16px">Unit 5 — Mini Test</div>
+        <div style="display:flex; gap:6px; margin-left:14px">
+          <span style="background:#E4F5FD; color:#2380A8; border:1.5px solid #56C2EE; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px">1 · Listening</span>
+          <span style="color:#8A8073; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px; border:1.5px solid #EFE7D4">2 · Speaking</span>
+          <span style="color:#8A8073; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px; border:1.5px solid #EFE7D4">3 · Reading</span>
+          <span style="color:#8A8073; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px; border:1.5px solid #EFE7D4">4 · Writing</span>
+        </div>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:12px">
+          <div style="display:flex; align-items:center; gap:8px; background:#FBF7EA; border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 16px"><span style="font-size:12px; font-weight:700; color:#8A8073">CÒN LẠI</span><span style="font-family:'Baloo 2'; font-weight:700; font-size:19px">{{ timeLeft }}</span></div>
+          <div style="display:flex; align-items:center; gap:8px; border:1.5px solid #EFE7D4; border-radius:999px; padding:4px 14px 4px 4px">
+            <div style="width:30px; height:30px; border-radius:50%; background:#56C2EE; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px">M</div>
+            <span style="font-weight:700; font-size:14px">Minh Anh</span>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; gap:22px; padding:24px 28px; box-sizing:border-box; overflow:hidden">
+        <div style="flex:1; display:flex; flex-direction:column; gap:16px; overflow:hidden">
+          <div style="background:#E4F5FD; border-radius:20px; padding:22px; display:flex; align-items:center; gap:20px; flex-shrink:0">
+            <div style="width:62px; height:62px; border-radius:50%; background:#56C2EE; color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; box-shadow:0 4px 0 #3AA5D3; cursor:pointer">▶</div>
+            <div style="flex:1">
+              <div style="display:flex; align-items:center"><div style="font-weight:700; font-size:15px; color:#175E7E">Part 1 — Listen and choose the best answer</div><div style="margin-left:auto; font-size:13px; font-weight:700; color:#2380A8">00:38 / 02:14</div></div>
+              <div style="height:10px; border-radius:999px; background:#fff; margin-top:10px; overflow:hidden"><div style="height:100%; width:28%; border-radius:999px; background:#56C2EE"></div></div>
+              <div style="display:flex; align-items:center; gap:14px; margin-top:10px; font-size:12px; font-weight:700; color:#2380A8">
+                <span style="background:#fff; padding:5px 12px; border-radius:999px">Còn 1 lần phát</span>
+                <span>Âm lượng</span>
+                <div style="width:120px; height:6px; border-radius:999px; background:#fff"><div style="height:100%; width:70%; border-radius:999px; background:#56C2EE"></div></div>
+                <span style="margin-left:auto; color:#175E7E">Không tua lại được khi đang phát</span>
+              </div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:26px; flex-shrink:0">
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:20px">Câu 3. Where is the boy going after school?</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px">
+              <div style="display:flex; align-items:center; gap:12px; border:2px solid #F2793B; background:#FDEBDD; border-radius:16px; padding:13px 16px; cursor:pointer"><div style="width:36px; height:36px; border-radius:11px; background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center">A</div><span style="font-weight:700; font-size:15px">To the library</span></div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:16px; padding:13px 16px; cursor:pointer"><div style="width:36px; height:36px; border-radius:11px; background:#FFF3D3; color:#B8860B; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center">B</div><span style="font-weight:600; font-size:15px">To the park</span></div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:16px; padding:13px 16px; cursor:pointer"><div style="width:36px; height:36px; border-radius:11px; background:#F1F8DE; color:#5E8418; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center">C</div><span style="font-weight:600; font-size:15px">To his house</span></div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:16px; padding:13px 16px; cursor:pointer"><div style="width:36px; height:36px; border-radius:11px; background:#E4F5FD; color:#2380A8; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center">D</div><span style="font-weight:600; font-size:15px">To the sports club</span></div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:26px; flex-shrink:0">
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:20px">Câu 4. The class starts at ______ o'clock.</div>
+            <input type="text" value="eight" style="margin-top:16px; height:50px; border:1.5px solid #EFE7D4; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:16px; font-weight:700; width:340px; outline:none; color:#3A3330" />
+            <div style="font-size:13px; font-weight:600; color:#8A8073; margin-top:8px">Điền 1 từ hoặc 1 số em nghe được</div>
+          </div>
+          <div style="display:flex; gap:12px; margin-top:auto">
+            <div style="border:1.5px solid #EFE7D4; background:#fff; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:12px 26px; font-family:'Baloo 2'; font-weight:600; font-size:15px; cursor:pointer">← Câu trước</div>
+            <div style="background:#F2793B; color:#fff; border-radius:999px; padding:12px 30px; font-family:'Baloo 2'; font-weight:700; font-size:15px; box-shadow:0 4px 0 #D65F27; cursor:pointer">Câu tiếp theo →</div>
+            <div style="margin-left:auto; border:1.5px solid #EFE7D4; background:#fff; border-radius:999px; padding:12px 24px; font-family:'Baloo 2'; font-weight:600; font-size:15px; cursor:pointer" data-goto="5j">Xong phần Listening →</div>
+          </div>
+        </div>
+        <div style="width:300px; flex-shrink:0; background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px; display:flex; flex-direction:column">
+          <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">TIẾN ĐỘ BÀI THI</div>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:12px">
+            <div style="display:flex; align-items:center; gap:10px; background:#E4F5FD; border-radius:14px; padding:11px 12px"><span style="font-size:14px">🎧</span><div style="flex:1"><div style="font-weight:700; font-size:13px">Listening</div><div style="font-size:11px; font-weight:700; color:#2380A8">Đang làm · 3/6 câu</div></div></div>
+            <div style="display:flex; align-items:center; gap:10px; border-radius:14px; padding:11px 12px; border:1.5px solid #EFE7D4"><span style="font-size:14px">🗣️</span><div style="flex:1"><div style="font-weight:700; font-size:13px; color:#8A8073">Speaking</div><div style="font-size:11px; font-weight:700; color:#C9C0AF">Chưa mở</div></div></div>
+            <div style="display:flex; align-items:center; gap:10px; border-radius:14px; padding:11px 12px; border:1.5px solid #EFE7D4"><span style="font-size:14px">📖</span><div style="flex:1"><div style="font-weight:700; font-size:13px; color:#8A8073">Reading</div><div style="font-size:11px; font-weight:700; color:#C9C0AF">Chưa mở</div></div></div>
+            <div style="display:flex; align-items:center; gap:10px; border-radius:14px; padding:11px 12px; border:1.5px solid #EFE7D4"><span style="font-size:14px">✍️</span><div style="flex:1"><div style="font-weight:700; font-size:13px; color:#8A8073">Writing</div><div style="font-size:11px; font-weight:700; color:#C9C0AF">Chưa mở</div></div></div>
+          </div>
+          <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073; margin:18px 0 10px">CÂU HỎI PHẦN NÀY</div>
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px">
+            <div style="height:42px; border-radius:12px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px">1</div>
+            <div style="height:42px; border-radius:12px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px">2</div>
+            <div style="height:42px; border-radius:12px; background:#fff; border:2.5px solid #D65F27; color:#D65F27; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; box-sizing:border-box">3</div>
+            <div style="height:42px; border-radius:12px; background:#FFC94D; color:#3A3330; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px">4</div>
+            <div style="height:42px; border-radius:12px; background:#fff; border:1.5px solid #EFE7D4; color:#8A8073; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; box-sizing:border-box">5</div>
+            <div style="height:42px; border-radius:12px; background:#fff; border:1.5px solid #EFE7D4; color:#8A8073; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; box-sizing:border-box">6</div>
+          </div>
+          <div style="margin-top:auto; background:#FBF7EA; border-radius:14px; padding:12px; font-size:12px; font-weight:600; color:#8A8073">Bài làm tự động lưu sau mỗi câu · mã bài #QZ-2481</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5j · STUDENT SPEAKING ══ -->
+  <div id="5j" style="width:1440px; display:{{ d5j }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5j</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Student — Phần 2 · Speaking (thu âm)</span>
+    </div>
+    <div style="width:1440px; height:820px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column">
+      <div style="height:66px; background:#fff; border-bottom:1.5px solid #EFE7D4; display:flex; align-items:center; padding:0 28px; gap:12px; flex-shrink:0">
+        <div style="font-family:'Baloo 2'; font-weight:700; font-size:16px">Unit 5 — Mini Test</div>
+        <div style="display:flex; gap:6px; margin-left:14px">
+          <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px">1 · Listening ✓</span>
+          <span style="background:#EFECFC; color:#5D4FB8; border:1.5px solid #8C7DE6; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px">2 · Speaking</span>
+          <span style="color:#8A8073; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px; border:1.5px solid #EFE7D4">3 · Reading</span>
+          <span style="color:#8A8073; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px; border:1.5px solid #EFE7D4">4 · Writing</span>
+        </div>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:12px">
+          <div style="display:flex; align-items:center; gap:8px; background:#FBF7EA; border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 16px"><span style="font-size:12px; font-weight:700; color:#8A8073">CÒN LẠI</span><span style="font-family:'Baloo 2'; font-weight:700; font-size:19px">{{ timeLeft }}</span></div>
+          <div style="display:flex; align-items:center; gap:8px; border:1.5px solid #EFE7D4; border-radius:999px; padding:4px 14px 4px 4px">
+            <div style="width:30px; height:30px; border-radius:50%; background:#56C2EE; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px">M</div>
+            <span style="font-weight:700; font-size:14px">Minh Anh</span>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; gap:22px; padding:24px 28px; box-sizing:border-box; overflow:hidden">
+        <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+          <div style="display:flex; align-items:center; gap:12px">
+            <span style="background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:13px; padding:5px 14px; border-radius:999px">PROMPT 2 / 3</span>
+            <span style="font-weight:700; font-size:15px">Nói về một chuyến đi em thích nhất</span>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:28px; flex:1; display:flex; flex-direction:column">
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:22px; line-height:1.4">Talk about a trip you enjoyed. Where did you go, who did you go with, and why did you like it?</div>
+            <div style="background:#FBF7EA; border-radius:16px; padding:16px; margin-top:16px">
+              <div style="font-size:12px; font-weight:700; color:#8A8073; letter-spacing:.4px">GỢI Ý — EM CÓ THỂ NÓI VỀ</div>
+              <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap">
+                <span style="background:#fff; border:1.5px solid #EFE7D4; border-radius:999px; padding:6px 14px; font-weight:600; font-size:13px">the place</span>
+                <span style="background:#fff; border:1.5px solid #EFE7D4; border-radius:999px; padding:6px 14px; font-weight:600; font-size:13px">the people</span>
+                <span style="background:#fff; border:1.5px solid #EFE7D4; border-radius:999px; padding:6px 14px; font-weight:600; font-size:13px">activities</span>
+                <span style="background:#fff; border:1.5px solid #EFE7D4; border-radius:999px; padding:6px 14px; font-weight:600; font-size:13px">food</span>
+                <span style="background:#fff; border:1.5px solid #EFE7D4; border-radius:999px; padding:6px 14px; font-weight:600; font-size:13px">your feelings</span>
+              </div>
+            </div>
+            <div style="margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:16px; padding-top:20px">
+              <div style="display:flex; align-items:center; gap:10px; background:#FDE7E2; color:#C1442F; font-weight:700; font-size:13px; padding:8px 18px; border-radius:999px"><span style="width:9px; height:9px; border-radius:50%; background:#E5604C"></span>ĐANG THU ÂM · 0:32 / 1:00</div>
+              <div style="display:flex; align-items:flex-end; gap:4px; height:64px; width:100%; max-width:560px">
+                <div style="flex:1; background:#8C7DE6; height:30%; border-radius:3px"></div><div style="flex:1; background:#8C7DE6; height:55%; border-radius:3px"></div><div style="flex:1; background:#8C7DE6; height:80%; border-radius:3px"></div><div style="flex:1; background:#8C7DE6; height:45%; border-radius:3px"></div><div style="flex:1; background:#8C7DE6; height:70%; border-radius:3px"></div><div style="flex:1; background:#8C7DE6; height:95%; border-radius:3px"></div><div style="flex:1; background:#8C7DE6; height:60%; border-radius:3px"></div><div style="flex:1; background:#8C7DE6; height:35%; border-radius:3px"></div><div style="flex:1; background:#8C7DE6; height:75%; border-radius:3px"></div><div style="flex:1; background:#8C7DE6; height:50%; border-radius:3px"></div><div style="flex:1; background:#8C7DE6; height:85%; border-radius:3px"></div><div style="flex:1; background:#8C7DE6; height:40%; border-radius:3px"></div><div style="flex:1; background:#D8D1F5; height:25%; border-radius:3px"></div><div style="flex:1; background:#D8D1F5; height:55%; border-radius:3px"></div><div style="flex:1; background:#D8D1F5; height:35%; border-radius:3px"></div><div style="flex:1; background:#D8D1F5; height:20%; border-radius:3px"></div><div style="flex:1; background:#D8D1F5; height:45%; border-radius:3px"></div><div style="flex:1; background:#D8D1F5; height:30%; border-radius:3px"></div>
+              </div>
+              <div style="display:flex; align-items:center; gap:16px">
+                <div style="border:1.5px solid #EFE7D4; background:#fff; border-radius:999px; padding:12px 24px; font-family:'Baloo 2'; font-weight:600; font-size:15px; cursor:pointer">Thu lại</div>
+                <div style="width:76px; height:76px; border-radius:50%; background:#E5604C; box-shadow:0 5px 0 #C1442F; display:flex; align-items:center; justify-content:center; cursor:pointer"><div style="width:26px; height:26px; border-radius:7px; background:#fff"></div></div>
+                <div style="border:1.5px solid #EFE7D4; background:#fff; border-radius:999px; padding:12px 24px; font-family:'Baloo 2'; font-weight:600; font-size:15px; cursor:pointer">Nghe lại</div>
+              </div>
+              <div style="font-size:13px; font-weight:600; color:#8A8073">Em còn 1 lần thu lại cho câu này</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:12px">
+            <div style="border:1.5px solid #EFE7D4; background:#fff; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:12px 26px; font-family:'Baloo 2'; font-weight:600; font-size:15px; cursor:pointer">← Prompt trước</div>
+            <div style="background:#F2793B; color:#fff; border-radius:999px; padding:12px 30px; font-family:'Baloo 2'; font-weight:700; font-size:15px; box-shadow:0 4px 0 #D65F27; cursor:pointer" data-goto="5k">Lưu &amp; prompt tiếp →</div>
+          </div>
+        </div>
+        <div style="width:300px; flex-shrink:0; background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px; display:flex; flex-direction:column">
+          <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">CÁC PROMPT</div>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:12px">
+            <div style="display:flex; align-items:center; gap:10px; background:#F1F8DE; border-radius:14px; padding:12px"><div style="width:28px; height:28px; border-radius:9px; background:#9CCC3C; color:#fff; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center">1</div><div style="flex:1"><div style="font-weight:700; font-size:13px">Introduce yourself</div><div style="font-size:11px; font-weight:700; color:#5E8418">Đã thu · 0:52</div></div></div>
+            <div style="display:flex; align-items:center; gap:10px; background:#EFECFC; border:1.5px solid #8C7DE6; border-radius:14px; padding:12px"><div style="width:28px; height:28px; border-radius:9px; background:#8C7DE6; color:#fff; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center">2</div><div style="flex:1"><div style="font-weight:700; font-size:13px">A trip you enjoyed</div><div style="font-size:11px; font-weight:700; color:#5D4FB8">Đang thu âm</div></div></div>
+            <div style="display:flex; align-items:center; gap:10px; border:1.5px solid #EFE7D4; border-radius:14px; padding:12px"><div style="width:28px; height:28px; border-radius:9px; background:#FBF7EA; color:#8A8073; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center">3</div><div style="flex:1"><div style="font-weight:700; font-size:13px; color:#8A8073">Your favourite subject</div><div style="font-size:11px; font-weight:700; color:#C9C0AF">Chưa thu</div></div></div>
+          </div>
+          <div style="background:#FFF3D3; border-radius:16px; padding:14px; margin-top:18px; font-size:12px; font-weight:600; line-height:1.6; color:#7A5C10">Nói to, rõ và tự nhiên. Cô sẽ nghe lại bản thu để chấm — em không cần nói hoàn hảo ngay lần đầu.</div>
+          <div style="margin-top:auto; background:#FBF7EA; border-radius:14px; padding:12px; font-size:12px; font-weight:600; color:#8A8073">Bản thu được tải lên ngay sau khi em bấm Lưu</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5k · STUDENT READING ══ -->
+  <div id="5k" style="width:1440px; display:{{ d5k }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5k</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Student — Phần 3 · Reading</span>
+    </div>
+    <div style="width:1440px; height:820px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column">
+      <div style="height:66px; background:#fff; border-bottom:1.5px solid #EFE7D4; display:flex; align-items:center; padding:0 28px; gap:12px; flex-shrink:0">
+        <div style="font-family:'Baloo 2'; font-weight:700; font-size:16px">Unit 5 — Mini Test</div>
+        <div style="display:flex; gap:6px; margin-left:14px">
+          <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px">1 · Listening ✓</span>
+          <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px">2 · Speaking ✓</span>
+          <span style="background:#F1F8DE; color:#5E8418; border:1.5px solid #9CCC3C; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px">3 · Reading</span>
+          <span style="color:#8A8073; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px; border:1.5px solid #EFE7D4">4 · Writing</span>
+        </div>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:12px">
+          <div style="display:flex; align-items:center; gap:8px; background:#FBF7EA; border:1.5px solid #EFE7D4; border-radius:999px; padding:7px 16px"><span style="font-size:12px; font-weight:700; color:#8A8073">CÒN LẠI</span><span style="font-family:'Baloo 2'; font-weight:700; font-size:19px">{{ timeLeft }}</span></div>
+          <div style="display:flex; align-items:center; gap:8px; border:1.5px solid #EFE7D4; border-radius:999px; padding:4px 14px 4px 4px">
+            <div style="width:30px; height:30px; border-radius:50%; background:#56C2EE; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px">M</div>
+            <span style="font-weight:700; font-size:14px">Minh Anh</span>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; gap:22px; padding:24px 28px; box-sizing:border-box; overflow:hidden">
+        <div style="width:600px; flex-shrink:0; background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:26px; display:flex; flex-direction:column; overflow:hidden">
+          <div style="display:flex; align-items:center; gap:10px">
+            <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px">PASSAGE 1</span>
+            <div style="margin-left:auto; display:flex; gap:8px">
+              <div style="padding:6px 12px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:12px; color:#8A8073; cursor:pointer">A− A+</div>
+              <div style="padding:6px 12px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:12px; color:#8A8073; cursor:pointer">Bôi vàng</div>
+            </div>
+          </div>
+          <div style="font-family:'Baloo 2'; font-weight:700; font-size:22px; margin-top:14px">Festivals around the world</div>
+          <div style="font-size:15px; font-weight:500; line-height:1.85; margin-top:12px; overflow:hidden">
+            Every country has its own special festivals. In Vietnam, the most important one is Tet, the Lunar New Year. Families clean their houses, buy flowers and cook traditional food such as banh chung. Children receive lucky money in red envelopes and wish their grandparents good health.<br><br>
+            In Japan, people celebrate <span style="background:#FFF3D3">Hanami</span> in spring. They sit under cherry trees, eat lunch with friends and enjoy the beautiful pink flowers. The festival only lasts about two weeks because the flowers fall very quickly.<br><br>
+            In Brazil, the Carnival in Rio de Janeiro is famous all over the world. Thousands of dancers wear colourful clothes and move through the streets to the sound of samba music. Visitors come from many countries to watch the parade.<br><br>
+            Although these festivals are different, they all bring people together. They help young people learn about their culture and give families a chance to spend time with each other.
+          </div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:14px; overflow:hidden">
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:24px">
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:19px">Câu 12. Why does Hanami last only two weeks?</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px">
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:14px; padding:12px 14px; cursor:pointer"><div style="width:32px; height:32px; border-radius:10px; background:#EFECFC; color:#5D4FB8; font-family:'Baloo 2'; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center">A</div><span style="font-weight:600; font-size:15px">Because spring is short in Japan</span></div>
+              <div style="display:flex; align-items:center; gap:12px; border:2px solid #F2793B; background:#FDEBDD; border-radius:14px; padding:12px 14px; cursor:pointer"><div style="width:32px; height:32px; border-radius:10px; background:#FFC94D; color:#7A5C10; font-family:'Baloo 2'; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center">B</div><span style="font-weight:700; font-size:15px">Because the flowers fall quickly</span></div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; border-radius:14px; padding:12px 14px; cursor:pointer"><div style="width:32px; height:32px; border-radius:10px; background:#F1F8DE; color:#5E8418; font-family:'Baloo 2'; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center">C</div><span style="font-weight:600; font-size:15px">Because people are very busy</span></div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:24px">
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:19px">Câu 13. Đúng hay Sai: Lucky money is given at Carnival.</div>
+            <div style="display:flex; gap:10px; margin-top:16px">
+              <div style="flex:1; text-align:center; border:1.5px solid #EFE7D4; border-radius:14px; padding:12px; font-weight:700; font-size:15px; cursor:pointer">True</div>
+              <div style="flex:1; text-align:center; border:2px solid #F2793B; background:#FDEBDD; border-radius:14px; padding:12px; font-weight:700; font-size:15px; cursor:pointer">False</div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px; margin-top:auto">
+            <div style="display:flex; align-items:center; gap:8px">
+              <span style="font-size:12px; font-weight:700; color:#8A8073; letter-spacing:.5px">CÂU HỎI PHẦN READING</span>
+              <span style="margin-left:auto; font-size:12px; font-weight:700; color:#8A8073">7/10 đã trả lời</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(10, 1fr); gap:7px; margin-top:12px">
+              <div style="height:38px; border-radius:11px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">1</div>
+              <div style="height:38px; border-radius:11px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">2</div>
+              <div style="height:38px; border-radius:11px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">3</div>
+              <div style="height:38px; border-radius:11px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">4</div>
+              <div style="height:38px; border-radius:11px; background:#FFC94D; color:#3A3330; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">5</div>
+              <div style="height:38px; border-radius:11px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">6</div>
+              <div style="height:38px; border-radius:11px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">7</div>
+              <div style="height:38px; border-radius:11px; background:#fff; border:2.5px solid #D65F27; color:#D65F27; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; box-sizing:border-box">8</div>
+              <div style="height:38px; border-radius:11px; background:#fff; border:1.5px solid #EFE7D4; color:#8A8073; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; box-sizing:border-box">9</div>
+              <div style="height:38px; border-radius:11px; background:#fff; border:1.5px solid #EFE7D4; color:#8A8073; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; box-sizing:border-box">10</div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:16px">
+              <div style="border:1.5px solid #EFE7D4; border-radius:999px; padding:11px 22px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer">← Câu trước</div>
+              <div style="background:#F2793B; color:#fff; border-radius:999px; padding:11px 26px; font-family:'Baloo 2'; font-weight:700; font-size:14px; box-shadow:0 3px 0 #D65F27; cursor:pointer">Câu tiếp theo →</div>
+              <div style="margin-left:auto; border:1.5px solid #EFE7D4; border-radius:999px; padding:11px 22px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer" data-goto="5l">Xong phần Reading →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5l · STUDENT WRITING ══ -->
+  <div id="5l" style="width:1440px; display:{{ d5l }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5l</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Student — Phần 4 · Writing</span>
+    </div>
+    <div style="width:1440px; height:820px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column">
+      <div style="height:66px; background:#fff; border-bottom:1.5px solid #EFE7D4; display:flex; align-items:center; padding:0 28px; gap:12px; flex-shrink:0">
+        <div style="font-family:'Baloo 2'; font-weight:700; font-size:16px">Unit 5 — Mini Test</div>
+        <div style="display:flex; gap:6px; margin-left:14px">
+          <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px">1 · Listening ✓</span>
+          <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px">2 · Speaking ✓</span>
+          <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px">3 · Reading ✓</span>
+          <span style="background:#FFF3D3; color:#B8860B; border:1.5px solid #FFC94D; font-weight:700; font-size:12px; padding:5px 13px; border-radius:999px">4 · Writing</span>
+        </div>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:12px">
+          <div style="display:flex; align-items:center; gap:8px; background:#FDE7E2; border:1.5px solid #E5604C; border-radius:999px; padding:7px 16px"><span style="font-size:12px; font-weight:700; color:#C1442F">CÒN LẠI</span><span style="font-family:'Baloo 2'; font-weight:700; font-size:19px; color:#C1442F">04:12</span></div>
+          <div style="display:flex; align-items:center; gap:8px; border:1.5px solid #EFE7D4; border-radius:999px; padding:4px 14px 4px 4px">
+            <div style="width:30px; height:30px; border-radius:50%; background:#56C2EE; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px">M</div>
+            <span style="font-weight:700; font-size:14px">Minh Anh</span>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; gap:22px; padding:24px 28px; box-sizing:border-box; overflow:hidden">
+        <div style="flex:1; display:flex; flex-direction:column; gap:14px; overflow:hidden">
+          <div style="background:#FFF3D3; border-radius:20px; padding:20px">
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#7A5C10">ĐỀ BÀI · 3 ĐIỂM</div>
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:21px; margin-top:6px; line-height:1.4">Write about your last summer holiday (120–180 words). Where did you go, who did you go with, and what did you like most?</div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:24px; flex:1; display:flex; flex-direction:column; overflow:hidden">
+            <div style="font-size:15px; font-weight:500; line-height:1.8; color:#3A3330; flex:1; overflow:hidden">
+              Last summer my family went to Da Nang for five days. We travelled by plane and it was my first flight, so I was very excited. Every morning I swam in the sea with my younger brother and in the afternoon we visited some famous places such as Ba Na Hills and the Dragon Bridge.<br><br>
+              The food was amazing. I especially liked mi quang and fresh seafood. My mother said that the trip was the best holiday of our family.<span style="border-left:2px solid #F2793B; margin-left:1px"></span>
+            </div>
+            <div style="display:flex; align-items:center; gap:14px; border-top:1.5px solid #EFE7D4; padding-top:14px; margin-top:14px">
+              <span style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px">124 / 180 từ</span>
+              <span style="font-size:13px; font-weight:600; color:#8A8073">Đã lưu tự động lúc 15:38</span>
+              <div style="margin-left:auto; display:flex; gap:8px; font-size:13px; font-weight:700; color:#8A8073">
+                <span style="border:1.5px solid #EFE7D4; border-radius:10px; padding:6px 12px; cursor:pointer">B</span>
+                <span style="border:1.5px solid #EFE7D4; border-radius:10px; padding:6px 12px; cursor:pointer; font-style:italic">I</span>
+                <span style="border:1.5px solid #EFE7D4; border-radius:10px; padding:6px 12px; cursor:pointer">Hoàn tác</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; gap:12px">
+            <div style="border:1.5px solid #EFE7D4; background:#fff; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:12px 26px; font-family:'Baloo 2'; font-weight:600; font-size:15px; cursor:pointer" data-goto="5k">← Xem lại phần Reading</div>
+            <div style="margin-left:auto; background:#F2793B; color:#fff; border-radius:999px; padding:13px 34px; font-family:'Baloo 2'; font-weight:700; font-size:16px; box-shadow:0 4px 0 #D65F27; cursor:pointer" data-goto="5m">Nộp toàn bộ bài thi</div>
+          </div>
+        </div>
+        <div style="width:300px; flex-shrink:0; display:flex; flex-direction:column; gap:14px">
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">CÔ SẼ CHẤM THEO</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px; font-size:13px; font-weight:600">
+              <div style="display:flex"><span>Đủ ý theo đề</span><span style="margin-left:auto; font-weight:700; color:#8A8073">2.5đ</span></div>
+              <div style="display:flex"><span>Ngữ pháp</span><span style="margin-left:auto; font-weight:700; color:#8A8073">2.5đ</span></div>
+              <div style="display:flex"><span>Từ vựng</span><span style="margin-left:auto; font-weight:700; color:#8A8073">2.5đ</span></div>
+              <div style="display:flex"><span>Mạch lạc</span><span style="margin-left:auto; font-weight:700; color:#8A8073">2.5đ</span></div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">TỪ VỰNG GỢI Ý</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px">
+              <span style="background:#E4F5FD; color:#2380A8; font-weight:700; font-size:13px; padding:6px 12px; border-radius:999px">souvenir</span>
+              <span style="background:#E4F5FD; color:#2380A8; font-weight:700; font-size:13px; padding:6px 12px; border-radius:999px">sightseeing</span>
+              <span style="background:#E4F5FD; color:#2380A8; font-weight:700; font-size:13px; padding:6px 12px; border-radius:999px">relaxing</span>
+              <span style="background:#E4F5FD; color:#2380A8; font-weight:700; font-size:13px; padding:6px 12px; border-radius:999px">local food</span>
+            </div>
+            <div style="font-size:12px; font-weight:600; color:#8A8073; margin-top:12px; line-height:1.5">Gợi ý từ bài học Unit 5 — dùng đúng ngữ cảnh sẽ được cộng điểm từ vựng.</div>
+          </div>
+          <div style="background:#FDE7E2; border-radius:22px; padding:18px; margin-top:auto">
+            <div style="font-weight:700; font-size:14px; color:#C1442F">Sắp hết thời gian!</div>
+            <div style="font-size:12px; font-weight:600; color:#C1442F; margin-top:6px; line-height:1.5">Còn 4 phút. Bài sẽ tự động nộp khi hết giờ, em nhớ kiểm tra lại câu cuối nhé.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 5m · STUDENT KẾT QUẢ ══ -->
+  <div id="5m" style="width:1440px; display:{{ d5m }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">5m</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Student — Kết quả bài thi</span>
+    </div>
+    <div style="width:1440px; height:780px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column; padding:32px; box-sizing:border-box; gap:20px">
+      <div style="display:flex; align-items:center">
+        <div>
+          <div style="font-family:'Baloo 2'; font-weight:700; font-size:28px">Làm tốt lắm Minh Anh! 🎉</div>
+          <div style="font-size:14px; font-weight:600; color:#8A8073">Unit 5 — Mini Test (4 kỹ năng) · nộp 17/07 lúc 15:42 · Lớp 6A1</div>
+        </div>
+        <div style="margin-left:auto; display:flex; gap:10px">
+          <div style="border:1.5px solid #EFE7D4; background:#fff; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:11px 22px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer" data-goto="5i">Xem lại bài làm</div>
+          <div style="background:#F2793B; color:#fff; border-radius:999px; padding:12px 24px; font-family:'Baloo 2'; font-weight:700; font-size:14px; box-shadow:0 3px 0 #D65F27; cursor:pointer" data-goto="5l">Luyện lại phần Writing</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:20px; flex:1; overflow:hidden">
+        <div style="width:330px; flex-shrink:0; background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:26px; text-align:center; display:flex; flex-direction:column">
+          <div style="width:170px; height:170px; border-radius:50%; margin:0 auto; background:conic-gradient(#F2793B 0 296deg, #F5EFDF 296deg 360deg); display:flex; align-items:center; justify-content:center">
+            <div style="width:134px; height:134px; border-radius:50%; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center">
+              <div style="font-family:'Baloo 2'; font-weight:800; font-size:40px; line-height:1">8.2</div>
+              <div style="font-size:12px; font-weight:700; color:#8A8073">/ 10 điểm</div>
+            </div>
+          </div>
+          <div style="display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#F1F8DE; color:#5E8418; font-weight:700; font-size:13px; padding:7px 16px; border-radius:999px; margin-top:18px; width:fit-content; align-self:center">Đạt · trên trung bình lớp 0.8 điểm</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px">
+            <div style="background:#FBF7EA; border-radius:16px; padding:12px"><div style="font-family:'Baloo 2'; font-weight:700; font-size:20px">17/20</div><div style="font-size:11px; font-weight:700; color:#8A8073">CÂU ĐÚNG</div></div>
+            <div style="background:#FBF7EA; border-radius:16px; padding:12px"><div style="font-family:'Baloo 2'; font-weight:700; font-size:20px">32:18</div><div style="font-size:11px; font-weight:700; color:#8A8073">THỜI GIAN LÀM</div></div>
+          </div>
+          <div style="background:#FFF3D3; border-radius:16px; padding:14px; margin-top:auto; text-align:left">
+            <div style="font-weight:700; font-size:13px; color:#7A5C10">Nhận xét của cô Uyên</div>
+            <div style="font-size:12px; font-weight:600; color:#7A5C10; margin-top:6px; line-height:1.6">Em nghe và đọc rất tốt. Phần Writing nhớ dùng quá khứ đơn cho cả bài nhé!</div>
+          </div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:16px; overflow:hidden">
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:16px">
+            <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+              <div style="display:flex; align-items:center; gap:8px"><span style="font-size:16px">🎧</span><span style="font-weight:700; font-size:14px; color:#2380A8">Listening</span></div>
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:30px; margin-top:8px">8.5</div>
+              <div style="font-size:12px; font-weight:600; color:#8A8073">5/6 câu đúng</div>
+              <div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:10px"><div style="height:100%; width:85%; border-radius:999px; background:#56C2EE"></div></div>
+            </div>
+            <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+              <div style="display:flex; align-items:center; gap:8px"><span style="font-size:16px">🗣️</span><span style="font-weight:700; font-size:14px; color:#5D4FB8">Speaking</span></div>
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:30px; margin-top:8px">7.5</div>
+              <div style="font-size:12px; font-weight:600; color:#8A8073">Cô đã nghe 3 bản thu</div>
+              <div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:10px"><div style="height:100%; width:75%; border-radius:999px; background:#8C7DE6"></div></div>
+            </div>
+            <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+              <div style="display:flex; align-items:center; gap:8px"><span style="font-size:16px">📖</span><span style="font-weight:700; font-size:14px; color:#5E8418">Reading</span></div>
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:30px; margin-top:8px">9.0</div>
+              <div style="font-size:12px; font-weight:600; color:#8A8073">9/10 câu đúng</div>
+              <div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:10px"><div style="height:100%; width:90%; border-radius:999px; background:#9CCC3C"></div></div>
+            </div>
+            <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:22px; padding:20px">
+              <div style="display:flex; align-items:center; gap:8px"><span style="font-size:16px">✍️</span><span style="font-weight:700; font-size:14px; color:#B8860B">Writing</span></div>
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:30px; margin-top:8px">7.0</div>
+              <div style="font-size:12px; font-weight:600; color:#8A8073">124 từ · 2 lỗi ngữ pháp</div>
+              <div style="height:8px; border-radius:999px; background:#F0EADA; margin-top:10px"><div style="height:100%; width:70%; border-radius:999px; background:#FFC94D"></div></div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:24px; flex:1; display:flex; flex-direction:column; overflow:hidden">
+            <div style="display:flex; align-items:center"><div style="font-family:'Baloo 2'; font-weight:700; font-size:19px">Cần luyện thêm</div><a href="#5m" style="margin-left:auto; font-size:13px; font-weight:700; text-decoration:none">Xem toàn bộ bài chữa</a></div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:14px">
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #FDE7E2; background:#FDF9F7; border-radius:16px; padding:14px">
+                <div style="width:36px; height:36px; border-radius:11px; background:#FDE7E2; color:#C1442F; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center">7</div>
+                <div style="flex:1"><div style="font-weight:700; font-size:14px">Trọng âm từ (Listening)</div><div style="font-size:12px; font-weight:600; color:#8A8073">Em chọn "teacher" — đáp án đúng là "begin" (trọng âm âm tiết 2)</div></div>
+                <div style="padding:8px 16px; background:#FDEBDD; color:#D65F27; border-radius:999px; font-weight:700; font-size:13px; cursor:pointer">Luyện lại</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #FFF3D3; background:#FFFDF6; border-radius:16px; padding:14px">
+                <div style="width:36px; height:36px; border-radius:11px; background:#FFF3D3; color:#B8860B; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center">W</div>
+                <div style="flex:1"><div style="font-weight:700; font-size:14px">Thì quá khứ đơn (Writing)</div><div style="font-size:12px; font-weight:600; color:#8A8073">"I swim" → "I swam" · "the trip is" → "the trip was"</div></div>
+                <div style="padding:8px 16px; background:#FDEBDD; color:#D65F27; border-radius:999px; font-weight:700; font-size:13px; cursor:pointer">Luyện lại</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px; border:1.5px solid #EFECFC; background:#FBFAFF; border-radius:16px; padding:14px">
+                <div style="width:36px; height:36px; border-radius:11px; background:#EFECFC; color:#5D4FB8; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center">S</div>
+                <div style="flex:1"><div style="font-weight:700; font-size:14px">Nói trôi chảy hơn (Speaking)</div><div style="font-size:12px; font-weight:600; color:#8A8073">Em ngắt khá nhiều ở prompt 2 — thử nói theo 3 ý chính</div></div>
+                <div style="padding:8px 16px; background:#FDEBDD; color:#D65F27; border-radius:999px; font-weight:700; font-size:13px; cursor:pointer">Luyện lại</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:48px; display:flex; flex-direction:column; gap:48px">
+
+  <!-- ══════════ 1a · DESIGN SYSTEM ══════════ -->
+  <div id="1a" style="width:1180px; display:{{ d1a }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">1a</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Design System</span>
+      <span style="color:#8A8073; font-size:14px">chi tiết trong design-system.md</span>
+    </div>
+    <div style="background:#FBF7EA; border-radius:32px; padding:40px; display:flex; flex-direction:column; gap:32px; border:1.5px solid #EFE7D4">
+      <div style="display:flex; gap:40px">
+        <div style="flex:1">
+          <div style="font-size:12px; font-weight:700; letter-spacing:.6px; color:#8A8073; margin-bottom:12px">MÀU SẮC</div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap">
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#F2793B; box-shadow:0 4px 0 #D65F27"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Orange 500</div><div style="font-size:12px; color:#8A8073">#F2793B · primary</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#8C7DE6; box-shadow:0 4px 0 #6F60CC"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Purple</div><div style="font-size:12px; color:#8A8073">#8C7DE6 · Đề thi</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#56C2EE; box-shadow:0 4px 0 #3AA5D3"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Blue</div><div style="font-size:12px; color:#8A8073">#56C2EE · Từ vựng</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#9CCC3C; box-shadow:0 4px 0 #7FAB2A"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Green</div><div style="font-size:12px; color:#8A8073">#9CCC3C · Đúng</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#FFC94D; box-shadow:0 4px 0 #E3AB2D"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Yellow</div><div style="font-size:12px; color:#8A8073">#FFC94D · Writing</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#E5604C; box-shadow:0 4px 0 #C1442F"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Red</div><div style="font-size:12px; color:#8A8073">#E5604C · Sai / hết giờ</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#FBF7EA; border:1.5px solid #EFE7D4"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Cream</div><div style="font-size:12px; color:#8A8073">#FBF7EA · nền</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#3A3330"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Ink</div><div style="font-size:12px; color:#8A8073">#3A3330 · chữ</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; gap:40px">
+        <div style="width:380px">
+          <div style="font-size:12px; font-weight:700; letter-spacing:.6px; color:#8A8073; margin-bottom:12px">TYPOGRAPHY</div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:24px; display:flex; flex-direction:column; gap:12px">
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:32px; line-height:1.1">Baloo 2 — Tiêu đề</div>
+            <div style="font-family:'Baloo 2'; font-weight:600; font-size:20px">Câu hỏi & tên card 20–24</div>
+            <div style="font-size:15px; font-weight:500">Quicksand — body 15/16, hỗ trợ đầy đủ tiếng Việt cho nội dung bài học.</div>
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">LABEL / CỘT BẢNG 12–13 UPPERCASE</div>
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:40px; color:#F2793B">45:00</div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:12px; font-weight:700; letter-spacing:.6px; color:#8A8073; margin-bottom:12px">THÀNH PHẦN</div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:24px; display:flex; flex-direction:column; gap:20px">
+            <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap">
+              <div style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:16px; padding:12px 28px; border-radius:999px; box-shadow:0 4px 0 #D65F27; cursor:pointer">Nộp bài</div>
+              <div style="background:#fff; color:#3A3330; font-family:'Baloo 2'; font-weight:600; font-size:15px; padding:11px 24px; border-radius:999px; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; cursor:pointer">Huỷ</div>
+              <div style="background:#FDEBDD; color:#D65F27; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px">Đề thi</div>
+              <div style="background:#FFF3D3; color:#B8860B; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px">Chờ chấm</div>
+              <div style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px">Đã hoàn thành</div>
+              <div style="width:40px; height:22px; border-radius:999px; background:#9CCC3C; position:relative"><div style="position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%; background:#fff"></div></div>
+            </div>
+            <input type="text" value="" placeholder="Nhập email của bạn..." style="height:48px; border:1.5px solid #EFE7D4; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:15px; font-weight:500; width:320px; outline:none; color:#3A3330" />
+            <div style="display:flex; gap:12px">
+              <div style="flex:1; display:flex; align-items:center; gap:12px; border:1.5px solid #8C7DE6; background:#EFECFC; border-radius:18px; padding:12px 16px"><div style="width:38px; height:38px; border-radius:12px; background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center">A</div><span style="font-weight:600; font-size:15px">Đáp án đang chọn</span></div>
+              <div style="flex:1; display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; background:#fff; border-radius:18px; padding:12px 16px"><div style="width:38px; height:38px; border-radius:12px; background:#FFF3D3; color:#B8860B; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center">B</div><span style="font-weight:600; font-size:15px; color:#8A8073">Đáp án thường</span></div>
+              <div style="flex:1; display:flex; align-items:center; gap:12px; border:1.5px solid #9CCC3C; background:#F1F8DE; border-radius:18px; padding:12px 16px"><div style="width:38px; height:38px; border-radius:12px; background:#9CCC3C; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center">C</div><span style="font-weight:600; font-size:15px; color:#5E8418">Đáp án đúng (xem lại)</span></div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center">
+              <div style="width:36px; height:36px; border-radius:10px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">1</div>
+              <div style="width:36px; height:36px; border-radius:10px; background:#FFC94D; color:#3A3330; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">2</div>
+              <div style="width:36px; height:36px; border-radius:10px; background:#fff; border:2.5px solid #F2793B; color:#F2793B; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">3</div>
+              <div style="width:36px; height:36px; border-radius:10px; background:#fff; border:1.5px solid #EFE7D4; color:#8A8073; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">4</div>
+              <span style="font-size:13px; color:#8A8073; margin-left:8px">đã trả lời · đánh dấu · câu hiện tại · chưa làm</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 1b · LOGIN ══════════ -->
+  <div id="1b" style="width:1180px; display:{{ d1b }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">1b</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Đăng nhập — Student &amp; Admin</span>
+    </div>
+    <div style="display:flex; gap:32px">
+      <div style="width:574px; height:640px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column; align-items:center">
+        <div style="width:100%; height:170px; background:linear-gradient(180deg,#FDEBDD,#FBF7EA); display:flex; align-items:flex-end; justify-content:center; padding-bottom:0">
+          <div style="width:120px; height:120px; margin-bottom:-40px; border:4px solid #fff; border-radius:50%; background:#fff; overflow:hidden"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="login-mascot" shape="circle" placeholder="Mascot / logo" hint-size="120px,120px"></x-import></div>
+        </div>
+        <div style="margin-top:56px; text-align:center; padding:0 60px; width:100%; box-sizing:border-box">
+          <div style="font-family:'Baloo 2'; font-weight:800; font-size:30px">Chào mừng trở lại!</div>
+          <div style="color:#8A8073; font-size:15px; font-weight:500; margin-top:4px">Đăng nhập bằng tài khoản cô giáo đã cấp cho em nhé</div>
+          <div style="display:flex; flex-direction:column; gap:14px; margin-top:28px; text-align:left">
+            <div><div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073; margin-bottom:6px">EMAIL</div><input type="text" value="minhanh@lophoc.vn" style="height:48px; border:1.5px solid #EFE7D4; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:15px; font-weight:600; width:100%; box-sizing:border-box; outline:none; background:#fff; color:#3A3330" /></div>
+            <div><div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073; margin-bottom:6px">MẬT KHẨU</div><input type="password" value="12345678" style="height:48px; border:1.5px solid #EFE7D4; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:15px; width:100%; box-sizing:border-box; outline:none; background:#fff; color:#3A3330" /></div>
+            <div style="text-align:right; margin-top:-4px"><a href="#1b" style="font-size:13px; font-weight:700; text-decoration:none">Quên mật khẩu?</a></div>
+            <div style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:17px; height:52px; border-radius:999px; box-shadow:0 4px 0 #D65F27; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:4px" data-goto="5g">Vào học thôi!</div>
+          </div>
+          <div style="color:#8A8073; font-size:13px; font-weight:500; margin-top:20px">Chưa có tài khoản? Liên hệ cô giáo để được cấp nhé.</div>
+        </div>
+      </div>
+      <div style="width:574px; height:640px; background:#3A3330; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center">
+        <div style="width:380px; text-align:center">
+          <div style="width:64px; height:64px; border-radius:18px; background:#F2793B; box-shadow:0 4px 0 #D65F27; margin:0 auto; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; font-weight:800; font-size:26px; color:#fff">LE</div>
+          <div style="font-family:'Baloo 2'; font-weight:700; font-size:26px; color:#fff; margin-top:20px">Khu vực Quản trị</div>
+          <div style="color:#B5AC9C; font-size:14px; font-weight:500; margin-top:4px">Dành riêng cho giáo viên</div>
+          <div style="display:flex; flex-direction:column; gap:14px; margin-top:32px; text-align:left">
+            <div><div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#B5AC9C; margin-bottom:6px">EMAIL GIÁO VIÊN</div><input type="text" value="couyen@lophoc.vn" style="height:48px; border:1.5px solid #57504A; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:15px; font-weight:600; width:100%; box-sizing:border-box; outline:none; background:#48413C; color:#fff" /></div>
+            <div><div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#B5AC9C; margin-bottom:6px">MẬT KHẨU</div><input type="password" value="12345678" style="height:48px; border:1.5px solid #57504A; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:15px; width:100%; box-sizing:border-box; outline:none; background:#48413C; color:#fff" /></div>
+            <div style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:#B5AC9C"><div style="width:16px; height:16px; border-radius:5px; background:#F2793B"></div>Ghi nhớ đăng nhập trên máy này</div>
+            <div style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:16px; height:50px; border-radius:999px; box-shadow:0 4px 0 #D65F27; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:6px" data-goto="5a">Đăng nhập</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 1c · ADMIN — QUẢN LÝ HỌC SINH ══════════ -->
+  <div id="1c" style="width:1440px; display:{{ d1c }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">1c</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Admin — Quản lý học sinh</span>
+    </div>
+    <div style="width:1440px; height:900px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex">
+      <div style="width:240px; background:#fff; border-right:1.5px solid #EFE7D4; display:flex; flex-direction:column; padding:24px 16px; box-sizing:border-box">
+        <div style="display:flex; align-items:center; gap:10px; padding:0 8px">
+          <div style="width:40px; height:40px; border-radius:12px; background:#F2793B; box-shadow:0 3px 0 #D65F27; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; font-weight:800; font-size:17px; color:#fff">LE</div>
+          <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:16px; line-height:1.1">Learn English</div><div style="font-size:11px; font-weight:700; color:#8A8073; letter-spacing:.5px">ADMIN</div></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px; margin-top:28px">
+          <div style="padding:11px 14px; border-radius:999px; background:#FDEBDD; color:#D65F27; font-weight:700; font-size:14px" data-goto="1c">Học sinh</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5b">Lớp học</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5c">Đề thi</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Từ vựng</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Tài liệu &amp; Bài giảng</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px" data-goto="5f">Kết quả làm bài</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Chấm Writing <span style="background:#FFF3D3; color:#B8860B; font-size:12px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px">4</span></div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Báo cáo</div>
+        </div>
+        <div style="margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; border:1.5px solid #EFE7D4; border-radius:18px">
+          <div style="width:36px; height:36px; border-radius:50%; background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:15px">U</div>
+          <div><div style="font-weight:700; font-size:14px">Cô Uyên</div><div style="font-size:12px; color:#8A8073; font-weight:600">Giáo viên</div></div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; padding:28px 32px; box-sizing:border-box; overflow:hidden">
+        <div style="display:flex; align-items:center; gap:16px">
+          <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:26px">Quản lý học sinh</div><div style="font-size:14px; color:#8A8073; font-weight:600">86 học sinh · 5 lớp đang hoạt động</div></div>
+          <div style="margin-left:auto; display:flex; gap:10px">
+            <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:9px 18px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer">Tải file mẫu</div>
+            <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:9px 18px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer">Import Excel</div>
+            <div style="background:#F2793B; color:#fff; border-radius:999px; padding:10px 20px; font-family:'Baloo 2'; font-weight:700; font-size:14px; box-shadow:0 3px 0 #D65F27; cursor:pointer">+ Thêm học sinh</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:20px">
+          <input type="text" value="" placeholder="Tìm theo tên, email hoặc số điện thoại..." style="flex:1; height:44px; border:1.5px solid #EFE7D4; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:14px; font-weight:600; outline:none; background:#fff; color:#3A3330" />
+          <div style="height:44px; padding:0 18px; border:1.5px solid #EFE7D4; border-radius:14px; background:#fff; display:flex; align-items:center; font-weight:700; font-size:14px; color:#8A8073; gap:8px">Lớp: Tất cả <span style="font-size:10px">▼</span></div>
+          <div style="height:44px; padding:0 18px; border:1.5px solid #EFE7D4; border-radius:14px; background:#fff; display:flex; align-items:center; font-weight:700; font-size:14px; color:#8A8073; gap:8px">Trạng thái: Tất cả <span style="font-size:10px">▼</span></div>
+        </div>
+        <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:20px; margin-top:16px; overflow:hidden; flex:1; display:flex; flex-direction:column">
+          <div style="display:grid; grid-template-columns:48px 60px 1.6fr 1.4fr 1fr 1fr 100px 130px; align-items:center; background:#FBF7EA; border-bottom:1.5px solid #EFE7D4; padding:0 8px; height:48px; font-size:12px; font-weight:700; letter-spacing:.4px; color:#8A8073">
+            <div style="text-align:center"><div style="width:16px; height:16px; border:1.5px solid #D8CFBC; border-radius:5px; margin:0 auto"></div></div>
+            <div>STT</div><div>HỌC SINH</div><div>EMAIL</div><div>SĐT</div><div>LỚP</div><div>KÍCH HOẠT</div><div>HÀNH ĐỘNG</div>
+          </div>
+          <sc-for list="{{ students }}" as="s" hint-placeholder-count="8">
+            <div style="display:grid; grid-template-columns:48px 60px 1.6fr 1.4fr 1fr 1fr 100px 130px; align-items:center; border-bottom:1px solid #F5EFDF; padding:0 8px; height:60px; font-size:14px" style-hover="background:#FDFBF3">
+              <div style="text-align:center"><div style="width:16px; height:16px; border:1.5px solid #D8CFBC; border-radius:5px; margin:0 auto"></div></div>
+              <div style="color:#8A8073; font-weight:600">{{ s.stt }}</div>
+              <div style="display:flex; align-items:center; gap:10px"><div style="width:34px; height:34px; border-radius:50%; background:{{ s.avatarBg }}; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:14px">{{ s.initial }}</div><span style="font-weight:700">{{ s.name }}</span></div>
+              <div style="color:#8A8073; font-weight:500">{{ s.email }}</div>
+              <div style="color:#8A8073; font-weight:600">{{ s.phone }}</div>
+              <div><span style="background:{{ s.classBg }}; color:{{ s.classColor }}; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px">{{ s.className }}</span></div>
+              <div><div style="width:40px; height:22px; border-radius:999px; background:{{ s.toggleBg }}; position:relative; cursor:pointer"><div style="position:absolute; top:2px; width:18px; height:18px; border-radius:50%; background:#fff; left:{{ s.knobLeft }}"></div></div></div>
+              <div style="display:flex; gap:6px">
+                <div style="padding:6px 12px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:12px; color:#8A8073; cursor:pointer" data-goto="5d">Sửa</div>
+                <div style="padding:6px 12px; border:1.5px solid #FDE7E2; background:#FDE7E2; border-radius:999px; font-weight:700; font-size:12px; color:#C1442F; cursor:pointer">Xoá</div>
+              </div>
+            </div>
+          </sc-for>
+          <div style="margin-top:auto; display:flex; align-items:center; padding:14px 20px; border-top:1.5px solid #EFE7D4; font-size:13px; font-weight:600; color:#8A8073">
+            Hiển thị 1–8 / 86 học sinh
+            <div style="margin-left:auto; display:flex; gap:6px">
+              <div style="width:32px; height:32px; border-radius:10px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px">1</div>
+              <div style="width:32px; height:32px; border-radius:10px; border:1.5px solid #EFE7D4; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px">2</div>
+              <div style="width:32px; height:32px; border-radius:10px; border:1.5px solid #EFE7D4; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px">3</div>
+              <div style="width:32px; height:32px; border-radius:10px; border:1.5px solid #EFE7D4; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 1d · STUDENT — QUIZ TÍNH GIỜ ══════════ -->
+  <div id="1d" style="width:1440px; display:{{ d1d }}">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">1d</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Student — Làm bài quiz tính giờ</span>
+      <span style="color:#8A8073; font-size:14px">đồng hồ đang chạy thật</span>
+    </div>
+    <div style="width:1440px; height:900px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column">
+      <div style="height:68px; background:#fff; border-bottom:1.5px solid #EFE7D4; display:flex; align-items:center; padding:0 28px; gap:16px; flex-shrink:0">
+        <div style="width:38px; height:38px; border-radius:12px; border:1.5px solid #EFE7D4; display:flex; align-items:center; justify-content:center; font-size:17px; color:#8A8073; cursor:pointer">←</div>
+        <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:17px; line-height:1.2">Unit 5 — Mini Test: Present Simple &amp; Vocabulary</div><div style="font-size:12px; font-weight:700; color:#8A8073; letter-spacing:.3px">NHIỆM VỤ · LỚP 6A1 · HẠN NỘP 20/07</div></div>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:12px">
+          <div style="display:flex; gap:4px; align-items:center; border:1.5px solid #EFE7D4; border-radius:999px; padding:4px">
+            <div style="width:30px; height:30px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; color:#8A8073">S</div>
+            <div style="width:30px; height:30px; border-radius:999px; background:#FDEBDD; color:#D65F27; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">M</div>
+            <div style="width:30px; height:30px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; color:#8A8073">L</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; border:1.5px solid #EFE7D4; border-radius:999px; padding:5px 14px 5px 5px">
+            <div style="width:30px; height:30px; border-radius:50%; background:#56C2EE; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px">M</div>
+            <span style="font-weight:700; font-size:14px">Minh Anh</span>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; gap:24px; padding:24px 28px; box-sizing:border-box; overflow:hidden">
+        <div style="flex:1; display:flex; flex-direction:column; gap:18px; overflow:hidden">
+          <div style="background:#EFECFC; border-radius:18px; padding:14px 20px; display:flex; align-items:center; gap:12px">
+            <span style="background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:13px; padding:5px 14px; border-radius:999px">PART 1</span>
+            <span style="font-weight:700; font-size:15px; color:#5D4FB8">Section A — Choose the correct answer (Câu 1–8)</span>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:28px; flex-shrink:0">
+            <div style="display:flex; align-items:flex-start; gap:14px">
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:20px; flex:1">Câu 3. She ______ to school by bus every day.</div>
+              <div style="width:40px; height:40px; border-radius:12px; background:#FFF3D3; border:1.5px solid #FFC94D; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px; color:#B8860B">⚑</div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px">
+              <div style="display:flex; align-items:center; gap:14px; border:2px solid #F2793B; background:#FDEBDD; border-radius:18px; padding:14px 18px; cursor:pointer; box-shadow:0 3px 0 #F2C6A6"><div style="width:40px; height:40px; border-radius:12px; background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0">A</div><span style="font-weight:700; font-size:16px">goes</span></div>
+              <div style="display:flex; align-items:center; gap:14px; border:1.5px solid #EFE7D4; background:#fff; border-radius:18px; padding:14px 18px; cursor:pointer"><div style="width:40px; height:40px; border-radius:12px; background:#FFF3D3; color:#B8860B; font-family:'Baloo 2'; font-weight:700; font-size:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0">B</div><span style="font-weight:600; font-size:16px">go</span></div>
+              <div style="display:flex; align-items:center; gap:14px; border:1.5px solid #EFE7D4; background:#fff; border-radius:18px; padding:14px 18px; cursor:pointer"><div style="width:40px; height:40px; border-radius:12px; background:#F1F8DE; color:#5E8418; font-family:'Baloo 2'; font-weight:700; font-size:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0">C</div><span style="font-weight:600; font-size:16px">going</span></div>
+              <div style="display:flex; align-items:center; gap:14px; border:1.5px solid #EFE7D4; background:#fff; border-radius:18px; padding:14px 18px; cursor:pointer"><div style="width:40px; height:40px; border-radius:12px; background:#E4F5FD; color:#2380A8; font-family:'Baloo 2'; font-weight:700; font-size:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0">D</div><span style="font-weight:600; font-size:16px">is go</span></div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:28px; flex-shrink:0">
+            <div style="display:flex; align-items:flex-start; gap:14px">
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:20px; flex:1">Câu 4. Write the past form of the verb "teach".</div>
+              <div style="width:40px; height:40px; border-radius:12px; border:1.5px solid #EFE7D4; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px; color:#C9C0AF">⚑</div>
+            </div>
+            <input type="text" value="taught" style="margin-top:18px; height:52px; border:1.5px solid #EFE7D4; border-radius:14px; padding:0 18px; font-family:'Quicksand'; font-size:16px; font-weight:700; width:420px; outline:none; background:#fff; color:#3A3330" />
+            <div style="font-size:13px; color:#8A8073; font-weight:600; margin-top:8px">Nhập câu trả lời của em vào ô trên</div>
+          </div>
+          <div style="display:flex; gap:12px; margin-top:auto">
+            <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:12px 26px; font-family:'Baloo 2'; font-weight:600; font-size:15px; cursor:pointer">← Câu trước</div>
+            <div style="background:#F2793B; color:#fff; border-radius:999px; padding:12px 30px; font-family:'Baloo 2'; font-weight:700; font-size:15px; box-shadow:0 4px 0 #D65F27; cursor:pointer">Câu tiếp theo →</div>
+          </div>
+        </div>
+        <div style="width:330px; flex-shrink:0; display:flex; flex-direction:column; gap:16px">
+          <div style="background:{{ timerBg }}; border:2px solid {{ timerBorder }}; border-radius:24px; padding:20px; text-align:center">
+            <div style="font-size:12px; font-weight:700; letter-spacing:.6px; color:{{ timerLabel }}">THỜI GIAN CÒN LẠI</div>
+            <div style="font-family:'Baloo 2'; font-weight:800; font-size:46px; line-height:1.1; color:{{ timerColor }}">{{ timeLeft }}</div>
+            <div style="height:8px; border-radius:999px; background:#EFE7D4; margin-top:10px; overflow:hidden"><div style="height:100%; border-radius:999px; background:{{ timerColor }}; width:{{ timerPct }}"></div></div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:20px; flex:1; display:flex; flex-direction:column">
+            <div style="display:flex; gap:8px">
+              <div style="flex:1; text-align:center; background:#FDEBDD; border-radius:14px; padding:10px 4px"><div style="font-family:'Baloo 2'; font-weight:700; font-size:20px; color:#D65F27">7</div><div style="font-size:11px; font-weight:700; color:#8A8073">ĐÃ LÀM</div></div>
+              <div style="flex:1; text-align:center; background:#FBF7EA; border-radius:14px; padding:10px 4px"><div style="font-family:'Baloo 2'; font-weight:700; font-size:20px">12</div><div style="font-size:11px; font-weight:700; color:#8A8073">CHƯA LÀM</div></div>
+              <div style="flex:1; text-align:center; background:#FFF3D3; border-radius:14px; padding:10px 4px"><div style="font-family:'Baloo 2'; font-weight:700; font-size:20px; color:#B8860B">1</div><div style="font-size:11px; font-weight:700; color:#8A8073">ĐÁNH DẤU</div></div>
+            </div>
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073; margin:18px 0 10px">DANH SÁCH CÂU HỎI</div>
+            <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px">
+              <sc-for list="{{ qcells }}" as="q" hint-placeholder-count="20">
+                <div style="height:42px; border-radius:12px; background:{{ q.bg }}; border:{{ q.border }}; color:{{ q.color }}; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; cursor:pointer">{{ q.n }}</div>
+              </sc-for>
+            </div>
+            <div style="margin-top:auto; padding-top:16px">
+              <div style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:17px; height:52px; border-radius:999px; box-shadow:0 4px 0 #D65F27; display:flex; align-items:center; justify-content:center; cursor:pointer">Nộp bài</div>
+              <div style="text-align:center; font-size:12px; font-weight:600; color:#8A8073; margin-top:10px">Bài làm được tự động lưu · Mã bài: #QZ-2481</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;quizMinutes&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 45, &quot;min&quot;: 5, &quot;max&quot;: 120, &quot;unit&quot;: &quot;phút&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Quiz&quot;}}">
+class Component extends DCLogic {
+  state = { secondsLeft: (this.props.quizMinutes ?? 45) * 60 * 0.62 | 0, screen: '1b' };
+  labels = {
+    '1a': 'Design System', '1b': 'Đăng nhập', '1c': 'Admin · Quản lý học sinh', '1d': 'Student · Quiz tính giờ',
+    '5a': 'Admin · Tổng quan', '5b': 'Admin · Lớp học', '5c': 'Admin · Kho đề thi', '5d': 'Admin · Soạn đề 4 kỹ năng',
+    '5e': 'Admin · Chấm Writing & Speaking', '5f': 'Admin · Kết quả bài thi',
+    '5g': 'Student · Trang chủ', '5h': 'Student · Trước khi thi', '5i': 'Student · Listening',
+    '5j': 'Student · Speaking', '5k': 'Student · Reading', '5l': 'Student · Writing', '5m': 'Student · Kết quả'
+  };
+  componentDidMount() {
+    this.t = setInterval(() => this.setState(s => ({ secondsLeft: Math.max(0, s.secondsLeft - 1) })), 1000);
+    this.onClick = e => {
+      const el = e.target.closest && e.target.closest('[data-goto]');
+      if (el && this.labels[el.getAttribute('data-goto')]) {
+        e.preventDefault();
+        this.setState({ screen: el.getAttribute('data-goto') });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+    document.addEventListener('click', this.onClick);
+  }
+  componentWillUnmount() { clearInterval(this.t); document.removeEventListener('click', this.onClick); }
+  renderVals() {
+    const total = (this.props.quizMinutes ?? 45) * 60;
+    const s = this.state.secondsLeft;
+    const mm = String(Math.floor(s / 60)).padStart(2, '0'), ss = String(s % 60).padStart(2, '0');
+    const low = s < 300;
+    const answered = [1,2,3,4,6,7,9], flagged = [5], current = 3;
+    const qcells = Array.from({length:20}, (_, i) => {
+      const n = i + 1;
+      let bg = '#fff', border = '1.5px solid #EFE7D4', color = '#8A8073';
+      if (answered.includes(n)) { bg = '#F2793B'; border = '1.5px solid #F2793B'; color = '#fff'; }
+      else if (flagged.includes(n)) { bg = '#FFC94D'; border = '1.5px solid #FFC94D'; color = '#3A3330'; }
+      if (n === current) { border = '2.5px solid #D65F27'; }
+      return { n, bg, border, color };
+    });
+    const students = [
+      { stt:1, name:'Nguyễn Minh Anh', email:'minhanh@lophoc.vn', phone:'0912 345 671', className:'Lớp 6A1', classBg:'#EFECFC', classColor:'#5D4FB8', avatarBg:'#56C2EE', on:true },
+      { stt:2, name:'Trần Bảo Châu', email:'baochau@lophoc.vn', phone:'0912 345 672', className:'Lớp 6A1', classBg:'#EFECFC', classColor:'#5D4FB8', avatarBg:'#8C7DE6', on:true },
+      { stt:3, name:'Lê Gia Hân', email:'giahan@lophoc.vn', phone:'0912 345 673', className:'Lớp 7B2', classBg:'#E4F5FD', classColor:'#2380A8', avatarBg:'#FFC94D', on:true },
+      { stt:4, name:'Phạm Đức Huy', email:'duchuy@lophoc.vn', phone:'0912 345 674', className:'Lớp 7B2', classBg:'#E4F5FD', classColor:'#2380A8', avatarBg:'#9CCC3C', on:false },
+      { stt:5, name:'Vũ Khánh Linh', email:'khanhlinh@lophoc.vn', phone:'0912 345 675', className:'Lớp 8C1', classBg:'#F1F8DE', classColor:'#5E8418', avatarBg:'#E5604C', on:true },
+      { stt:6, name:'Hoàng Nhật Minh', email:'nhatminh@lophoc.vn', phone:'0912 345 676', className:'Lớp 6A2', classBg:'#FDEBDD', classColor:'#D65F27', avatarBg:'#F2793B', on:true },
+      { stt:7, name:'Đỗ Thu Ngân', email:'thungan@lophoc.vn', phone:'0912 345 677', className:'Lớp 8C1', classBg:'#F1F8DE', classColor:'#5E8418', avatarBg:'#56C2EE', on:true },
+      { stt:8, name:'Bùi Quang Phúc', email:'quangphuc@lophoc.vn', phone:'0912 345 678', className:'Lớp 6A2', classBg:'#FDEBDD', classColor:'#D65F27', avatarBg:'#8C7DE6', on:false }
+    ].map(x => ({ ...x, initial: x.name.trim().split(' ').pop()[0], toggleBg: x.on ? '#9CCC3C' : '#D8CFBC', knobLeft: x.on ? '20px' : '2px', toggleBg2: x.on ? '#12B76A' : '#D0D3D9', knobLeft2: x.on ? '18px' : '2px', toggleBg3: x.on ? '#C6F432' : '#fff', knobLeft3: x.on ? '18px' : '2px', toggleBg4: x.on ? '#6E9B77' : '#DBDAD3' }));
+    const qcellsC = Array.from({length:20}, (_, i) => {
+      const n = i + 1;
+      let bg = '#fff', border = '1px solid #E8E7E2', color = '#8F8D84';
+      if (answered.includes(n)) { bg = '#6E9B77'; border = '1px solid #6E9B77'; color = '#fff'; }
+      else if (flagged.includes(n)) { bg = '#FAF5E8'; border = '1px solid #E4D9BF'; color = '#A98F4E'; }
+      if (n === current) { border = '2px solid #26251F'; }
+      return { n, bg, border, color };
+    });
+    const qcellsG = Array.from({length:20}, (_, i) => {
+      const n = i + 1;
+      let bg = '#fff', border = '2px solid #111', color = '#111';
+      if (answered.includes(n)) { bg = '#C6F432'; }
+      else if (flagged.includes(n)) { bg = '#FFC940'; }
+      else { border = '2px solid #D8D3C6'; color = '#9B9587'; }
+      if (n === current) { border = '2px solid #111'; bg = '#111'; color = '#C6F432'; }
+      return { n, bg, border, color };
+    });
+    const mcell = n => {
+      let bg = '#fff', border = '1px solid #E6E8EB', color = '#475467';
+      if (answered.includes(n)) { bg = '#16181D'; border = '1px solid #16181D'; color = '#fff'; }
+      else if (flagged.includes(n)) { bg = '#FFFAEB'; border = '1px solid #F2C94C'; color = '#B8860B'; }
+      if (n === current) { border = '2px solid #16181D'; }
+      return { n, bg, border, color };
+    };
+    const qcellsM1 = Array.from({length:8}, (_, i) => mcell(i + 1));
+    const qcellsM2 = Array.from({length:7}, (_, i) => mcell(i + 9));
+    const qcellsM3 = Array.from({length:5}, (_, i) => mcell(i + 16));
+    const classes = [
+      { name:'Lớp 6A1', short:'6A1', schedule:'Thứ 2 · 4 · 6 — 18:00', students:28, tasks:3, avg:'7.8', tint:'#EFECFC', ink:'#5D4FB8' },
+      { name:'Lớp 6A2', short:'6A2', schedule:'Thứ 3 · 5 — 19:30', students:16, tasks:2, avg:'7.1', tint:'#FDEBDD', ink:'#D65F27' },
+      { name:'Lớp 7B2', short:'7B2', schedule:'Thứ 2 · 5 — 17:30', students:22, tasks:4, avg:'7.5', tint:'#E4F5FD', ink:'#2380A8' },
+      { name:'Lớp 8C1', short:'8C1', schedule:'Thứ 4 · 7 — 18:30', students:18, tasks:1, avg:'6.9', tint:'#F1F8DE', ink:'#5E8418' },
+      { name:'Lớp 9D1', short:'9D1', schedule:'Thứ 3 · 6 — 20:00', students:12, tasks:2, avg:'8.2', tint:'#FFF3D3', ink:'#B8860B' }
+    ];
+    const skillOn = { L:['#E4F5FD','#2380A8'], S:['#EFECFC','#5D4FB8'], R:['#F1F8DE','#5E8418'], W:['#FFF3D3','#B8860B'] };
+    const off = ['#F5F1E5','#C0B8A6'];
+    const statusMap = { 'Đang mở':['#F1F8DE','#5E8418'], 'Nháp':['#F5F1E5','#8A8073'], 'Đã đóng':['#FDE7E2','#C1442F'], 'Chờ chấm':['#FFF3D3','#B8860B'] };
+    const exams = [
+      { name:'Unit 5 — Mini Test (4 kỹ năng)', meta:'Cập nhật 16/07 · Lớp 6A1', skills:'LSRW', questions:20, minutes:45, status:'Đang mở' },
+      { name:'Mid-term Test — Grade 7', meta:'Cập nhật 14/07 · Lớp 7B2', skills:'LSRW', questions:40, minutes:90, status:'Nháp' },
+      { name:'Listening Practice 03', meta:'Cập nhật 12/07 · Lớp 7B2', skills:'L', questions:15, minutes:20, status:'Đang mở' },
+      { name:'Speaking Part 1 — Daily routine', meta:'Cập nhật 10/07 · Lớp 6A2', skills:'S', questions:3, minutes:10, status:'Chờ chấm' },
+      { name:'Reading — Festivals around the world', meta:'Cập nhật 08/07 · Lớp 8C1', skills:'R', questions:12, minutes:25, status:'Đã đóng' },
+      { name:'Writing — My summer holiday', meta:'Cập nhật 05/07 · Lớp 8C1', skills:'W', questions:1, minutes:30, status:'Chờ chấm' },
+      { name:'Unit 4 — Mini Test (4 kỹ năng)', meta:'Cập nhật 01/07 · Lớp 6A1', skills:'LSRW', questions:20, minutes:45, status:'Đã đóng' }
+    ].map(e => {
+      const p = k => e.skills.includes(k) ? skillOn[k] : off;
+      const [lBg,lInk]=p('L'), [sBg,sInk]=p('S'), [rBg,rInk]=p('R'), [wBg,wInk]=p('W');
+      const [statusBg, statusInk] = statusMap[e.status];
+      return { ...e, lBg,lInk,sBg,sInk,rBg,rInk,wBg,wInk,statusBg,statusInk };
+    });
+    const results = [
+      { name:'Nguyễn Minh Anh', avatarBg:'#56C2EE', l:'8.5', s:'7.5', r:'9.0', w:'7.0', submitted:'17/07 · 15:42' },
+      { name:'Trần Bảo Châu', avatarBg:'#8C7DE6', l:'8.0', s:'7.0', r:'8.5', w:'6.5', submitted:'17/07 · 16:10' },
+      { name:'Lê Gia Hân', avatarBg:'#FFC94D', l:'7.5', s:'8.0', r:'8.0', w:'7.5', submitted:'17/07 · 19:05' },
+      { name:'Phạm Đức Huy', avatarBg:'#9CCC3C', l:'6.5', s:'6.0', r:'7.0', w:'5.0', submitted:'18/07 · 08:20' },
+      { name:'Vũ Khánh Linh', avatarBg:'#E5604C', l:'9.0', s:'8.5', r:'9.5', w:'8.0', submitted:'17/07 · 14:55' },
+      { name:'Hoàng Nhật Minh', avatarBg:'#F2793B', l:'7.0', s:'6.5', r:'7.5', w:'—', submitted:'18/07 · 21:30' },
+      { name:'Đỗ Thu Ngân', avatarBg:'#56C2EE', l:'8.0', s:'7.0', r:'8.0', w:'7.5', submitted:'17/07 · 17:12' },
+      { name:'Bùi Quang Phúc', avatarBg:'#8C7DE6', l:'6.0', s:'5.5', r:'6.5', w:'—', submitted:'19/07 · 10:04' }
+    ].map(r => {
+      const pending = r.w === '—';
+      const nums = [r.l, r.s, r.r].concat(pending ? [] : [r.w]).map(Number);
+      const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
+      return { ...r, initial: r.name.trim().split(' ').pop()[0],
+        wInk: pending ? '#8A8073' : '#B8860B',
+        total: pending ? 'chờ' : avg.toFixed(1),
+        totalBg: pending ? '#F5F1E5' : (avg >= 8 ? '#F1F8DE' : avg >= 6.5 ? '#FDEBDD' : '#FDE7E2'),
+        totalInk: pending ? '#8A8073' : (avg >= 8 ? '#5E8418' : avg >= 6.5 ? '#D65F27' : '#C1442F') };
+    });
+    const vis = {};
+    Object.keys(this.labels).forEach(k => { vis['d' + k] = this.state.screen === k ? 'block' : 'none'; });
+    return {
+      ...vis, screenLabel: this.labels[this.state.screen],
+      students, qcells, classes, exams, results, qcellsM1, qcellsM2, qcellsM3, qcellsG,
+      timerBg3: low ? '#FF74D4' : '#C6F432',
+      qcellsC,
+      timerBorder4: low ? '#D8A79D' : '#E8E7E2',
+      timerChipBg4: low ? '#F8EEEB' : '#fff',
+      timerText4: low ? '#B0685A' : '#26251F',
+      timeLeft: mm + ':' + ss,
+      timerPct: Math.round((s / total) * 100) + '%',
+      timerColor: low ? '#E5604C' : '#F2793B',
+      timerBg: low ? '#FDE7E2' : '#fff',
+      timerBorder: low ? '#E5604C' : '#EFE7D4',
+      timerLabel: low ? '#C1442F' : '#8A8073'
+    };
+  }
+}
+</script>
+</body>
+</html>

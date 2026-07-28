@@ -4,7 +4,11 @@
 > **Không clone** balloon marketing, FAB “Luyện nói AI”, tin tức/marketplace.  
 > Mục tiêu: app học nội bộ (HV + GV) nhìn quen brand, gọn hơn UUP.
 
-Tham chiếu sản phẩm: `backend/docs/DESIGN-ADMIN-HOC-VIEN.md` · Skill UI: `frontend/docs/skills/anhngu-frontend-ui-ux/`.
+Tham chiếu sản phẩm: `backend/docs/DESIGN-ADMIN-HOC-VIEN.md` · Skill UI: `frontend/docs/skills/anhngu-frontend-ui-ux/`.  
+**Wireframes màn cốt lõi (HV + GV):** [UI-WIREFRAMES.md](UI-WIREFRAMES.md).  
+**Mock visual ưu tiên (Lumen):** [mocks/lumen/](mocks/lumen/) — Ocean `#0E4A5C` · Coral `#FF6B4A` (hiện đại hơn navy/amber bên dưới).
+
+> **Ghi chú (2026-07):** Hướng UI mới = **Lumen**. Bảng token navy/amber ở mục 2 vẫn giữ như lịch sử site gốc; khi implement MVP ưu tiên Lumen trừ khi team quyết định giữ navy.
 
 ---
 

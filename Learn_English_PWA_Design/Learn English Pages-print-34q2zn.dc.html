@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style data-omelette-print-defaults>
+@media print {
+  @page { margin: 0.5in; }
+  h1, h2, h3, h4, h5, h6 { break-after: avoid; }
+  figure, table, pre, blockquote, img, svg, tr, [class~="card" i] { break-inside: avoid; }
+  img, svg { max-width: 100%; }
+  p { orphans: 3; widows: 3; }
+}
+</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+body { margin:0; background:#EFE9DA; font-family:'Quicksand',sans-serif; color:#3A3330; }
+a { color:#F2793B; } a:hover { color:#D65F27; }
+input::placeholder { color:#B5AC9C; }
+</style>
+</helmet>
+<section style="padding:48px; display:flex; flex-direction:column; gap:48px">
+
+  <!-- ══════════ 1a · DESIGN SYSTEM ══════════ -->
+  <div id="1a" style="width:1180px">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">1a</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Design System</span>
+      <span style="color:#8A8073; font-size:14px">chi tiết trong design-system.md</span>
+    </div>
+    <div style="background:#FBF7EA; border-radius:32px; padding:40px; display:flex; flex-direction:column; gap:32px; border:1.5px solid #EFE7D4">
+      <div style="display:flex; gap:40px">
+        <div style="flex:1">
+          <div style="font-size:12px; font-weight:700; letter-spacing:.6px; color:#8A8073; margin-bottom:12px">MÀU SẮC</div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap">
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#F2793B; box-shadow:0 4px 0 #D65F27"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Orange 500</div><div style="font-size:12px; color:#8A8073">#F2793B · primary</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#8C7DE6; box-shadow:0 4px 0 #6F60CC"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Purple</div><div style="font-size:12px; color:#8A8073">#8C7DE6 · Đề thi</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#56C2EE; box-shadow:0 4px 0 #3AA5D3"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Blue</div><div style="font-size:12px; color:#8A8073">#56C2EE · Từ vựng</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#9CCC3C; box-shadow:0 4px 0 #7FAB2A"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Green</div><div style="font-size:12px; color:#8A8073">#9CCC3C · Đúng</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#FFC94D; box-shadow:0 4px 0 #E3AB2D"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Yellow</div><div style="font-size:12px; color:#8A8073">#FFC94D · Writing</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#E5604C; box-shadow:0 4px 0 #C1442F"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Red</div><div style="font-size:12px; color:#8A8073">#E5604C · Sai / hết giờ</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#FBF7EA; border:1.5px solid #EFE7D4"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Cream</div><div style="font-size:12px; color:#8A8073">#FBF7EA · nền</div></div>
+            <div style="width:130px"><div style="height:64px; border-radius:16px; background:#3A3330"></div><div style="font-weight:700; margin-top:8px; font-size:14px">Ink</div><div style="font-size:12px; color:#8A8073">#3A3330 · chữ</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; gap:40px">
+        <div style="width:380px">
+          <div style="font-size:12px; font-weight:700; letter-spacing:.6px; color:#8A8073; margin-bottom:12px">TYPOGRAPHY</div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:24px; display:flex; flex-direction:column; gap:12px">
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:32px; line-height:1.1">Baloo 2 — Tiêu đề</div>
+            <div style="font-family:'Baloo 2'; font-weight:600; font-size:20px">Câu hỏi & tên card 20–24</div>
+            <div style="font-size:15px; font-weight:500">Quicksand — body 15/16, hỗ trợ đầy đủ tiếng Việt cho nội dung bài học.</div>
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073">LABEL / CỘT BẢNG 12–13 UPPERCASE</div>
+            <div style="font-family:'Baloo 2'; font-weight:700; font-size:40px; color:#F2793B">45:00</div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:12px; font-weight:700; letter-spacing:.6px; color:#8A8073; margin-bottom:12px">THÀNH PHẦN</div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:24px; display:flex; flex-direction:column; gap:20px">
+            <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap">
+              <div style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:16px; padding:12px 28px; border-radius:999px; box-shadow:0 4px 0 #D65F27; cursor:pointer">Nộp bài</div>
+              <div style="background:#fff; color:#3A3330; font-family:'Baloo 2'; font-weight:600; font-size:15px; padding:11px 24px; border-radius:999px; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; cursor:pointer">Huỷ</div>
+              <div style="background:#FDEBDD; color:#D65F27; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px">Đề thi</div>
+              <div style="background:#FFF3D3; color:#B8860B; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px">Chờ chấm</div>
+              <div style="background:#F1F8DE; color:#5E8418; font-weight:700; font-size:13px; padding:6px 14px; border-radius:999px">Đã hoàn thành</div>
+              <div style="width:40px; height:22px; border-radius:999px; background:#9CCC3C; position:relative"><div style="position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%; background:#fff"></div></div>
+            </div>
+            <input type="text" value="" placeholder="Nhập email của bạn..." style="height:48px; border:1.5px solid #EFE7D4; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:15px; font-weight:500; width:320px; outline:none; color:#3A3330" />
+            <div style="display:flex; gap:12px">
+              <div style="flex:1; display:flex; align-items:center; gap:12px; border:1.5px solid #8C7DE6; background:#EFECFC; border-radius:18px; padding:12px 16px"><div style="width:38px; height:38px; border-radius:12px; background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center">A</div><span style="font-weight:600; font-size:15px">Đáp án đang chọn</span></div>
+              <div style="flex:1; display:flex; align-items:center; gap:12px; border:1.5px solid #EFE7D4; background:#fff; border-radius:18px; padding:12px 16px"><div style="width:38px; height:38px; border-radius:12px; background:#FFF3D3; color:#B8860B; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center">B</div><span style="font-weight:600; font-size:15px; color:#8A8073">Đáp án thường</span></div>
+              <div style="flex:1; display:flex; align-items:center; gap:12px; border:1.5px solid #9CCC3C; background:#F1F8DE; border-radius:18px; padding:12px 16px"><div style="width:38px; height:38px; border-radius:12px; background:#9CCC3C; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center">C</div><span style="font-weight:600; font-size:15px; color:#5E8418">Đáp án đúng (xem lại)</span></div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center">
+              <div style="width:36px; height:36px; border-radius:10px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">1</div>
+              <div style="width:36px; height:36px; border-radius:10px; background:#FFC94D; color:#3A3330; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">2</div>
+              <div style="width:36px; height:36px; border-radius:10px; background:#fff; border:2.5px solid #F2793B; color:#F2793B; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">3</div>
+              <div style="width:36px; height:36px; border-radius:10px; background:#fff; border:1.5px solid #EFE7D4; color:#8A8073; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">4</div>
+              <span style="font-size:13px; color:#8A8073; margin-left:8px">đã trả lời · đánh dấu · câu hiện tại · chưa làm</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 1b · LOGIN ══════════ -->
+  <div id="1b" style="width:1180px">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">1b</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Đăng nhập — Student &amp; Admin</span>
+    </div>
+    <div style="display:flex; gap:32px">
+      <div style="width:574px; height:640px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column; align-items:center">
+        <div style="width:100%; height:170px; background:linear-gradient(180deg,#FDEBDD,#FBF7EA); display:flex; align-items:flex-end; justify-content:center; padding-bottom:0">
+          <div style="width:120px; height:120px; margin-bottom:-40px; border:4px solid #fff; border-radius:50%; background:#fff; overflow:hidden"><x-import component-from-global-scope="image-slot" from="./image-slot.js" id="login-mascot" shape="circle" placeholder="Mascot / logo" hint-size="120px,120px"></x-import></div>
+        </div>
+        <div style="margin-top:56px; text-align:center; padding:0 60px; width:100%; box-sizing:border-box">
+          <div style="font-family:'Baloo 2'; font-weight:800; font-size:30px">Chào mừng trở lại!</div>
+          <div style="color:#8A8073; font-size:15px; font-weight:500; margin-top:4px">Đăng nhập bằng tài khoản cô giáo đã cấp cho em nhé</div>
+          <div style="display:flex; flex-direction:column; gap:14px; margin-top:28px; text-align:left">
+            <div><div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073; margin-bottom:6px">EMAIL</div><input type="text" value="minhanh@lophoc.vn" style="height:48px; border:1.5px solid #EFE7D4; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:15px; font-weight:600; width:100%; box-sizing:border-box; outline:none; background:#fff; color:#3A3330" /></div>
+            <div><div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073; margin-bottom:6px">MẬT KHẨU</div><input type="password" value="12345678" style="height:48px; border:1.5px solid #EFE7D4; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:15px; width:100%; box-sizing:border-box; outline:none; background:#fff; color:#3A3330" /></div>
+            <div style="text-align:right; margin-top:-4px"><a href="#1b" style="font-size:13px; font-weight:700; text-decoration:none">Quên mật khẩu?</a></div>
+            <div style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:17px; height:52px; border-radius:999px; box-shadow:0 4px 0 #D65F27; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:4px">Vào học thôi!</div>
+          </div>
+          <div style="color:#8A8073; font-size:13px; font-weight:500; margin-top:20px">Chưa có tài khoản? Liên hệ cô giáo để được cấp nhé.</div>
+        </div>
+      </div>
+      <div style="width:574px; height:640px; background:#3A3330; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center">
+        <div style="width:380px; text-align:center">
+          <div style="width:64px; height:64px; border-radius:18px; background:#F2793B; box-shadow:0 4px 0 #D65F27; margin:0 auto; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; font-weight:800; font-size:26px; color:#fff">LE</div>
+          <div style="font-family:'Baloo 2'; font-weight:700; font-size:26px; color:#fff; margin-top:20px">Khu vực Quản trị</div>
+          <div style="color:#B5AC9C; font-size:14px; font-weight:500; margin-top:4px">Dành riêng cho giáo viên</div>
+          <div style="display:flex; flex-direction:column; gap:14px; margin-top:32px; text-align:left">
+            <div><div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#B5AC9C; margin-bottom:6px">EMAIL GIÁO VIÊN</div><input type="text" value="couyen@lophoc.vn" style="height:48px; border:1.5px solid #57504A; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:15px; font-weight:600; width:100%; box-sizing:border-box; outline:none; background:#48413C; color:#fff" /></div>
+            <div><div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#B5AC9C; margin-bottom:6px">MẬT KHẨU</div><input type="password" value="12345678" style="height:48px; border:1.5px solid #57504A; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:15px; width:100%; box-sizing:border-box; outline:none; background:#48413C; color:#fff" /></div>
+            <div style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:#B5AC9C"><div style="width:16px; height:16px; border-radius:5px; background:#F2793B"></div>Ghi nhớ đăng nhập trên máy này</div>
+            <div style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:16px; height:50px; border-radius:999px; box-shadow:0 4px 0 #D65F27; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:6px">Đăng nhập</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 1c · ADMIN — QUẢN LÝ HỌC SINH ══════════ -->
+  <div id="1c" style="width:1440px">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">1c</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Admin — Quản lý học sinh</span>
+    </div>
+    <div style="width:1440px; height:900px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex">
+      <div style="width:240px; background:#fff; border-right:1.5px solid #EFE7D4; display:flex; flex-direction:column; padding:24px 16px; box-sizing:border-box">
+        <div style="display:flex; align-items:center; gap:10px; padding:0 8px">
+          <div style="width:40px; height:40px; border-radius:12px; background:#F2793B; box-shadow:0 3px 0 #D65F27; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; font-weight:800; font-size:17px; color:#fff">LE</div>
+          <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:16px; line-height:1.1">Learn English</div><div style="font-size:11px; font-weight:700; color:#8A8073; letter-spacing:.5px">ADMIN</div></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px; margin-top:28px">
+          <div style="padding:11px 14px; border-radius:999px; background:#FDEBDD; color:#D65F27; font-weight:700; font-size:14px">Học sinh</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Lớp học</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Đề thi</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Từ vựng</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Tài liệu &amp; Bài giảng</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Kết quả làm bài</div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Chấm Writing <span style="background:#FFF3D3; color:#B8860B; font-size:12px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px">4</span></div>
+          <div style="padding:11px 14px; border-radius:999px; color:#8A8073; font-weight:600; font-size:14px">Báo cáo</div>
+        </div>
+        <div style="margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; border:1.5px solid #EFE7D4; border-radius:18px">
+          <div style="width:36px; height:36px; border-radius:50%; background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:15px">U</div>
+          <div><div style="font-weight:700; font-size:14px">Cô Uyên</div><div style="font-size:12px; color:#8A8073; font-weight:600">Giáo viên</div></div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; padding:28px 32px; box-sizing:border-box; overflow:hidden">
+        <div style="display:flex; align-items:center; gap:16px">
+          <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:26px">Quản lý học sinh</div><div style="font-size:14px; color:#8A8073; font-weight:600">86 học sinh · 5 lớp đang hoạt động</div></div>
+          <div style="margin-left:auto; display:flex; gap:10px">
+            <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:9px 18px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer">Tải file mẫu</div>
+            <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:9px 18px; font-family:'Baloo 2'; font-weight:600; font-size:14px; cursor:pointer">Import Excel</div>
+            <div style="background:#F2793B; color:#fff; border-radius:999px; padding:10px 20px; font-family:'Baloo 2'; font-weight:700; font-size:14px; box-shadow:0 3px 0 #D65F27; cursor:pointer">+ Thêm học sinh</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:20px">
+          <input type="text" value="" placeholder="Tìm theo tên, email hoặc số điện thoại..." style="flex:1; height:44px; border:1.5px solid #EFE7D4; border-radius:14px; padding:0 16px; font-family:'Quicksand'; font-size:14px; font-weight:600; outline:none; background:#fff; color:#3A3330" />
+          <div style="height:44px; padding:0 18px; border:1.5px solid #EFE7D4; border-radius:14px; background:#fff; display:flex; align-items:center; font-weight:700; font-size:14px; color:#8A8073; gap:8px">Lớp: Tất cả <span style="font-size:10px">▼</span></div>
+          <div style="height:44px; padding:0 18px; border:1.5px solid #EFE7D4; border-radius:14px; background:#fff; display:flex; align-items:center; font-weight:700; font-size:14px; color:#8A8073; gap:8px">Trạng thái: Tất cả <span style="font-size:10px">▼</span></div>
+        </div>
+        <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:20px; margin-top:16px; overflow:hidden; flex:1; display:flex; flex-direction:column">
+          <div style="display:grid; grid-template-columns:48px 60px 1.6fr 1.4fr 1fr 1fr 100px 130px; align-items:center; background:#FBF7EA; border-bottom:1.5px solid #EFE7D4; padding:0 8px; height:48px; font-size:12px; font-weight:700; letter-spacing:.4px; color:#8A8073">
+            <div style="text-align:center"><div style="width:16px; height:16px; border:1.5px solid #D8CFBC; border-radius:5px; margin:0 auto"></div></div>
+            <div>STT</div><div>HỌC SINH</div><div>EMAIL</div><div>SĐT</div><div>LỚP</div><div>KÍCH HOẠT</div><div>HÀNH ĐỘNG</div>
+          </div>
+          <sc-for list="{{ students }}" as="s" hint-placeholder-count="8">
+            <div style="display:grid; grid-template-columns:48px 60px 1.6fr 1.4fr 1fr 1fr 100px 130px; align-items:center; border-bottom:1px solid #F5EFDF; padding:0 8px; height:60px; font-size:14px" style-hover="background:#FDFBF3">
+              <div style="text-align:center"><div style="width:16px; height:16px; border:1.5px solid #D8CFBC; border-radius:5px; margin:0 auto"></div></div>
+              <div style="color:#8A8073; font-weight:600">{{ s.stt }}</div>
+              <div style="display:flex; align-items:center; gap:10px"><div style="width:34px; height:34px; border-radius:50%; background:{{ s.avatarBg }}; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:14px">{{ s.initial }}</div><span style="font-weight:700">{{ s.name }}</span></div>
+              <div style="color:#8A8073; font-weight:500">{{ s.email }}</div>
+              <div style="color:#8A8073; font-weight:600">{{ s.phone }}</div>
+              <div><span style="background:{{ s.classBg }}; color:{{ s.classColor }}; font-weight:700; font-size:12px; padding:5px 12px; border-radius:999px">{{ s.className }}</span></div>
+              <div><div style="width:40px; height:22px; border-radius:999px; background:{{ s.toggleBg }}; position:relative; cursor:pointer"><div style="position:absolute; top:2px; width:18px; height:18px; border-radius:50%; background:#fff; left:{{ s.knobLeft }}"></div></div></div>
+              <div style="display:flex; gap:6px">
+                <div style="padding:6px 12px; border:1.5px solid #EFE7D4; border-radius:999px; font-weight:700; font-size:12px; color:#8A8073; cursor:pointer">Sửa</div>
+                <div style="padding:6px 12px; border:1.5px solid #FDE7E2; background:#FDE7E2; border-radius:999px; font-weight:700; font-size:12px; color:#C1442F; cursor:pointer">Xoá</div>
+              </div>
+            </div>
+          </sc-for>
+          <div style="margin-top:auto; display:flex; align-items:center; padding:14px 20px; border-top:1.5px solid #EFE7D4; font-size:13px; font-weight:600; color:#8A8073">
+            Hiển thị 1–8 / 86 học sinh
+            <div style="margin-left:auto; display:flex; gap:6px">
+              <div style="width:32px; height:32px; border-radius:10px; background:#F2793B; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px">1</div>
+              <div style="width:32px; height:32px; border-radius:10px; border:1.5px solid #EFE7D4; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px">2</div>
+              <div style="width:32px; height:32px; border-radius:10px; border:1.5px solid #EFE7D4; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px">3</div>
+              <div style="width:32px; height:32px; border-radius:10px; border:1.5px solid #EFE7D4; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 1d · STUDENT — QUIZ TÍNH GIỜ ══════════ -->
+  <div id="1d" style="width:1440px">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+      <span style="background:#3A3330; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:14px; padding:4px 14px; border-radius:999px">1d</span>
+      <span style="font-family:'Baloo 2'; font-weight:700; font-size:22px">Student — Làm bài quiz tính giờ</span>
+      <span style="color:#8A8073; font-size:14px">đồng hồ đang chạy thật</span>
+    </div>
+    <div style="width:1440px; height:900px; background:#FBF7EA; border-radius:28px; border:1.5px solid #EFE7D4; overflow:hidden; display:flex; flex-direction:column">
+      <div style="height:68px; background:#fff; border-bottom:1.5px solid #EFE7D4; display:flex; align-items:center; padding:0 28px; gap:16px; flex-shrink:0">
+        <div style="width:38px; height:38px; border-radius:12px; border:1.5px solid #EFE7D4; display:flex; align-items:center; justify-content:center; font-size:17px; color:#8A8073; cursor:pointer">←</div>
+        <div><div style="font-family:'Baloo 2'; font-weight:700; font-size:17px; line-height:1.2">Unit 5 — Mini Test: Present Simple &amp; Vocabulary</div><div style="font-size:12px; font-weight:700; color:#8A8073; letter-spacing:.3px">NHIỆM VỤ · LỚP 6A1 · HẠN NỘP 20/07</div></div>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:12px">
+          <div style="display:flex; gap:4px; align-items:center; border:1.5px solid #EFE7D4; border-radius:999px; padding:4px">
+            <div style="width:30px; height:30px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; color:#8A8073">S</div>
+            <div style="width:30px; height:30px; border-radius:999px; background:#FDEBDD; color:#D65F27; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px">M</div>
+            <div style="width:30px; height:30px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; color:#8A8073">L</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; border:1.5px solid #EFE7D4; border-radius:999px; padding:5px 14px 5px 5px">
+            <div style="width:30px; height:30px; border-radius:50%; background:#56C2EE; color:#fff; font-family:'Baloo 2'; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px">M</div>
+            <span style="font-weight:700; font-size:14px">Minh Anh</span>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1; display:flex; gap:24px; padding:24px 28px; box-sizing:border-box; overflow:hidden">
+        <div style="flex:1; display:flex; flex-direction:column; gap:18px; overflow:hidden">
+          <div style="background:#EFECFC; border-radius:18px; padding:14px 20px; display:flex; align-items:center; gap:12px">
+            <span style="background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:13px; padding:5px 14px; border-radius:999px">PART 1</span>
+            <span style="font-weight:700; font-size:15px; color:#5D4FB8">Section A — Choose the correct answer (Câu 1–8)</span>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:28px; flex-shrink:0">
+            <div style="display:flex; align-items:flex-start; gap:14px">
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:20px; flex:1">Câu 3. She ______ to school by bus every day.</div>
+              <div style="width:40px; height:40px; border-radius:12px; background:#FFF3D3; border:1.5px solid #FFC94D; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px; color:#B8860B">⚑</div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px">
+              <div style="display:flex; align-items:center; gap:14px; border:2px solid #F2793B; background:#FDEBDD; border-radius:18px; padding:14px 18px; cursor:pointer; box-shadow:0 3px 0 #F2C6A6"><div style="width:40px; height:40px; border-radius:12px; background:#8C7DE6; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0">A</div><span style="font-weight:700; font-size:16px">goes</span></div>
+              <div style="display:flex; align-items:center; gap:14px; border:1.5px solid #EFE7D4; background:#fff; border-radius:18px; padding:14px 18px; cursor:pointer"><div style="width:40px; height:40px; border-radius:12px; background:#FFF3D3; color:#B8860B; font-family:'Baloo 2'; font-weight:700; font-size:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0">B</div><span style="font-weight:600; font-size:16px">go</span></div>
+              <div style="display:flex; align-items:center; gap:14px; border:1.5px solid #EFE7D4; background:#fff; border-radius:18px; padding:14px 18px; cursor:pointer"><div style="width:40px; height:40px; border-radius:12px; background:#F1F8DE; color:#5E8418; font-family:'Baloo 2'; font-weight:700; font-size:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0">C</div><span style="font-weight:600; font-size:16px">going</span></div>
+              <div style="display:flex; align-items:center; gap:14px; border:1.5px solid #EFE7D4; background:#fff; border-radius:18px; padding:14px 18px; cursor:pointer"><div style="width:40px; height:40px; border-radius:12px; background:#E4F5FD; color:#2380A8; font-family:'Baloo 2'; font-weight:700; font-size:17px; display:flex; align-items:center; justify-content:center; flex-shrink:0">D</div><span style="font-weight:600; font-size:16px">is go</span></div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:28px; flex-shrink:0">
+            <div style="display:flex; align-items:flex-start; gap:14px">
+              <div style="font-family:'Baloo 2'; font-weight:700; font-size:20px; flex:1">Câu 4. Write the past form of the verb "teach".</div>
+              <div style="width:40px; height:40px; border-radius:12px; border:1.5px solid #EFE7D4; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px; color:#C9C0AF">⚑</div>
+            </div>
+            <input type="text" value="taught" style="margin-top:18px; height:52px; border:1.5px solid #EFE7D4; border-radius:14px; padding:0 18px; font-family:'Quicksand'; font-size:16px; font-weight:700; width:420px; outline:none; background:#fff; color:#3A3330" />
+            <div style="font-size:13px; color:#8A8073; font-weight:600; margin-top:8px">Nhập câu trả lời của em vào ô trên</div>
+          </div>
+          <div style="display:flex; gap:12px; margin-top:auto">
+            <div style="background:#fff; border:1.5px solid #EFE7D4; box-shadow:0 3px 0 #EFE7D4; border-radius:999px; padding:12px 26px; font-family:'Baloo 2'; font-weight:600; font-size:15px; cursor:pointer">← Câu trước</div>
+            <div style="background:#F2793B; color:#fff; border-radius:999px; padding:12px 30px; font-family:'Baloo 2'; font-weight:700; font-size:15px; box-shadow:0 4px 0 #D65F27; cursor:pointer">Câu tiếp theo →</div>
+          </div>
+        </div>
+        <div style="width:330px; flex-shrink:0; display:flex; flex-direction:column; gap:16px">
+          <div style="background:{{ timerBg }}; border:2px solid {{ timerBorder }}; border-radius:24px; padding:20px; text-align:center">
+            <div style="font-size:12px; font-weight:700; letter-spacing:.6px; color:{{ timerLabel }}">THỜI GIAN CÒN LẠI</div>
+            <div style="font-family:'Baloo 2'; font-weight:800; font-size:46px; line-height:1.1; color:{{ timerColor }}">{{ timeLeft }}</div>
+            <div style="height:8px; border-radius:999px; background:#EFE7D4; margin-top:10px; overflow:hidden"><div style="height:100%; border-radius:999px; background:{{ timerColor }}; width:{{ timerPct }}"></div></div>
+          </div>
+          <div style="background:#fff; border:1.5px solid #EFE7D4; border-radius:24px; padding:20px; flex:1; display:flex; flex-direction:column">
+            <div style="display:flex; gap:8px">
+              <div style="flex:1; text-align:center; background:#FDEBDD; border-radius:14px; padding:10px 4px"><div style="font-family:'Baloo 2'; font-weight:700; font-size:20px; color:#D65F27">7</div><div style="font-size:11px; font-weight:700; color:#8A8073">ĐÃ LÀM</div></div>
+              <div style="flex:1; text-align:center; background:#FBF7EA; border-radius:14px; padding:10px 4px"><div style="font-family:'Baloo 2'; font-weight:700; font-size:20px">12</div><div style="font-size:11px; font-weight:700; color:#8A8073">CHƯA LÀM</div></div>
+              <div style="flex:1; text-align:center; background:#FFF3D3; border-radius:14px; padding:10px 4px"><div style="font-family:'Baloo 2'; font-weight:700; font-size:20px; color:#B8860B">1</div><div style="font-size:11px; font-weight:700; color:#8A8073">ĐÁNH DẤU</div></div>
+            </div>
+            <div style="font-size:12px; font-weight:700; letter-spacing:.5px; color:#8A8073; margin:18px 0 10px">DANH SÁCH CÂU HỎI</div>
+            <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px">
+              <sc-for list="{{ qcells }}" as="q" hint-placeholder-count="20">
+                <div style="height:42px; border-radius:12px; background:{{ q.bg }}; border:{{ q.border }}; color:{{ q.color }}; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; cursor:pointer">{{ q.n }}</div>
+              </sc-for>
+            </div>
+            <div style="margin-top:auto; padding-top:16px">
+              <div style="background:#F2793B; color:#fff; font-family:'Baloo 2'; font-weight:700; font-size:17px; height:52px; border-radius:999px; box-shadow:0 4px 0 #D65F27; display:flex; align-items:center; justify-content:center; cursor:pointer">Nộp bài</div>
+              <div style="text-align:center; font-size:12px; font-weight:600; color:#8A8073; margin-top:10px">Bài làm được tự động lưu · Mã bài: #QZ-2481</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;quizMinutes&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 45, &quot;min&quot;: 5, &quot;max&quot;: 120, &quot;unit&quot;: &quot;phút&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Quiz&quot;}}">
+class Component extends DCLogic {
+  state = { secondsLeft: (this.props.quizMinutes ?? 45) * 60 * 0.62 | 0 };
+  componentDidMount() {
+    this.t = setInterval(() => this.setState(s => ({ secondsLeft: Math.max(0, s.secondsLeft - 1) })), 1000);
+  }
+  componentWillUnmount() { clearInterval(this.t); }
+  renderVals() {
+    const total = (this.props.quizMinutes ?? 45) * 60;
+    const s = this.state.secondsLeft;
+    const mm = String(Math.floor(s / 60)).padStart(2, '0'), ss = String(s % 60).padStart(2, '0');
+    const low = s < 300;
+    const answered = [1,2,3,4,6,7,9], flagged = [5], current = 3;
+    const qcells = Array.from({length:20}, (_, i) => {
+      const n = i + 1;
+      let bg = '#fff', border = '1.5px solid #EFE7D4', color = '#8A8073';
+      if (answered.includes(n)) { bg = '#F2793B'; border = '1.5px solid #F2793B'; color = '#fff'; }
+      else if (flagged.includes(n)) { bg = '#FFC94D'; border = '1.5px solid #FFC94D'; color = '#3A3330'; }
+      if (n === current) { border = '2.5px solid #D65F27'; }
+      return { n, bg, border, color };
+    });
+    const students = [
+      { stt:1, name:'Nguyễn Minh Anh', email:'minhanh@lophoc.vn', phone:'0912 345 671', className:'Lớp 6A1', classBg:'#EFECFC', classColor:'#5D4FB8', avatarBg:'#56C2EE', on:true },
+      { stt:2, name:'Trần Bảo Châu', email:'baochau@lophoc.vn', phone:'0912 345 672', className:'Lớp 6A1', classBg:'#EFECFC', classColor:'#5D4FB8', avatarBg:'#8C7DE6', on:true },
+      { stt:3, name:'Lê Gia Hân', email:'giahan@lophoc.vn', phone:'0912 345 673', className:'Lớp 7B2', classBg:'#E4F5FD', classColor:'#2380A8', avatarBg:'#FFC94D', on:true },
+      { stt:4, name:'Phạm Đức Huy', email:'duchuy@lophoc.vn', phone:'0912 345 674', className:'Lớp 7B2', classBg:'#E4F5FD', classColor:'#2380A8', avatarBg:'#9CCC3C', on:false },
+      { stt:5, name:'Vũ Khánh Linh', email:'khanhlinh@lophoc.vn', phone:'0912 345 675', className:'Lớp 8C1', classBg:'#F1F8DE', classColor:'#5E8418', avatarBg:'#E5604C', on:true },
+      { stt:6, name:'Hoàng Nhật Minh', email:'nhatminh@lophoc.vn', phone:'0912 345 676', className:'Lớp 6A2', classBg:'#FDEBDD', classColor:'#D65F27', avatarBg:'#F2793B', on:true },
+      { stt:7, name:'Đỗ Thu Ngân', email:'thungan@lophoc.vn', phone:'0912 345 677', className:'Lớp 8C1', classBg:'#F1F8DE', classColor:'#5E8418', avatarBg:'#56C2EE', on:true },
+      { stt:8, name:'Bùi Quang Phúc', email:'quangphuc@lophoc.vn', phone:'0912 345 678', className:'Lớp 6A2', classBg:'#FDEBDD', classColor:'#D65F27', avatarBg:'#8C7DE6', on:false }
+    ].map(x => ({ ...x, initial: x.name.trim().split(' ').pop()[0], toggleBg: x.on ? '#9CCC3C' : '#D8CFBC', knobLeft: x.on ? '20px' : '2px' }));
+    return {
+      students, qcells,
+      timeLeft: mm + ':' + ss,
+      timerPct: Math.round((s / total) * 100) + '%',
+      timerColor: low ? '#E5604C' : '#F2793B',
+      timerBg: low ? '#FDE7E2' : '#fff',
+      timerBorder: low ? '#E5604C' : '#EFE7D4',
+      timerLabel: low ? '#C1442F' : '#8A8073'
+    };
+  }
+}
+</script>
+<script>
+(async () => {
+  if (!document.title || !document.title.trim()) document.title = "Learn English Pages";
+  // rAF raced with a short timeout: inside a cross-origin iframe (PrintMode),
+  // rAF can be throttled or paused even while the tab is focused, which would
+  // hang the scroll loop and never reach print(). Same pattern as
+  // buildExportSettleScript (export/shared.ts).
+  var raf = function () {
+    return Promise.race([
+      new Promise(function (r) { requestAnimationFrame(r); }),
+      new Promise(function (r) { setTimeout(r, 50); }),
+    ]);
+  };
+  var t0 = performance.now();
+  var mark = function (phase) {
+    var ms = Math.round(performance.now() - t0);
+    console.info('[autoprint]', phase, ms + 'ms');
+    try { parent.postMessage({ __omelette_autoprint: { phase: phase, ms: ms } }, '*'); } catch (e) {}
+  };
+  mark('start');
+  // Prepend so page-supplied @page / break rules (deck-stage's margin:0,
+  // author CSS) keep source-order precedence over the baseline.
+  const baseCss = document.createElement('style');
+  baseCss.textContent = "@media print {\n  figure, table { break-inside: avoid; }\n  *, *::before, *::after {\n    print-color-adjust: exact; -webkit-print-color-adjust: exact;\n    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;\n    animation-delay: -99s !important; animation-duration: .001s !important;\n    animation-iteration-count: 1 !important; animation-fill-mode: both !important;\n    animation-play-state: running !important; transition-duration: 0s !important;\n  }\n}";
+  document.head.prepend(baseCss);
+  if (document.readyState === 'loading') {
+    await new Promise((r) => document.addEventListener('DOMContentLoaded', r, { once: true }));
+  }
+  let ds = document.querySelector('deck-stage');
+  // whenDefined never resolves when nothing registers the element, so only
+  // await it when a <deck-stage> tag exists (and race a timeout regardless).
+  if (ds && !customElements.get('deck-stage')) {
+    try {
+      await Promise.race([
+        customElements.whenDefined('deck-stage'),
+        new Promise((r) => setTimeout(r, 3000)),
+      ]);
+    } catch (e) {}
+    ds = document.querySelector('deck-stage');
+  }
+  // dc-runtime assigns window.DCLogic at init and mounts into #dc-root on
+  // DOMContentLoaded; settle on that subtree so React has rendered before
+  // print(). Non-DC pages fall through to weighing body.
+  const isDc = !ds && 'DCLogic' in window;
+  const settleRoot = ds || (isDc ? document.getElementById('dc-root') : null) || document.body;
+  if (settleRoot) {
+    // Weigh only content children — skip script/style/template so inline
+    // Babel/CSS doesn't register as stable "content" before the framework
+    // has mounted anything.
+    const MEDIA = 'img,svg,canvas,video,picture,iframe,embed,object';
+    const weigh = () => {
+      let text = 0, media = 0;
+      for (const c of settleRoot.children) {
+        const t = c.tagName;
+        if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+        text += (c.textContent || '').trim().length;
+        media += c.querySelectorAll(MEDIA).length + (c.matches(MEDIA) ? 1 : 0);
+      }
+      return text + media * 100;
+    };
+    // "Non-zero and stable" alone is not sufficient to mean rendered: generic
+    // body can carry a static shell while async main content is pending, and
+    // #dc-root can carry the root DC's static text while child refs are still
+    // .sc-placeholder boxes. Gate generic on readyState 'complete', and never
+    // accept stability while a dc-runtime placeholder is present.
+    const isGeneric = settleRoot === document.body;
+    // A placeholder whose fetch failed (.sc-placeholder-error inside) keeps
+    // .sc-placeholder forever — don't wait on it. JS loop, not :has(), so an
+    // engine without :has() support can't throw out of the while and skip
+    // print() entirely.
+    var pendingPlaceholders = function () {
+      var all = settleRoot.querySelectorAll('.sc-placeholder'), n = 0;
+      for (var i = 0; i < all.length; i++)
+        if (!all[i].querySelector('.sc-placeholder-error')) n++;
+      return n;
+    };
+    const deadline = Date.now() + 15000;
+    let last = -1, stable = 0;
+    while (Date.now() < deadline) {
+      const n = weigh();
+      const ready =
+        (!isGeneric || document.readyState === 'complete') &&
+        pendingPlaceholders() === 0;
+      if (n > 0 && n === last && ready) { if (++stable >= 2) break; } else { stable = 0; }
+      last = n;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  mark('settle-done' + (settleRoot ? ' (errs=' + settleRoot.querySelectorAll('.sc-placeholder-error').length + ' pending=' + pendingPlaceholders() + ')' : ''));
+  // Project support.js may predate runtime default-seeding; push via bridge.
+  if (isDc && window.__dcSetProps && window.__dcRootName) {
+    try {
+      const dpEl = document.querySelector('script[data-dc-script]');
+      const meta = JSON.parse((dpEl && dpEl.getAttribute('data-props')) || '{}');
+      const bag = {};
+      for (const k in meta)
+        if (k[0] !== '$' && meta[k] && meta[k].default !== undefined)
+          bag[k] = meta[k].default;
+      if (Object.keys(bag).length) {
+        window.__dcSetProps(window.__dcRootName(), bag);
+        await new Promise((r) => setTimeout(r, 50));
+      }
+    } catch (e) {}
+  }
+  // Reveal content gated on scroll or visibility before printing. Lazy <img>,
+  // IntersectionObserver fade-ins, and collapsed <details> don't render while
+  // off-screen, so a long page would print with them blank or closed. Open
+  // every <details>, force native-lazy images eager, and scroll the document
+  // through its full height to trip lazy-load + IO; then wait (bounded) for the
+  // newly-triggered images. Inert for deck-stage (slides aren't scroll-gated).
+  try {
+    for (const d of document.querySelectorAll('details')) d.open = true;
+    for (const img of document.querySelectorAll('img[loading="lazy"]'))
+      img.loading = 'eager';
+    const scroller = document.scrollingElement || document.documentElement;
+    const full = Math.max(scroller.scrollHeight, document.body.scrollHeight);
+    const step = window.innerHeight || 800;
+    var scrollDeadline = Date.now() + 4000;
+    for (let y = 0; y <= full && Date.now() < scrollDeadline; y += step) {
+      window.scrollTo(0, y);
+      await raf();
+    }
+    window.scrollTo(0, 0);
+    await Promise.race([
+      Promise.all(
+        [...document.images].map((img) =>
+          img.complete
+            ? null
+            : new Promise((res) => {
+                img.addEventListener('load', res, { once: true });
+                img.addEventListener('error', res, { once: true });
+              })
+        )
+      ),
+      new Promise((r) => setTimeout(r, 4000)),
+    ]);
+  } catch (e) {}
+  mark('scroll-done');
+  try { await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 3000))]); } catch (e) {}
+  mark('fonts-done');
+  // Jump every animation to its end state so print() never captures a slide
+  // mid-entrance. Ordering matters: the 0s-transition style must be live
+  // BEFORE data-deck-active is set so attribute-keyed transitions don't
+  // start a (now-0s) run from the pre-active base.
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{animation-delay:-99s !important;animation-duration:.001s !important;animation-iteration-count:1 !important;animation-fill-mode:both !important;animation-play-state:running !important;transition-duration:0s !important}';
+  document.head.appendChild(st);
+  for (const d of document.querySelectorAll('deck-stage')) {
+    for (const c of d.children) {
+      const t = c.tagName;
+      if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+      c.setAttribute('data-deck-active', '');
+    }
+  }
+  // Re-append deck-stage's @page last so no author @page can add a margin and
+  // spill each full-bleed slide onto two sheets. Backstop for old copies.
+  if (ds) {
+    let pg = document.getElementById('deck-stage-print-page');
+    if (!pg) {
+      pg = document.createElement('style');
+      pg.textContent = '@page{size:' + (+ds.getAttribute('width') || 1920) +
+        'px ' + (+ds.getAttribute('height') || 1080) + 'px;margin:0}';
+    }
+    document.body.appendChild(pg);
+  }
+  try {
+    const sweep = () => {
+      for (const a of document.getAnimations()) {
+        try { a.finish(); } catch (e) {
+          try { a.currentTime = (a.effect && a.effect.getComputedTiming().duration) || 0; a.pause(); } catch (e2) {}
+        }
+      }
+    };
+    sweep();
+    await raf();
+    sweep();
+    await raf();
+  } catch (e) {}
+  // A document that owns its print CSS (the doc-page starter injects the
+  // meta at runtime; hand-rolled print designs author it) gets no automatic
+  // page geometry and keeps its forced breaks: strip the injected default
+  // @page — write time cannot see a runtime-injected meta — skip the frame
+  // override below, and skip the fakepage-flattening further down. What
+  // still applies: the print baseline and break-hygiene defaults (no @page
+  // in either; low specificity, so the document's own print CSS wins) and
+  // the break-inside relaxation on >page elements (avoid on those cannot
+  // be honored whoever authored it).
+  var ownsPrint = !!document.querySelector('meta[name="omelette-owns-print" i]');
+  if (ownsPrint) {
+    var dst = document.querySelector('style[data-omelette-print-defaults]');
+    if (dst && dst.textContent) {
+      dst.textContent = dst.textContent.replace(/@page\b[^{}]*\{[^}]*\}/, '');
+    }
+  }
+  // Size the PDF page to the rendered design unless the file opted into
+  // standard paper via @page{size:letter|A4|…} or declared print ownership
+  // via the meta above. Decks own their own @page.
+  // Wrappers (body, …) lose padding+margin so the frame sits at (0,0); the
+  // frame itself loses only margin — its padding is INSIDE the measured
+  // rect and must stay, or content shifts and leaves a gap at bottom/right.
+  var __m = null;
+  try { __m = (() => {
+  var STAMP = true;
+  var docEl = document.documentElement;
+  var doc = { width: docEl.scrollWidth, height: docEl.scrollHeight };
+  // Name-presence check, case-insensitive — the same contract as the
+  // instant-PDF path's runtime check in deck-stage-export.ts. The name is
+  // a string literal here because that file interpolates this script into
+  // its print script, so importing a shared constant from it would be a
+  // cycle; measure.test.ts pins the literal so the two cannot drift apart
+  // silently.
+  var ownsPrint = !!document.querySelector('meta[name="omelette-owns-print" i]');
+
+  var ds = document.querySelector('deck-stage');
+  if (ds) {
+    var dw = Number(ds.getAttribute('width')) || 1920;
+    var dh = Number(ds.getAttribute('height')) || 1080;
+    var n = typeof ds.length === 'number' ? ds.length : ds.children.length;
+    var idx = typeof ds.index === 'number' ? ds.index : 0;
+    var frames = [];
+    for (var i = 0; i < n; i++) frames.push({ left: 0, top: 0, width: dw, height: dh });
+    return { kind: 'deck', source: 'declared', doc: doc, frames: frames,
+      authored: frames.map(function(){return{width:true,height:true}}),
+      deck: { width: dw, height: dh, slideCount: n, index: idx },
+      signals: { paperPage: false, pxPage: false, ownsPrint: ownsPrint } };
+  }
+
+  // Declared kind: a doc-page tag names the kind outright, so no signal
+  // heuristics run (like the deck branch above, signals report false —
+  // they describe inferred classifications only). The tag alone is not
+  // trusted: the element must have upgraded (shadowRoot present), so a
+  // leftover tag whose script was deleted falls through to the heuristics
+  // that handle plain markup.
+  var stageSx = window.scrollX || 0, stageSy = window.scrollY || 0;
+  var dp = document.querySelector('doc-page');
+  if (dp && dp.shadowRoot) {
+    // Crop to the sheet, not the host — the desk around it is screen-only
+    // chrome that must not land in PNG exports.
+    var sheet = dp.shadowRoot.querySelector('.sheet');
+    var sr = (sheet || dp).getBoundingClientRect();
+    return { kind: 'paper-doc', source: 'declared', doc: doc,
+      frames: [{ left: sr.left + stageSx, top: sr.top + stageSy,
+        width: sr.width, height: sr.height }],
+      authored: [{ width: false, height: false }],
+      signals: { paperPage: false, pxPage: false, ownsPrint: ownsPrint } };
+  }
+  var paperPage = false, pxPage = false;
+  var eachRule = function (fn) {
+    for (var s = 0; s < document.styleSheets.length; s++) {
+      var rs; try { rs = document.styleSheets[s].cssRules; } catch (e) { continue; }
+      for (var r = 0; r < rs.length; r++) {
+        fn(rs[r]);
+        if (rs[r].cssRules) for (var n = 0; n < rs[r].cssRules.length; n++) fn(rs[r].cssRules[n]);
+      }
+    }
+  };
+  eachRule(function (r) {
+    if (r.type !== 6) return;
+    var m = /\bsize\s*:\s*([^;}]+)/i.exec(r.cssText || '');
+    if (!m) return;
+    if (/\b(letter|a[3-5]|legal|ledger)\b/i.test(m[1])) paperPage = true;
+    if (/\d+(?:\.\d+)?px\b/i.test(m[1])) pxPage = true;
+  });
+  var signals = { paperPage: paperPage, pxPage: pxPage, ownsPrint: ownsPrint };
+
+  var pxVal = function (v) {
+    var m = /^(\d+(?:\.\d+)?)px$/.exec(v || ''); return m ? +m[1] : 0;
+  };
+  var authoredPx = function (el, prop) {
+    if (pxVal(el.style[prop])) return true;
+    var attr = el.getAttribute(prop);
+    if (attr && /^\d+$/.test(attr)) return true;
+    var hit = false;
+    eachRule(function (r) {
+      if (hit || r.type !== 1 || !r.style) return;
+      try { if (el.matches(r.selectorText) && pxVal(r.style[prop])) hit = true; } catch (e) {}
+    });
+    return hit;
+  };
+
+  var el = document.body, rootPxW = false;
+  for (;;) {
+    var kids = [];
+    for (var c = 0; c < el.children.length; c++) {
+      var t = el.children[c].tagName;
+      if (t !== 'SCRIPT' && t !== 'STYLE' && t !== 'TEMPLATE') kids.push(el.children[c]);
+    }
+    if (kids.length !== 1 || !(kids[0] instanceof HTMLElement)) break;
+    if (STAMP) el.setAttribute('data-om-frame-wrap', '');
+    el = kids[0];
+    rootPxW = authoredPx(el, 'width');
+    if (rootPxW) break;
+  }
+  if (!rootPxW) rootPxW = authoredPx(el, 'width');
+
+  // @page{size:letter} alone is a flowing doc; with a px-width root it's a
+  // fixed sheet pretending to be paper — fall through and size to render.
+  if (paperPage && !rootPxW) {
+    return { kind: 'paper-doc', source: 'inferred', doc: doc, signals: signals,
+      frames: [{ left: 0, top: 0, width: doc.width, height: doc.height }],
+      authored: [{ width: false, height: false }] };
+  }
+
+  var sx = window.scrollX || 0, sy = window.scrollY || 0;
+  var rectOf = function (e) {
+    var r = e.getBoundingClientRect();
+    var oy; try { oy = getComputedStyle(e).overflowY; } catch (err) {}
+    var h = oy === 'visible' ? Math.max(r.height, e.scrollHeight || 0) : r.height;
+    return { left: r.left + sx, top: r.top + sy, width: r.width, height: h };
+  };
+
+  // Multi-frame: off unless the page opts in via data-om-multi-frame on the
+  // stop element — the explicit opt-in is what guards against card grids
+  // and pricing tables that match the geometry but aren't separate
+  // canvases. Two ways to name the frames, explicit first:
+  // 1. Descendants marked data-om-frame-export (the social-frames starter
+  //    marks each asset frame; shells/panels around them are presentation,
+  //    so nesting is expected). Document order.
+  // 2. Fallback, no marked descendants: direct children with an authored px
+  //    width AND height (the original geometry heuristic).
+  // Frames may be different sizes (a gallery mixes 1080×1920 stories with
+  // 728×90 banners); data-om-frame-label rides along for export filenames.
+  if (el.hasAttribute('data-om-multi-frame')) {
+    var visOk = function (e) {
+      var cs; try { cs = getComputedStyle(e); } catch (err) { return false; }
+      return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.position !== 'fixed';
+    };
+    // A frame's crop is its VISUAL box — never the scrollHeight-inflated
+    // rect that rectOf computes for page roots. Shadow-DOM hover controls
+    // (image-slot's Replace bar parks 29px below its host) and similar
+    // escaping UI contribute scrollable overflow to the frame, and the
+    // inflated height both squashes the nominal-size resize and drags
+    // content below the frame into the crop. Zoom-independent; bit every
+    // slot-bearing frame.
+    var frameRectOf = function (e) {
+      var r = e.getBoundingClientRect();
+      return { left: r.left + sx, top: r.top + sy, width: r.width, height: r.height };
+    };
+    var pushCand = function (list, e) {
+      if (!visOk(e)) return;
+      var rc = frameRectOf(e);
+      if (rc.width < 2 || rc.height < 2) return;
+      var lbl = e.getAttribute('data-om-frame-label');
+      if (lbl) rc.label = lbl;
+      list.push(rc);
+    };
+    var cands = [];
+    var marked = el.querySelectorAll('[data-om-frame-export]');
+    if (marked.length) {
+      for (var mk = 0; mk < marked.length; mk++) pushCand(cands, marked[mk]);
+    } else {
+      for (var k = 0; k < el.children.length; k++) {
+        var ch = el.children[k];
+        if (!authoredPx(ch, 'width') || !authoredPx(ch, 'height')) continue;
+        pushCand(cands, ch);
+      }
+    }
+    if (cands.length >= 2) {
+      return { kind: 'multi-frame', source: 'inferred', doc: doc, signals: signals,
+        frames: cands, authored: cands.map(function(){return{width:true,height:true}}) };
+    }
+  }
+
+  if (STAMP) el.setAttribute('data-om-frame', '');
+  return { kind: 'single-canvas', source: 'inferred', doc: doc, signals: signals,
+    frames: [rectOf(el)],
+    authored: [{ width: rootPxW, height: authoredPx(el, 'height') }] };
+})(); } catch (e) {}
+  var frame = null;
+  if (!ownsPrint && __m && __m.kind === 'single-canvas') {
+    var f = __m.frames && __m.frames[0];
+    if (f && f.width >= 200 && f.height >= 200) {
+      frame = f;
+      var fst = document.createElement('style');
+      fst.textContent = '@media print{@page{size:' + Math.ceil(f.width) + 'px ' +
+        Math.ceil(f.height) + 'px;margin:0}' +
+        'html,body,[data-om-frame-wrap]{padding:0!important;margin:0!important;background:none!important}' +
+        '[data-om-frame]{margin:0!important}}';
+      document.body.appendChild(fst);
+    }
+  }
+  // Relax break-inside on oversized elements. An element taller than a
+  // printable page can't honor break-inside: avoid — browsers either overflow
+  // it or push it whole to the next page, leaving a blank gap, then break it
+  // anyway at an arbitrary point. After the final layout (content revealed,
+  // animations jumped), find elements taller than a page that still compute
+  // break-inside: avoid and reset them to auto, so the browser breaks them at
+  // their children's boundaries instead (children keep their own avoid). PAGE_PX
+  // is a conservative portrait estimate at 96 CSS px/in — Letter/A4 usable
+  // height minus our 0.5in margins — so only clearly-oversized elements are
+  // touched and under-page elements still stay whole. Skipped for decks (slides
+  // are sized to the page) and for fixed-size canvases (frame set, or an author
+  // px-based @page) — runs as before for flowing docs on letter/A4.
+  try {
+    if (!ds && !frame && !(__m && __m.signals && __m.signals.pxPage)) {
+      const PAGE_PX = 1024;
+      // Our print defaults add a real @page margin only when the source has
+      // no @page of its own; computed style can't tell us (it reports screen
+      // media), so read the injected rule directly.
+      const defaults = document.querySelector('style[data-omelette-print-defaults]');
+      const pageInset = /@page\s*\{[^}]*margin/.test(defaults ? defaults.textContent || '' : '');
+      const SEL = 'section,article,figure,table,pre,blockquote,[class~="card" i],[class~="page" i],[class~="sheet" i]';
+      for (const el of document.body.querySelectorAll(SEL)) {
+        if (el instanceof HTMLElement && el.offsetHeight > PAGE_PX) {
+          el.setAttribute('data-om-oversized', '');
+          // Fake-paged docs simulate sheets with over-tall break-after:page
+          // boxes; honoring the break spills half-blank pages and ends a
+          // colored box mid-sheet. Flow them, and (only when we own the page
+          // inset) drop the redundant padding/background via the rule below.
+          const cs = getComputedStyle(el);
+          // An owns-print doc's forced breaks are intentional sheet
+          // boundaries, never fake-paged simulation — don't strip them.
+          // The break-inside relaxation above still applies: avoid on a
+          // >page element is impossible to honor whoever authored it.
+          if (
+            !ownsPrint &&
+            (cs.breakAfter === 'page' || cs.pageBreakAfter === 'always')
+          ) {
+            el.setAttribute('data-om-fakepage', '');
+          }
+        }
+      }
+      const ost = document.createElement('style');
+      ost.textContent = '@media print{' +
+        '[data-om-oversized]{break-inside:auto !important;page-break-inside:auto !important}' +
+        '[data-om-fakepage]{break-after:auto !important;page-break-after:auto !important}' +
+        (pageInset ? '[data-om-fakepage]{padding:0 !important;background:none !important}' : '') +
+        '}';
+      document.head.appendChild(ost);
+    }
+  } catch (e) {}
+  // macOS Preview renders Skia-PDF Luminosity soft-masks as opaque grey boxes;
+  // swap the CSS that triggers them for Preview-safe forms.
+  try {
+    for (const el of document.body.querySelectorAll('*')) {
+      const cs = getComputedStyle(el);
+
+      if (cs.boxShadow !== 'none' && cs.filter === 'none') {
+        const outs = [], kept = [];
+        for (const s of cs.boxShadow.split(/,(?![^(]*[)])/)) {
+          const t = s.trim();
+          const m = t.match(/^(rgba?[(][^)]+[)]) (-?[0-9.]+px) (-?[0-9.]+px) ([0-9.]+px) -?[0-9.]+px$/);
+          if (m && parseFloat(m[4]) > 0) outs.push('drop-shadow(' + m[2] + ' ' + m[3] + ' ' + m[4] + ' ' + m[1] + ')');
+          else kept.push(t);
+        }
+        if (outs.length) {
+          el.style.setProperty('filter', outs.join(' '), 'important');
+          el.style.setProperty('box-shadow', kept.join(', ') || 'none', 'important');
+        }
+      }
+
+      const mask = cs.maskImage && cs.maskImage !== 'none' ? cs.maskImage : cs.webkitMaskImage;
+      if (mask && mask !== 'none' && cs.filter === 'none') el.style.setProperty('filter', 'opacity(1)', 'important');
+    }
+  } catch (e) {}
+  mark('print-calling');
+  setTimeout(() => { try { window.print(); } catch (e) {} }, 200);
+})();
+</script>
+</body>
+</html>
