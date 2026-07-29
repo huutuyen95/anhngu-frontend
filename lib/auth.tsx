@@ -7,23 +7,22 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { api, getToken, setToken } from "@/lib/api";
+import { getToken, setToken } from "@/lib/api";
+import {
+  loginRequest,
+  logoutRequest,
+  meRequest,
+} from "@/lib/api/auth";
+import type { User, UserRole } from "@/lib/types/user";
 
-export type UserRole = "admin" | "teacher" | "student";
-
-export type User = {
-  id: number;
-  name: string;
-  email: string;
-  role: UserRole;
-  avatar_url: string | null;
-};
+export type { User, UserRole };
 
 type AuthContextValue = {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, remember?: boolean) => Promise<User>;
   logout: () => Promise<void>;
+  clearSession: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -39,24 +38,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    api<User>("/auth/me")
+    meRequest()
       .then(setUser)
       .catch(() => setToken(null))
       .finally(() => setLoading(false));
   }, []);
 
-  async function login(email: string, password: string) {
-    const data = await api<{ user: User; token: string }>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
+  useEffect(() => {
+    // Token hết hạn giữa phiên (bắt ở lib/api.ts) → xoá user khỏi context.
+    function onExpired() {
+      setUser(null);
+    }
+    window.addEventListener("auth:expired", onExpired);
+    return () => window.removeEventListener("auth:expired", onExpired);
+  }, []);
+
+  async function login(email: string, password: string, remember = false) {
+    const data = await loginRequest(email, password, remember);
     setToken(data.token);
     setUser(data.user);
+    return data.user;
   }
 
   async function logout() {
     try {
-      await api("/auth/logout", { method: "POST" });
+      await logoutRequest();
     } catch {
       // Bỏ qua lỗi mạng — vẫn xoá phiên cục bộ để đăng xuất được
     } finally {
@@ -65,8 +71,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function clearSession() {
+    setToken(null);
+    setUser(null);
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, clearSession }}>
       {children}
     </AuthContext.Provider>
   );

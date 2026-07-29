@@ -2,36 +2,69 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/*
+  Brand Option 1 (cam am / nen kem) — nguon chuan: backend/docs/DESIGN-UI-CHI-TIET.md §2.
+  Khong dark mode. Token semantic khai trong theme (thanh ca CSS var lan utility mau).
+  Cac bien shadcn (primary, background…) map sang token nay.
+*/
+@theme {
+  /* Fonts — nạp qua next/font ở app/layout.tsx */
+  --font-sans: var(--font-quicksand), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-baloo), var(--font-quicksand), ui-sans-serif, sans-serif;
 
+  /* Brand */
+  --color-brand: #f2793b;
+  --color-brand-bold: #d65f27;
+  --color-brand-soft: #fdebdd;
+  --color-accent: #ffc94d;
+  --color-accent-soft: #fff3d3;
+
+  /* Nền & bề mặt */
+  --color-bg: #fbf7ea;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fdfbf3;
+
+  /* Viền */
+  --color-border: #efe7d4;
+  --color-border-strong: #e4dcc8;
+
+  /* Chữ */
+  --color-text: #3a3330;
+  --color-text-secondary: #8a8073;
+  --color-text-muted: #b5ac9c;
+
+  /* Semantic */
+  --color-success: #7fab2a;
+  --color-success-soft: #f1f8de;
+  --color-danger: #e5604c;
+  --color-danger-soft: #fde7e2;
+  --color-warning: #e3ab2d;
+  --color-warning-soft: #fff3d3;
+  --color-info: #56c2ee;
+  --color-info-soft: #e4f5fd;
+
+  /* Kỹ năng đề */
+  --color-skill-reading: #e5604c;
+  --color-skill-reading-soft: #fde7e2;
+  --color-skill-listening: #56c2ee;
+  --color-skill-listening-soft: #e4f5fd;
+  --color-skill-writing: #7fab2a;
+  --color-skill-writing-soft: #f1f8de;
+  --color-skill-speaking: #b06cd6;
+  --color-skill-speaking-soft: #f1e6fa;
+}
+
+/* Map biến shadcn (base-ui components dùng) sang Option 1 */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Dùng font Geist đã cấu hình sẵn ở app/layout.tsx (next/font) */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-display);
   --color-success-foreground: var(--success-foreground);
-  --color-success: var(--success);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
-  --color-border: var(--border);
+  --color-border-ui: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -42,91 +75,39 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --radius-sm: calc(var(--radius) * 0.7);
+  --radius-md: calc(var(--radius) * 0.85);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
 }
 
 :root {
-  /* Bản sắc màu của dự án — đổi ở đây khi cần điều chỉnh theme toàn site. */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  /* Primary = navy #0a2a5e (màu thương hiệu chính, dùng cho nút/link chính) */
-  --primary: #0a2a5e;
-  --primary-foreground: #ffffff;
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  /* Success = xanh lá #22a45d — dùng cho badge "Đã làm", trạng thái thành công, nút xác nhận */
-  --success: #22a45d;
-  --success-foreground: #ffffff;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  /* Bo góc mặc định — đổi 1 chỗ này để đổi độ bo cho toàn bộ component shadcn */
-  --radius: 0.6rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  --radius: 0.875rem; /* 14px — input/nút mặc định */
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  /* Chưa tinh chỉnh riêng cho dark mode ở lần này (spec chỉ yêu cầu light mode) */
-  --success: #22a45d;
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text);
+
+  --primary: var(--color-brand);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-surface-alt);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-surface-alt);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-accent-soft);
+  --accent-foreground: var(--color-text);
+
+  --success: var(--color-success);
   --success-foreground: #ffffff;
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --destructive: var(--color-danger);
+
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-brand);
 }
 
 @layer base {
@@ -135,8 +116,20 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
   }
   html {
     @apply font-sans;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+  }
+}
+
+/* Nút "khối" Option 1: bóng đặc, nhấn lún — dùng bởi components/ui/button (variant primary/danger) */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }

@@ -1,42 +1,34 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { AppHeader } from "@/components/layout/app-header";
-import { AppSidebar } from "@/components/layout/app-sidebar";
-import { AppFooter } from "@/components/layout/app-footer";
+import { isTeacher } from "@/lib/types/user";
+import { StudentShell } from "@/components/student/student-shell";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { user, loading, logout } = useAuth();
+  const pathname = usePathname();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/login");
+    if (loading) return;
+    if (!user) {
+      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+    } else if (isTeacher(user.role)) {
+      // Giáo viên vào khu học sinh → chuyển sang khu quản trị.
+      router.replace("/teacher");
     }
-  }, [loading, user, router]);
+  }, [loading, user, pathname, router]);
 
-  // Chưa xác định phiên hoặc chưa đăng nhập: chưa render nội dung khu riêng tư
-  if (loading || !user) {
-    return null;
-  }
-
-  async function handleLogout() {
-    await logout();
-    router.push("/login");
-  }
-
-  return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
-      <AppHeader onLogout={handleLogout} />
-
-      <div className="flex flex-1 pt-16">
-        <AppSidebar />
-        <main className="flex-1 p-6">{children}</main>
+  // Đang khôi phục phiên hoặc chưa đủ điều kiện: skeleton thay vì màn trắng.
+  if (loading || !user || isTeacher(user.role)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-bg">
+        <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-border border-t-brand" />
       </div>
+    );
+  }
 
-      <AppFooter />
-    </div>
-  );
+  return <StudentShell>{children}</StudentShell>;
 }

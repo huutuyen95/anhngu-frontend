@@ -24,8 +24,8 @@ Nguồn: [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max
 |-----------|--------|
 | Product type | Education / learning app (học viên) + light admin |
 | Style | Flat / Soft UI / Accessible — rõ ràng, tập trung nhiệm vụ học |
-| Brand | **Lumen** ưu tiên: Ocean `#0E4A5C` · Coral `#FF6B4A` — mocks [lumen/](../../mocks/lumen/). Docs cũ navy/amber chỉ tham khảo. |
-| UI wireframes | [UI-WIREFRAMES.md](../../UI-WIREFRAMES.md) + mocks Lumen |
+| Brand | **CHỐT: Option 1 — cam ấm `#F2793B` + nền kem `#FBF7EA`** (font Baloo 2 + Quicksand). Nguồn chuẩn: `backend/docs/DESIGN-UI-CHI-TIET.md` §2.1. Lumen (ocean/coral) và navy/amber là **LỊCH SỬ**, không dùng. |
+| UI wireframes | [UI-WIREFRAMES.md](../../../frontend/docs/UI-WIREFRAMES.md) + `backend/docs/DESIGN-UI-CHI-TIET.md` §3–§4 |
 | Tránh | Purple AI gradients, emoji-as-icon, dark-mode mặc định, hero marketing / balloon / FAB AI |
 | Stack | Next.js App Router + CSS/Tailwind — bám design system, đừng invent palette mới |
 
