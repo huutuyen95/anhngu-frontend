@@ -1,5 +1,10 @@
 # Design Guide — Anh Ngữ (Hiện đại, tối giản)
 
+> **⚠️ CHỐT (2026-07-29):** Palette/typography chuẩn nay ở `backend/docs/DESIGN-UI-CHI-TIET.md` §2
+> — **Option 1: cam `#F2793B` + kem `#FBF7EA` + Baloo 2/Quicksand**. Mục "Màu" navy `#0a2a5e` +
+> green `#22a45d` + Inter bên dưới là **LỊCH SỬ**, không dùng nữa. Nguyên tắc bố cục/khoảng
+> trắng/chuyển động ở file này vẫn áp dụng. Giữ shadcn/ui làm nền primitive nhưng **re-theme sang Option 1**.
+
 Kim chỉ nam để mọi trang trông nhất quán và "sạch". Dùng chung với shadcn/ui đã cài.
 
 ## Nguyên tắc

@@ -56,6 +56,14 @@ export async function api<T>(
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
+    // 401 giữa phiên (đã có token) = token hết hạn → dọn phiên + báo cho app.
+    if (response.status === 401 && token) {
+      setToken(null);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("auth:expired"));
+      }
+    }
+
     throw new ApiError(
       response.status,
       data?.message ?? "Đã có lỗi xảy ra, vui lòng thử lại.",

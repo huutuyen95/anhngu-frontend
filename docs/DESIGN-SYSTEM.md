@@ -5,10 +5,12 @@
 > Mục tiêu: app học nội bộ (HV + GV) nhìn quen brand, gọn hơn UUP.
 
 Tham chiếu sản phẩm: `backend/docs/DESIGN-ADMIN-HOC-VIEN.md` · Skill UI: `frontend/docs/skills/anhngu-frontend-ui-ux/`.  
-**Wireframes màn cốt lõi (HV + GV):** [UI-WIREFRAMES.md](UI-WIREFRAMES.md).  
-**Mock visual ưu tiên (Lumen):** [mocks/lumen/](mocks/lumen/) — Ocean `#0E4A5C` · Coral `#FF6B4A` (hiện đại hơn navy/amber bên dưới).
+**Wireframes màn cốt lõi (HV + GV):** [UI-WIREFRAMES.md](UI-WIREFRAMES.md).
 
-> **Ghi chú (2026-07):** Hướng UI mới = **Lumen**. Bảng token navy/amber ở mục 2 vẫn giữ như lịch sử site gốc; khi implement MVP ưu tiên Lumen trừ khi team quyết định giữ navy.
+> **⚠️ CHỐT (2026-07-29): brand = Option 1 — cam ấm `#F2793B` + nền kem `#FBF7EA`** (font Baloo 2 + Quicksand).
+> **Nguồn chuẩn duy nhất về màu/typography/component: `backend/docs/DESIGN-UI-CHI-TIET.md` §2.**
+> Toàn bộ bảng token navy/amber (`#002854`/`#F5AC3D`) bên dưới **và** hướng "Lumen" (ocean/coral)
+> trước đây đều là **LỊCH SỬ, không dùng nữa** — giữ lại chỉ để tham chiếu. Khi có xung đột, theo DESIGN-UI-CHI-TIET.md.
 
 ---
 
