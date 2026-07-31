@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { UploadCloud, FileSpreadsheet, Download } from "lucide-react";
 import { toast } from "sonner";
-import { ApiError } from "@/lib/api";
+import { ApiError, downloadFile } from "@/lib/api";
 import { commitImport, previewImport, importTemplateUrl } from "@/lib/api/students";
 import type { ImportPreview, ImportResult } from "@/lib/types/student";
 import { Modal } from "@/components/ui/modal";
@@ -90,12 +90,17 @@ export function ImportWizard({ open, onClose, onDone }: Props) {
       footer={
         step === 1 ? (
           <>
-            <a
-              href={importTemplateUrl()}
+            <button
+              type="button"
+              onClick={() =>
+                downloadFile(importTemplateUrl(), "mau-import-hoc-sinh.xlsx").catch(() =>
+                  toast.error("Không tải được file mẫu."),
+                )
+              }
               className="mr-auto inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:underline"
             >
               <Download className="size-4" /> Tải file mẫu
-            </a>
+            </button>
             <Button variant="outline" onClick={close}>
               Đóng
             </Button>

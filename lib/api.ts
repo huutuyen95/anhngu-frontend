@@ -17,6 +17,29 @@ export function setToken(token: string | null): void {
   }
 }
 
+/**
+ * Tải file (export Excel…) từ endpoint cần auth: fetch kèm Bearer token rồi lưu blob.
+ * Không dùng <a href> trực tiếp vì trình duyệt không gửi header Authorization.
+ * `url` là đường dẫn tuyệt đối (đã gồm API_URL).
+ */
+export async function downloadFile(url: string, filename: string): Promise<void> {
+  const token = getToken();
+  const res = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  if (!res.ok) throw new Error("Tải file thất bại.");
+  const blob = await res.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(objectUrl);
+}
+
 export class ApiError extends Error {
   status: number;
   errors?: Record<string, string[]>;
