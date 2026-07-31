@@ -4,11 +4,13 @@ import { type FormEvent, useEffect, useState } from "react";
 import { ApiError } from "@/lib/api";
 import { createStudent, updateStudent } from "@/lib/api/students";
 import type { ClassroomRef, Student } from "@/lib/types/student";
+import { uploadImage } from "@/lib/api/media";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 type Props = {
   open: boolean;
@@ -32,6 +34,7 @@ export function StudentFormModal({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [note, setNote] = useState("");
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [classIds, setClassIds] = useState<number[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -43,6 +46,7 @@ export function StudentFormModal({
     setEmail(editing?.email ?? "");
     setPhone(editing?.phone ?? "");
     setNote(editing?.note ?? "");
+    setAvatar(editing?.avatar_url ?? null);
     setClassIds(editing?.classrooms?.map((c) => c.id) ?? []);
   }, [open, editing]);
 
@@ -62,6 +66,7 @@ export function StudentFormModal({
           name,
           phone,
           note,
+          avatar_url: avatar,
           classroom_ids: classIds,
         });
         onUpdated(student);
@@ -71,6 +76,7 @@ export function StudentFormModal({
           email,
           phone,
           note,
+          avatar_url: avatar,
           classroom_ids: classIds,
         });
         onCreated(student, temp_password);
@@ -111,6 +117,15 @@ export function StudentFormModal({
             {errors._}
           </div>
         )}
+
+        <ImageUpload
+          label="Ảnh đại diện"
+          value={avatar}
+          onChange={setAvatar}
+          upload={uploadImage}
+          shape="circle"
+        />
+
         <FormField htmlFor="s-name" label="Họ tên" required error={errors.name}>
           <Input id="s-name" value={name} onChange={(e) => setName(e.target.value)} required />
         </FormField>

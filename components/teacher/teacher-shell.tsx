@@ -32,7 +32,7 @@ const NAV: NavItem[] = [
   { label: "Học sinh", href: "/teacher/students", icon: Users, ready: true },
   { label: "Lớp học", href: "/teacher/classes", icon: School, ready: true },
   { label: "Đề thi", href: "/teacher/tests", icon: FileText },
-  { label: "Từ vựng", href: "/teacher/decks", icon: BookA },
+  { label: "Từ vựng", href: "/teacher/vocabulary", icon: BookA, ready: true },
   { label: "Tài liệu & Bài giảng", href: "/teacher/documents", icon: Files },
   { label: "Kết quả làm bài", href: "/teacher/results", icon: ClipboardList },
   { label: "Chấm bài", href: "/teacher/grading", icon: PenLine, badge: 0 },
