@@ -2,11 +2,10 @@
 
 import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import { isTeacher } from "@/lib/types/user";
 import { TeacherShell } from "@/components/teacher/teacher-shell";
-import { Button } from "@/components/ui/button";
+import { ButtonLink } from "@/components/ui/button";
 
 export default function TeacherPanelLayout({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -43,7 +42,7 @@ export default function TeacherPanelLayout({ children }: { children: ReactNode }
         <p className="max-w-sm text-text-secondary">
           Tài khoản của em là học sinh nên không vào được khu quản trị.
         </p>
-        <Button render={<Link href="/missions" />}>Về khu học tập</Button>
+        <ButtonLink href="/missions">Về khu học tập</ButtonLink>
       </div>
     );
   }

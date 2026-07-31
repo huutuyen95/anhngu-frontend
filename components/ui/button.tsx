@@ -1,7 +1,8 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Loader2 } from "lucide-react"
-import type { ReactNode } from "react"
+import Link from "next/link"
+import type { ComponentProps, ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -63,9 +64,12 @@ function Button({
   children,
   ...props
 }: ButtonProps) {
+  // Khi render thành phần khác (vd <Link>), báo base-ui rằng KHÔNG phải native <button>.
+  const nativeButton = "render" in props ? false : undefined
   return (
     <ButtonPrimitive
       data-slot="button"
+      nativeButton={nativeButton}
       disabled={disabled || loading}
       className={cn(
         buttonVariants({ variant, size }),
@@ -82,4 +86,42 @@ function Button({
   )
 }
 
-export { Button, buttonVariants }
+/**
+ * Nút dạng liên kết: render <Link> thuần với style của Button (tránh cảnh báo
+ * nativeButton của base-ui khi dùng render={<Link>}).
+ */
+type ButtonLinkProps = ComponentProps<typeof Link> &
+  VariantProps<typeof buttonVariants> & {
+    iconLeft?: ReactNode
+    iconRight?: ReactNode
+    fullWidth?: boolean
+  }
+
+function ButtonLink({
+  className,
+  variant = "primary",
+  size = "md",
+  iconLeft,
+  iconRight,
+  fullWidth = false,
+  children,
+  ...props
+}: ButtonLinkProps) {
+  return (
+    <Link
+      data-slot="button-link"
+      className={cn(
+        buttonVariants({ variant, size }),
+        fullWidth && "w-full",
+        className
+      )}
+      {...props}
+    >
+      {iconLeft}
+      {children}
+      {iconRight}
+    </Link>
+  )
+}
+
+export { Button, ButtonLink, buttonVariants }

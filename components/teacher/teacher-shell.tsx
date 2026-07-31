@@ -12,7 +12,6 @@ import {
   Files,
   ClipboardList,
   PenLine,
-  BarChart3,
   Bell,
   LogOut,
 } from "lucide-react";
@@ -27,16 +26,16 @@ type NavItem = {
   badge?: number;
 };
 
+// IA đã chốt (Sprint 2): đúng 8 mục, KHÔNG có "Báo cáo" riêng (Báo cáo là tab trong lớp).
 const NAV: NavItem[] = [
   { label: "Tổng quan", href: "/teacher", icon: LayoutDashboard, ready: true },
   { label: "Học sinh", href: "/teacher/students", icon: Users, ready: true },
-  { label: "Lớp học", href: "/teacher/classrooms", icon: School },
+  { label: "Lớp học", href: "/teacher/classes", icon: School, ready: true },
   { label: "Đề thi", href: "/teacher/tests", icon: FileText },
   { label: "Từ vựng", href: "/teacher/decks", icon: BookA },
   { label: "Tài liệu & Bài giảng", href: "/teacher/documents", icon: Files },
   { label: "Kết quả làm bài", href: "/teacher/results", icon: ClipboardList },
   { label: "Chấm bài", href: "/teacher/grading", icon: PenLine, badge: 0 },
-  { label: "Báo cáo", href: "/teacher/reports", icon: BarChart3 },
 ];
 
 export function TeacherShell({ children }: { children: ReactNode }) {

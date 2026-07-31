@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { downloadFile } from "@/lib/api";
 import {
   bulkStudents,
   deleteStudent,
@@ -220,11 +221,18 @@ function StudentsView() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <a href={importTemplateUrl()}>
-            <Button variant="ghost" size="sm" iconLeft={<Download className="size-4" />}>
-              Tải Excel mẫu
-            </Button>
-          </a>
+          <Button
+            variant="ghost"
+            size="sm"
+            iconLeft={<Download className="size-4" />}
+            onClick={() =>
+              downloadFile(importTemplateUrl(), "mau-import-hoc-sinh.xlsx").catch(() =>
+                toast.error("Không tải được file mẫu."),
+              )
+            }
+          >
+            Tải Excel mẫu
+          </Button>
           <Button
             variant="outline"
             size="sm"
