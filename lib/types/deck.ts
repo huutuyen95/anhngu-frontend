@@ -1,6 +1,7 @@
 import type { VoiceKey } from "@/lib/tts";
+import type { ClassroomRef } from "@/lib/types/student";
 
-export type ClassroomRef = { id: number; name: string };
+export type { ClassroomRef };
 
 export type Deck = {
   id: number;
@@ -71,3 +72,5 @@ export const VOICE_OPTIONS: { key: VoiceKey; label: string }[] = [
   { key: "en-US-female", label: "Anh–Mỹ (Nữ)" },
   { key: "en-US-male", label: "Anh–Mỹ (Nam)" },
 ];
+
+export const TTS_RATES = [0.7, 0.8, 0.9, 1.0, 1.1] as const;

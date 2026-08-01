@@ -1,4 +1,4 @@
-import { api, getToken } from "@/lib/api";
+import { api, apiForm } from "@/lib/api";
 import type {
   Card,
   CardImportPreview,
@@ -37,7 +37,7 @@ export type DeckPayload = {
   is_published?: boolean;
 };
 
-export function createDeck(payload: DeckPayload): Promise<{ deck: Deck; warning?: string | null }> {
+export function createDeck(payload: DeckPayload): Promise<{ deck: Deck }> {
   return api("/decks", { method: "POST", body: JSON.stringify(payload) });
 }
 export function updateDeck(id: number, payload: DeckPayload): Promise<{ deck: Deck }> {
@@ -81,18 +81,10 @@ export function deleteCardAudio(id: number): Promise<{ message: string }> {
   return api(`/cards/${id}/audio`, { method: "DELETE" });
 }
 
-async function upload(path: string, file: File): Promise<Record<string, string>> {
+function upload(path: string, file: File) {
   const form = new FormData();
   form.append("file", file);
-  const token = getToken();
-  const res = await fetch(`${API_URL}${path}`, {
-    method: "POST",
-    headers: { Accept: "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: form,
-  });
-  const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.message ?? "Tải lên thất bại.");
-  return data;
+  return apiForm<Record<string, string>>(path, form);
 }
 export function uploadCardImage(id: number, file: File) {
   return upload(`/cards/${id}/image`, file);
@@ -109,31 +101,23 @@ export function cardsImportTemplateUrl(): string {
   return `${API_URL}/decks/cards-import-template`;
 }
 
-async function importForm(deckId: number, file: File, query: string): Promise<Response> {
+function importFormData(file: File) {
   const form = new FormData();
   form.append("file", file);
-  const token = getToken();
-  return fetch(`${API_URL}/decks/${deckId}/cards/import${query}`, {
-    method: "POST",
-    headers: { Accept: "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: form,
-  });
+  return form;
 }
-export async function previewCardsImport(deckId: number, file: File): Promise<CardImportPreview> {
-  const res = await importForm(deckId, file, "?dry_run=1");
-  const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.message ?? "Không đọc được file.");
-  return data;
+export function previewCardsImport(deckId: number, file: File): Promise<CardImportPreview> {
+  return apiForm(`/decks/${deckId}/cards/import?dry_run=1`, importFormData(file));
 }
-export async function commitCardsImport(
+export function commitCardsImport(
   deckId: number,
   file: File,
   opts: { auto_ipa: boolean; overwrite: boolean },
 ): Promise<{ created: number; updated: number; skipped: number; error: number }> {
-  const res = await importForm(deckId, file, `?auto_ipa=${opts.auto_ipa ? 1 : 0}&overwrite=${opts.overwrite ? 1 : 0}`);
-  const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.message ?? "Import thất bại.");
-  return data;
+  return apiForm(
+    `/decks/${deckId}/cards/import?auto_ipa=${opts.auto_ipa ? 1 : 0}&overwrite=${opts.overwrite ? 1 : 0}`,
+    importFormData(file),
+  );
 }
 
 // ── Student ──

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, use, useCallback, useEffect, useState } from "react";
+import { Suspense, use, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -23,7 +23,7 @@ import {
   reorderCards,
   updateDeck,
 } from "@/lib/api/decks";
-import { VOICE_OPTIONS, type Card, type Deck } from "@/lib/types/deck";
+import { TTS_RATES, VOICE_OPTIONS, type Card, type Deck } from "@/lib/types/deck";
 import type { VoiceKey } from "@/lib/tts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,13 +35,12 @@ import { CardFormModal } from "@/features/vocabulary/card-form-modal";
 import { CardImportWizard } from "@/features/vocabulary/card-import-wizard";
 import { DeckPreviewModal } from "@/features/vocabulary/deck-preview-modal";
 
-const RATES = [0.7, 0.8, 0.9, 1.0, 1.1];
-
 function DeckDetail({ deckId }: { deckId: number }) {
   const params = useSearchParams();
   const [deck, setDeck] = useState<Deck | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const [q, setQ] = useState("");
   const [missing, setMissing] = useState("");
   const [cardOpen, setCardOpen] = useState(false);
@@ -49,6 +48,7 @@ function DeckDetail({ deckId }: { deckId: number }) {
   const [importOpen, setImportOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(params.get("preview") === "1");
   const [confirmDel, setConfirmDel] = useState<Card | null>(null);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadDeck = useCallback(() => {
     getDeck(deckId).then((r) => setDeck(r.deck)).catch(() => setDeck(null));
@@ -60,6 +60,12 @@ function DeckDetail({ deckId }: { deckId: number }) {
 
   useEffect(() => { loadDeck(); }, [loadDeck]);
   useEffect(() => { loadCards().finally(() => setLoading(false)); }, [loadCards]);
+
+  function onSearchChange(v: string) {
+    setSearch(v);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => setQ(v), 350);
+  }
 
   async function saveTts(patch: { tts_voice?: VoiceKey; tts_rate?: number }) {
     if (!deck) return;
@@ -92,7 +98,6 @@ function DeckDetail({ deckId }: { deckId: number }) {
 
   return (
     <div className="mx-auto max-w-6xl">
-      {/* Header */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Link href="/teacher/vocabulary" aria-label="Về danh sách bộ từ" className="flex size-11 shrink-0 items-center justify-center rounded-2xl border-[1.5px] border-border bg-surface text-text-secondary hover:border-brand hover:text-brand">
           <ArrowLeft className="size-5" />
@@ -111,11 +116,10 @@ function DeckDetail({ deckId }: { deckId: number }) {
         </div>
       </div>
 
-      {/* Toolbar */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <div className="relative min-w-[200px] flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-muted" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm từ / nghĩa…" className="h-10 pl-9" />
+          <Input value={search} onChange={(e) => onSearchChange(e.target.value)} placeholder="Tìm từ / nghĩa…" className="h-10 pl-9" />
         </div>
         {[["", "Tất cả"], ["audio", "⚠ Thiếu audio"], ["image", "Thiếu ảnh"], ["ipa", "Thiếu IPA"]].map(([k, l]) => (
           <button key={k} onClick={() => setMissing(k)} className={"rounded-full px-3 py-1.5 text-xs font-semibold transition-colors " + (missing === k ? "bg-brand text-white" : "bg-surface-alt text-text-secondary hover:bg-brand-soft")}>{l}</button>
@@ -125,12 +129,11 @@ function DeckDetail({ deckId }: { deckId: number }) {
             {VOICE_OPTIONS.map((v) => <option key={v.key} value={v.key}>{v.label}</option>)}
           </select>
           <select value={deck.tts_rate} onChange={(e) => saveTts({ tts_rate: Number(e.target.value) })} className="h-10 rounded-xl border-[1.5px] border-border bg-surface px-2 text-sm outline-none focus-visible:border-brand" aria-label="Tốc độ">
-            {RATES.map((r) => <option key={r} value={r}>{r}×</option>)}
+            {TTS_RATES.map((r) => <option key={r} value={r}>{r}×</option>)}
           </select>
         </div>
       </div>
 
-      {/* Bảng thẻ */}
       <div className="overflow-hidden rounded-2xl border-[1.5px] border-border bg-surface">
         {loading ? (
           <div className="p-6 text-center text-sm text-text-muted">Đang tải…</div>

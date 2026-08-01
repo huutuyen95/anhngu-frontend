@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { hasEnglishVoice, isSpeechSupported, stopSpeaking } from "@/lib/tts";
+import { hasEnglishVoice, isSpeechSupported } from "@/lib/tts";
 
 /** Kiểm tra thiết bị có đọc được tiếng Anh không (async vì voices nạp trễ). */
 export function useSpeechSupport(): boolean | null {
@@ -14,13 +14,8 @@ export function useSpeechSupport(): boolean | null {
       return;
     }
     hasEnglishVoice().then((ok) => alive && setSupported(ok));
-
-    const onUnload = () => stopSpeaking();
-    window.addEventListener("beforeunload", onUnload);
     return () => {
       alive = false;
-      window.removeEventListener("beforeunload", onUnload);
-      stopSpeaking();
     };
   }, []);
 

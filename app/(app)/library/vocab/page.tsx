@@ -6,6 +6,7 @@ import { BookA } from "lucide-react";
 import { listLibraryDecks } from "@/lib/api/decks";
 import type { LibraryDeck } from "@/lib/types/deck";
 import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default function VocabLibraryPage() {
   const [decks, setDecks] = useState<LibraryDeck[]>([]);
@@ -24,9 +25,7 @@ export default function VocabLibraryPage() {
           {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-surface-alt" />)}
         </div>
       ) : decks.length === 0 ? (
-        <div className="rounded-2xl border-[1.5px] border-dashed border-border bg-surface p-10 text-center text-text-muted">
-          Chưa có bộ từ nào trong thư viện.
-        </div>
+        <EmptyState icon={<BookA className="size-7" />} title="Chưa có bộ từ nào trong thư viện." />
       ) : (
         <ul className="flex flex-col gap-3">
           {decks.map((d) => {

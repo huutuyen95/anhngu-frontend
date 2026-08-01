@@ -1,21 +1,19 @@
 "use client";
 
 import { type FormEvent, useEffect, useState } from "react";
-import { Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/api";
 import { createDeck, updateDeck } from "@/lib/api/decks";
 import { listClassrooms } from "@/lib/api/classrooms";
-import { VOICE_OPTIONS, type Deck } from "@/lib/types/deck";
+import { TTS_RATES, VOICE_OPTIONS, type Deck } from "@/lib/types/deck";
 import type { ClassroomRef } from "@/lib/types/student";
-import { speak, type VoiceKey } from "@/lib/tts";
+import type { VoiceKey } from "@/lib/tts";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-
-const RATES = [0.7, 0.8, 0.9, 1.0, 1.1];
+import { PronounceButton } from "@/components/ui/pronounce-button";
 
 export function DeckFormModal({
   open,
@@ -146,18 +144,10 @@ export function DeckFormModal({
             <label className="flex flex-col gap-1 text-sm">
               <span className="font-semibold text-text">Tốc độ</span>
               <select value={rate} onChange={(e) => setRate(Number(e.target.value))} className="h-10 rounded-xl border-[1.5px] border-border bg-surface px-2 text-sm outline-none focus-visible:border-brand">
-                {RATES.map((r) => <option key={r} value={r}>{r}×</option>)}
+                {TTS_RATES.map((r) => <option key={r} value={r}>{r}×</option>)}
               </select>
             </label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              iconLeft={<Volume2 className="size-4" />}
-              onClick={() => speak({ text: "This is a sample voice", voiceKey: voice, rate, repeat: 1 })}
-            >
-              Nghe thử
-            </Button>
+            <PronounceButton term="This is a sample voice" voiceKey={voice} rate={rate} size="sm" />
           </div>
         </div>
 

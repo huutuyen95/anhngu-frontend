@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -49,6 +49,7 @@ function VocabView() {
   const [editing, setEditing] = useState<Deck | null>(null);
   const [menuId, setMenuId] = useState<number | null>(null);
   const [confirmDel, setConfirmDel] = useState<Deck | null>(null);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const setParam = useCallback(
     (u: Record<string, string | null>) => {
@@ -70,6 +71,12 @@ function VocabView() {
   useEffect(() => { load(); }, [load]);
   useEffect(() => setSearch(q), [q]);
   useEffect(() => { listClassrooms().then((r) => setClassrooms(r.data)).catch(() => {}); }, []);
+
+  function onSearchChange(v: string) {
+    setSearch(v);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => setParam({ q: v || null }), 350);
+  }
 
   const totalCards = useMemo(() => rows.reduce((s, d) => s + (d.cards_count ?? 0), 0), [rows]);
   const hasFilter = !!q || !!classId || !!published;
@@ -123,7 +130,7 @@ function VocabView() {
       <div className="mt-5 flex flex-wrap items-center gap-2">
         <div className="relative min-w-[220px] flex-1">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-text-muted" />
-          <Input value={search} onChange={(e) => { setSearch(e.target.value); const v = e.target.value; setTimeout(() => setParam({ q: v || null }), 0); }} placeholder="Tìm bộ từ…" className="pl-10" />
+          <Input value={search} onChange={(e) => onSearchChange(e.target.value)} placeholder="Tìm bộ từ…" className="pl-10" />
         </div>
         {classrooms.length > 0 && (
           <select value={classId} onChange={(e) => setParam({ class: e.target.value || null })} className="h-11 rounded-[14px] border-[1.5px] border-border bg-surface px-3 text-sm text-text outline-none focus-visible:border-brand">

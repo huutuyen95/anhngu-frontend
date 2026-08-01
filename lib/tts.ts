@@ -9,31 +9,42 @@ const FEMALE_HINTS = ["female", "samantha", "karen", "victoria", "moira", "tessa
 const MALE_HINTS = ["male", "daniel", "alex", "fred", "oliver", "arthur", "george", "david", "mark"];
 
 let cached: SpeechSynthesisVoice[] | null = null;
+let unloadBound = false;
 
 export function isSpeechSupported(): boolean {
   return typeof window !== "undefined" && "speechSynthesis" in window;
 }
 
+function ensureUnloadCleanup(): void {
+  if (unloadBound || typeof window === "undefined") return;
+  unloadBound = true;
+  window.addEventListener("beforeunload", () => stopSpeaking());
+}
+
 /** Nạp danh sách voice (Chrome nạp bất đồng bộ → chờ voiceschanged). */
 export function loadVoices(): Promise<SpeechSynthesisVoice[]> {
   if (!isSpeechSupported()) return Promise.resolve([]);
+  ensureUnloadCleanup();
   if (cached && cached.length) return Promise.resolve(cached);
 
   return new Promise((resolve) => {
+    let settled = false;
+    const done = (voices: SpeechSynthesisVoice[]) => {
+      if (settled) return;
+      settled = true;
+      if (voices.length) cached = voices;
+      window.speechSynthesis.removeEventListener("voiceschanged", handler);
+      resolve(voices);
+    };
+    const handler = () => done(window.speechSynthesis.getVoices());
+
     const got = window.speechSynthesis.getVoices();
     if (got.length) {
-      cached = got;
-      resolve(got);
+      done(got);
       return;
     }
-    const handler = () => {
-      cached = window.speechSynthesis.getVoices();
-      window.speechSynthesis.removeEventListener("voiceschanged", handler);
-      resolve(cached);
-    };
     window.speechSynthesis.addEventListener("voiceschanged", handler);
-    // Fallback nếu event không bắn.
-    setTimeout(() => resolve(window.speechSynthesis.getVoices()), 800);
+    setTimeout(() => done(window.speechSynthesis.getVoices()), 800);
   });
 }
 
@@ -88,6 +99,7 @@ export async function speak(opts: {
   repeat?: number;
 }): Promise<void> {
   if (!isSpeechSupported()) return;
+  ensureUnloadCleanup();
   stopSpeaking();
 
   const voices = await loadVoices();

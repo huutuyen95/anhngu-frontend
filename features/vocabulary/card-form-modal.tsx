@@ -52,6 +52,7 @@ export function CardFormModal({
   const audRef = useRef<HTMLInputElement>(null);
   const [pendingImage, setPendingImage] = useState<File | null>(null);
   const [pendingAudio, setPendingAudio] = useState<File | null>(null);
+  const [previewImg, setPreviewImg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -67,6 +68,16 @@ export function CardFormModal({
     setPendingImage(null);
     setPendingAudio(null);
   }, [open, editing]);
+
+  useEffect(() => {
+    if (!pendingImage) {
+      setPreviewImg(imageUrl);
+      return;
+    }
+    const url = URL.createObjectURL(pendingImage);
+    setPreviewImg(url);
+    return () => URL.revokeObjectURL(url);
+  }, [pendingImage, imageUrl]);
 
   async function autoIpa() {
     if (!term.trim()) return;
@@ -90,8 +101,7 @@ export function CardFormModal({
     requestAnimationFrame(() => { el.focus(); el.setSelectionRange(start + sym.length, start + sym.length); });
   }
 
-  async function submit(e: FormEvent, again: boolean) {
-    e.preventDefault();
+  async function save(again: boolean) {
     setErrors({});
     setSaving(true);
     try {
@@ -126,7 +136,10 @@ export function CardFormModal({
     }
   }
 
-  const previewImg = pendingImage ? URL.createObjectURL(pendingImage) : imageUrl;
+  function submit(e: FormEvent) {
+    e.preventDefault();
+    void save(false);
+  }
 
   return (
     <Modal
@@ -137,13 +150,12 @@ export function CardFormModal({
       footer={
         <>
           <Button variant="outline" onClick={onClose}>Huỷ</Button>
-          {!isEdit && <Button variant="ghost" onClick={(e) => submit(e as unknown as FormEvent, true)} loading={saving}>Lưu & thêm thẻ mới</Button>}
+          {!isEdit && <Button variant="ghost" onClick={() => void save(true)} loading={saving}>Lưu & thêm thẻ mới</Button>}
           <Button type="submit" form="card-form" loading={saving}>Lưu thẻ</Button>
         </>
       }
     >
-      <form id="card-form" onSubmit={(e) => submit(e, false)} className="grid gap-4 md:grid-cols-2" noValidate>
-        {/* Cột trái */}
+      <form id="card-form" onSubmit={submit} className="grid gap-4 md:grid-cols-2" noValidate>
         <div className="flex flex-col gap-3">
           <div className="flex gap-2">
             <FormField htmlFor="c-term" label="Từ tiếng Anh" required error={errors.term} className="flex-1">
@@ -185,7 +197,6 @@ export function CardFormModal({
           </FormField>
         </div>
 
-        {/* Cột phải */}
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-text">Ảnh minh hoạ (tuỳ chọn)</span>

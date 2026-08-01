@@ -31,6 +31,7 @@ function StudyScreen({ deckId }: { deckId: number }) {
       setAllCards(r.cards);
       const learn = r.cards.filter((c) => c.progress_status !== "known");
       setQueue(learn.length ? learn : r.cards);
+      setKnownCount(0);
       setDone(false);
       setFlipped(false);
       startedAt.current = Date.now();
