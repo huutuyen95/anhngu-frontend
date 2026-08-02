@@ -32,8 +32,8 @@ const NAV: NavItem[] = [
   { label: "Học sinh", href: "/teacher/students", icon: Users, ready: true },
   { label: "Lớp học", href: "/teacher/classes", icon: School, ready: true },
   { label: "Đề thi", href: "/teacher/tests", icon: FileText, ready: true },
-  { label: "Từ vựng", href: "/teacher/decks", icon: BookA },
-  { label: "Tài liệu & Bài giảng", href: "/teacher/documents", icon: Files },
+  { label: "Từ vựng", href: "/teacher/vocabulary", icon: BookA, ready: true },
+  { label: "Tài liệu & Bài giảng", href: "/teacher/documents", icon: Files, ready: true },
   { label: "Kết quả làm bài", href: "/teacher/results", icon: ClipboardList, ready: true },
   { label: "Chấm bài", href: "/teacher/grading", icon: PenLine, badge: 0 },
 ];
@@ -101,7 +101,7 @@ export function TeacherShell({ children }: { children: ReactNode }) {
                 className={cn(
                   base,
                   isActive
-                    ? "bg-brand-soft text-brand before:absolute before:left-0 before:top-1/2 before:h-6 before:w-[3px] before:-translate-y-1/2 before:rounded-r-full before:bg-brand"
+                    ? "bg-brand-soft text-brand"
                     : "text-text-secondary hover:bg-surface-alt hover:text-text"
                 )}
                 aria-current={isActive ? "page" : undefined}

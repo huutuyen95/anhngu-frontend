@@ -4,6 +4,7 @@ export type Student = {
   id: number;
   name: string;
   email: string;
+  avatar_url: string | null;
   phone: string | null;
   note: string | null;
   is_active: boolean;

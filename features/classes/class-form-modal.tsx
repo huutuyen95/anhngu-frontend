@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useRef, useState } from "react";
-import { Upload, Check } from "lucide-react";
+import { Upload, Check, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/api";
 import {
@@ -36,13 +36,18 @@ export function ClassFormModal({ open, onClose, editing, onSaved }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [pendingPreview, setPendingPreview] = useState<string | null>(null);
+  // Ảnh cô đã tải lên — giữ độc lập với `cover` (ô đang chọn) để không mất khi chọn màu preset.
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
     setErrors({});
     setName(editing?.name ?? "");
-    setCover(editing?.cover_url ?? null);
+    const c = editing?.cover_url ?? null;
+    setCover(c);
+    setUploadedUrl(c && !c.startsWith("preset:") ? c : null);
     setStartsOn(editing?.starts_on ?? "");
     setEndsOn(editing?.ends_on ?? "");
     setDescription(editing?.description ?? "");
@@ -57,16 +62,31 @@ export function ClassFormModal({ open, onClose, editing, onSaved }: Props) {
       setErrors((e) => ({ ...e, cover: "Ảnh phải ≤ 2MB." }));
       return;
     }
+    // Hiện ngay ảnh vừa chọn (trước cả khi upload xong).
+    const local = URL.createObjectURL(file);
+    setPendingPreview(local);
     setUploading(true);
     setErrors((e) => ({ ...e, cover: "" }));
     try {
       const { url } = await uploadCover(file);
+      setUploadedUrl(url);
       setCover(url);
     } catch {
       setErrors((e) => ({ ...e, cover: "Tải ảnh thất bại." }));
     } finally {
       setUploading(false);
+      URL.revokeObjectURL(local);
+      setPendingPreview(null);
     }
+  }
+
+  function clearCover(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (pendingPreview) { URL.revokeObjectURL(pendingPreview); setPendingPreview(null); }
+    // Bỏ ảnh đã tải; nếu ảnh đó đang được chọn thì bỏ luôn lựa chọn.
+    setCover((cur) => (cur === uploadedUrl ? null : cur));
+    setUploadedUrl(null);
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   async function submit(goToStudents: boolean) {
@@ -165,14 +185,58 @@ export function ClassFormModal({ open, onClose, editing, onSaved }: Props) {
               className="hidden"
               onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
             />
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="flex aspect-video flex-col items-center justify-center gap-1 rounded-xl border-[1.5px] border-dashed border-border-strong text-text-muted transition-colors hover:border-brand hover:text-brand"
-            >
-              <Upload className="size-4" />
-              <span className="text-[11px]">{uploading ? "Đang tải…" : "Tải lên"}</span>
-            </button>
+            {(() => {
+              // Ô ảnh đã tải giữ độc lập với ô đang chọn → chọn màu preset KHÔNG làm mất ảnh.
+              const custom = pendingPreview ?? uploadedUrl;
+              const selected = !!custom && cover === custom;
+              if (custom) {
+                return (
+                  <button
+                    type="button"
+                    onClick={() => setCover(custom)}
+                    aria-label={selected ? "Ảnh đã tải lên (đang chọn)" : "Chọn ảnh đã tải lên"}
+                    className={cn(
+                      "relative aspect-video overflow-hidden rounded-xl border-[1.5px]",
+                      selected ? "border-brand" : "border-border"
+                    )}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={custom} alt="" className="h-full w-full object-cover" />
+                    {uploading ? (
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white">
+                        <Loader2 className="size-5 animate-spin" />
+                      </span>
+                    ) : (
+                      <>
+                        {selected && (
+                          <span className="absolute left-1 top-1 flex size-5 items-center justify-center rounded-full bg-brand text-white">
+                            <Check className="size-3" strokeWidth={3} />
+                          </span>
+                        )}
+                        <span
+                          onClick={clearCover}
+                          role="button"
+                          aria-label="Xoá ảnh đã tải lên"
+                          className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-danger text-white shadow"
+                        >
+                          <X className="size-3" strokeWidth={3} />
+                        </span>
+                      </>
+                    )}
+                  </button>
+                );
+              }
+              return (
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  className="flex aspect-video flex-col items-center justify-center gap-1 rounded-xl border-[1.5px] border-dashed border-border-strong text-text-muted transition-colors hover:border-brand hover:text-brand"
+                >
+                  <Upload className="size-4" />
+                  <span className="text-[11px]">Tải lên</span>
+                </button>
+              );
+            })()}
           </div>
           {errors.cover && <p className="text-xs font-medium text-danger">{errors.cover}</p>}
         </div>

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import type { QuestionType } from "@/lib/types/test";
 import { QUESTION_TYPE_LABEL } from "@/lib/types/test";
 import { Button } from "@/components/ui/button";
-import { ImageUpload } from "@/components/ui/image-upload";
+import { ImageGridUpload } from "@/components/ui/image-upload";
 
 const textareaClass =
   "w-full rounded-[14px] border-[1.5px] border-border bg-surface px-3.5 py-2.5 text-[15px] text-text outline-none focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/30";
@@ -192,7 +192,7 @@ export function QuestionEditor({ index, question, onChange, onRemove }: Props) {
         <div className="mt-3 flex flex-col gap-3">
           <div>
             <label className={labelClass}>Ảnh gợi ý (không bắt buộc)</label>
-            <ImageUpload images={question.images} onChange={(images) => onChange({ ...question, images })} />
+            <ImageGridUpload images={question.images} onChange={(images) => onChange({ ...question, images })} />
           </div>
 
           <div>

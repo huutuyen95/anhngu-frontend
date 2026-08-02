@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 type Option = { id: number; label: string; content: string };
 
@@ -85,6 +86,7 @@ export default function TestAttemptPage() {
   const [answers, setAnswers] = useState<Record<number, Answer>>({});
   const [marked, setMarked] = useState<Set<number>>(new Set());
   const [current, setCurrent] = useState<number | null>(null);
+  const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
@@ -148,9 +150,7 @@ export default function TestAttemptPage() {
   }
 
   function handleSubmitClick() {
-    if (window.confirm("Bạn chắc chắn muốn nộp bài?")) {
-      handleSubmit();
-    }
+    setConfirmSubmit(true);
   }
 
   // Đồng hồ đếm ngược, tự nộp khi hết giờ
@@ -458,6 +458,15 @@ export default function TestAttemptPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmSubmit}
+        onClose={() => setConfirmSubmit(false)}
+        onConfirm={() => { setConfirmSubmit(false); handleSubmit(); }}
+        title="Nộp bài?"
+        confirmLabel="Nộp bài"
+        description="Bạn chắc chắn muốn nộp bài? Sau khi nộp sẽ không sửa được nữa."
+      />
     </div>
   );
 }

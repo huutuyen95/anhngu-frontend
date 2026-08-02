@@ -62,7 +62,7 @@ const LIBRARY_ITEMS: LibraryItem[] = [
     icon: Folder,
     iconBg: "bg-violet-50",
     iconColor: "text-violet-600",
-    href: null,
+    href: "/library/documents",
   },
   {
     key: "articles",
