@@ -96,3 +96,42 @@ export async function api<T>(
 
   return data as T;
 }
+
+/**
+ * Upload multipart (FormData). Không set Content-Type để browser gắn boundary.
+ */
+export async function apiForm<T>(
+  path: string,
+  form: FormData,
+  options: RequestInit = {},
+): Promise<T> {
+  const token = getToken();
+  const response = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    ...options,
+    headers: {
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers,
+    },
+    body: form,
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    if (response.status === 401 && token) {
+      setToken(null);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("auth:expired"));
+      }
+    }
+    throw new ApiError(
+      response.status,
+      data?.message ?? "Đã có lỗi xảy ra, vui lòng thử lại.",
+      data?.errors,
+    );
+  }
+
+  return data as T;
+}

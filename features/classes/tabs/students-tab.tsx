@@ -125,9 +125,14 @@ export function StudentsTab({ classId, onChanged }: { classId: number; onChanged
                 <tr key={s.id} className="border-t border-border hover:bg-surface-alt">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="flex size-8 items-center justify-center rounded-full bg-brand-soft text-xs font-bold text-brand">
-                        {s.name.charAt(0).toUpperCase()}
-                      </span>
+                      {s.avatar_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={s.avatar_url} alt="" className="size-8 rounded-full object-cover" />
+                      ) : (
+                        <span className="flex size-8 items-center justify-center rounded-full bg-brand-soft text-xs font-bold text-brand">
+                          {s.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
                       <span className="font-medium text-text">{s.name}</span>
                     </div>
                   </td>

@@ -24,6 +24,7 @@ export type StudentPayload = {
   email?: string;
   phone?: string | null;
   note?: string | null;
+  avatar_url?: string | null;
   classroom_ids?: number[];
 };
 

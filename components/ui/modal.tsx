@@ -12,7 +12,7 @@ type ModalProps = {
   description?: string;
   children: ReactNode;
   footer?: ReactNode;
-  size?: "md" | "lg";
+  size?: "md" | "lg" | "xl" | "2xl";
 };
 
 /** Modal Option 1: overlay + card radius 24, đóng bằng Esc / nút X / click nền. */
@@ -53,7 +53,7 @@ export function Modal({
         aria-label={title}
         className={cn(
           "flex max-h-[90vh] w-full flex-col overflow-hidden rounded-3xl border-[1.5px] border-border bg-surface shadow-[0_20px_60px_rgba(58,51,48,0.18)]",
-          size === "lg" ? "max-w-3xl" : "max-w-md"
+          size === "2xl" ? "max-w-7xl" : size === "xl" ? "max-w-5xl" : size === "lg" ? "max-w-3xl" : "max-w-md"
         )}
       >
         <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-3">
