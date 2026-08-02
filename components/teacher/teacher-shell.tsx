@@ -31,10 +31,10 @@ const NAV: NavItem[] = [
   { label: "Tổng quan", href: "/teacher", icon: LayoutDashboard, ready: true },
   { label: "Học sinh", href: "/teacher/students", icon: Users, ready: true },
   { label: "Lớp học", href: "/teacher/classes", icon: School, ready: true },
-  { label: "Đề thi", href: "/teacher/tests", icon: FileText },
+  { label: "Đề thi", href: "/teacher/tests", icon: FileText, ready: true },
   { label: "Từ vựng", href: "/teacher/decks", icon: BookA },
   { label: "Tài liệu & Bài giảng", href: "/teacher/documents", icon: Files },
-  { label: "Kết quả làm bài", href: "/teacher/results", icon: ClipboardList },
+  { label: "Kết quả làm bài", href: "/teacher/results", icon: ClipboardList, ready: true },
   { label: "Chấm bài", href: "/teacher/grading", icon: PenLine, badge: 0 },
 ];
 
