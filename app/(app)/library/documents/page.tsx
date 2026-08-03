@@ -7,6 +7,7 @@ import { listLibraryDocuments } from "@/lib/api/documents";
 import type { Doc } from "@/lib/types/document";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Select } from "@/components/ui/select";
 
 export default function DocumentLibraryPage() {
   const [docs, setDocs] = useState<Doc[]>([]);
@@ -40,10 +41,10 @@ export default function DocumentLibraryPage() {
             className="h-10 w-full rounded-full border-[1.5px] border-border bg-surface pl-9 pr-3 text-sm outline-none focus-visible:border-brand" />
         </div>
         {cats.length > 0 && (
-          <select value={cat} onChange={(e) => setCat(e.target.value)} className="h-10 rounded-full border-[1.5px] border-border bg-surface px-3 text-sm outline-none focus-visible:border-brand">
+          <Select value={cat} onChange={(e) => setCat(e.target.value)}>
             <option value="">Tất cả danh mục</option>
             {cats.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
-          </select>
+          </Select>
         )}
       </div>
 

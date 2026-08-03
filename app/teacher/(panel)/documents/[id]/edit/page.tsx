@@ -17,6 +17,7 @@ import { listClassrooms } from "@/lib/api/classrooms";
 import { listDocCategories } from "@/lib/api/documents";
 import { formatBytes, type Attachment, type Doc, type DocCategory } from "@/lib/types/document";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ImageUpload } from "@/components/ui/image-upload";
@@ -160,10 +161,10 @@ function Editor({ id }: { id: number }) {
 
           <div className="rounded-2xl border-[1.5px] border-border bg-surface p-4">
             <label className="text-xs font-bold uppercase text-text-muted">Danh mục</label>
-            <select value={categoryId ?? ""} onChange={(e) => { setCategoryId(e.target.value ? Number(e.target.value) : null); scheduleSave(); }} className="mt-1 h-10 w-full rounded-xl border-[1.5px] border-border bg-surface px-2 text-sm outline-none focus-visible:border-brand">
+            <Select block wrapClassName="mt-1" value={categoryId ?? ""} onChange={(e) => { setCategoryId(e.target.value ? Number(e.target.value) : null); scheduleSave(); }}>
               <option value="">— Chưa chọn —</option>
               {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
+            </Select>
           </div>
 
           <div className="rounded-2xl border-[1.5px] border-border bg-surface p-4">

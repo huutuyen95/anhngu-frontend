@@ -9,6 +9,7 @@ import { TTS_RATES, VOICE_OPTIONS, type Deck } from "@/lib/types/deck";
 import type { ClassroomRef } from "@/lib/types/student";
 import type { VoiceKey } from "@/lib/tts";
 import { Modal } from "@/components/ui/modal";
+import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -137,15 +138,15 @@ export function DeckFormModal({
           <div className="flex flex-wrap items-end gap-2">
             <label className="flex flex-col gap-1 text-sm">
               <span className="font-semibold text-text">Giọng</span>
-              <select value={voice} onChange={(e) => setVoice(e.target.value as VoiceKey)} className="h-10 rounded-xl border-[1.5px] border-border bg-surface px-2 text-sm outline-none focus-visible:border-brand">
+              <Select value={voice} onChange={(e) => setVoice(e.target.value as VoiceKey)}>
                 {VOICE_OPTIONS.map((v) => <option key={v.key} value={v.key}>{v.label}</option>)}
-              </select>
+              </Select>
             </label>
             <label className="flex flex-col gap-1 text-sm">
               <span className="font-semibold text-text">Tốc độ</span>
-              <select value={rate} onChange={(e) => setRate(Number(e.target.value))} className="h-10 rounded-xl border-[1.5px] border-border bg-surface px-2 text-sm outline-none focus-visible:border-brand">
+              <Select value={rate} onChange={(e) => setRate(Number(e.target.value))}>
                 {TTS_RATES.map((r) => <option key={r} value={r}>{r}×</option>)}
-              </select>
+              </Select>
             </label>
             <PronounceButton term="This is a sample voice" voiceKey={voice} rate={rate} size="sm" />
           </div>

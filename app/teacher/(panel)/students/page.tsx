@@ -29,6 +29,7 @@ import {
 import { listClassrooms } from "@/lib/api/classrooms";
 import type { ClassroomRef, Student, StudentListMeta } from "@/lib/types/student";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
@@ -267,28 +268,24 @@ function StudentsView() {
             className="pl-10"
           />
         </div>
-        <select
+        <Select
           value={filters.status}
-          onChange={(e) => setParam({ status: e.target.value || null })}
-          className="h-11 rounded-[14px] border-[1.5px] border-border bg-surface px-3 text-sm text-text outline-none focus-visible:border-brand"
-        >
+          onChange={(e) => setParam({ status: e.target.value || null })}>
           <option value="">Mọi trạng thái</option>
           <option value="true">Đang hoạt động</option>
           <option value="false">Đã khoá</option>
-        </select>
+        </Select>
         {classrooms.length > 0 && (
-          <select
+          <Select
             value={filters.classroom_id}
-            onChange={(e) => setParam({ class: e.target.value || null })}
-            className="h-11 rounded-[14px] border-[1.5px] border-border bg-surface px-3 text-sm text-text outline-none focus-visible:border-brand"
-          >
+            onChange={(e) => setParam({ class: e.target.value || null })}>
             <option value="">Mọi lớp</option>
             {classrooms.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
             ))}
-          </select>
+          </Select>
         )}
         <Button
           variant={trashedMode ? "danger" : "ghost"}

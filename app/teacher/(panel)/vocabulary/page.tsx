@@ -25,6 +25,7 @@ import { listClassrooms } from "@/lib/api/classrooms";
 import type { Deck } from "@/lib/types/deck";
 import type { ClassroomRef } from "@/lib/types/student";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -133,16 +134,16 @@ function VocabView() {
           <Input value={search} onChange={(e) => onSearchChange(e.target.value)} placeholder="Tìm bộ từ…" className="pl-10" />
         </div>
         {classrooms.length > 0 && (
-          <select value={classId} onChange={(e) => setParam({ class: e.target.value || null })} className="h-11 rounded-[14px] border-[1.5px] border-border bg-surface px-3 text-sm text-text outline-none focus-visible:border-brand">
+          <Select value={classId} onChange={(e) => setParam({ class: e.target.value || null })}>
             <option value="">Mọi lớp</option>
             {classrooms.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+          </Select>
         )}
-        <select value={published} onChange={(e) => setParam({ published: e.target.value || null })} className="h-11 rounded-[14px] border-[1.5px] border-border bg-surface px-3 text-sm text-text outline-none focus-visible:border-brand">
+        <Select value={published} onChange={(e) => setParam({ published: e.target.value || null })}>
           <option value="">Thư viện: tất cả</option>
           <option value="true">Đang hiện</option>
           <option value="false">Đang ẩn</option>
-        </select>
+        </Select>
         {hasFilter && <Button variant="ghost" size="sm" onClick={() => router.replace("/teacher/vocabulary")}>Xoá bộ lọc</Button>}
       </div>
 

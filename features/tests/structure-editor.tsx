@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { ApiError } from "@/lib/api";
 import { saveTestStructure } from "@/lib/api/tests";
 import type { QuestionType, TestPart, TestSection, TestDetail } from "@/lib/types/test";
@@ -10,7 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/ui/field";
 import { AudioUpload } from "@/components/ui/audio-upload";
-import { QuestionEditor, newDraftQuestion, type DraftQuestion } from "@/features/tests/question-editor";
+import { newDraftQuestion, type DraftQuestion } from "@/features/tests/question-editor";
+import { SortableQuestion } from "@/features/tests/sortable-question";
 
 const textareaClass =
   "w-full rounded-[14px] border-[1.5px] border-border bg-surface px-3.5 py-2.5 text-[15px] text-text outline-none focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/30";
@@ -83,9 +88,15 @@ function move<T>(arr: T[], index: number, dir: -1 | 1): T[] {
   return next;
 }
 
-export function StructureEditor({ testId, initial }: { testId: number; initial: TestDetail }) {
+export function StructureEditor({ testId, initial, locked }: { testId: number; initial: TestDetail; locked?: boolean }) {
   const [parts, setParts] = useState<DraftPart[]>(() => fromServer(initial.parts));
   const [saving, setSaving] = useState(false);
+  const [saveState, setSaveState] = useState<"saved" | "dirty">("saved");
+  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   function updatePart(i: number, patch: Partial<DraftPart>) {
     setParts((p) => p.map((part, idx) => (idx === i ? { ...part, ...patch } : part)));
@@ -152,6 +163,12 @@ export function StructureEditor({ testId, initial }: { testId: number; initial: 
       ),
     );
   }
+  function reorderQuestions(pi: number, si: number, from: number, to: number) {
+    setParts((p) => p.map((part, idx) => idx !== pi ? part : {
+      ...part,
+      sections: part.sections.map((s, sidx) => sidx !== si ? s : { ...s, questions: arrayMove(s.questions, from, to) }),
+    }));
+  }
   function removeQuestion(pi: number, si: number, qi: number) {
     setParts((p) =>
       p.map((part, idx) =>
@@ -168,8 +185,24 @@ export function StructureEditor({ testId, initial }: { testId: number; initial: 
   }
 
   const totalQuestions = parts.reduce((n, p) => n + p.sections.reduce((m, s) => m + s.questions.length, 0), 0);
+  const scorePerQuestion = totalQuestions > 0 ? 10 / totalQuestions : 0;
 
-  async function handleSave() {
+  function duplicateQuestion(pi: number, si: number, qi: number) {
+    setParts((p) => p.map((part, idx) => idx !== pi ? part : {
+      ...part,
+      sections: part.sections.map((s, sidx) => sidx !== si ? s : {
+        ...s,
+        questions: s.questions.flatMap((q, qidx) => qidx !== qi ? [q] : [q, {
+          ...q, _cid: crypto.randomUUID(), id: undefined,
+          options: q.options.map((o) => ({ ...o, _cid: crypto.randomUUID(), id: undefined })),
+        }]),
+      }),
+    }));
+  }
+
+  const skipAutosave = useRef(true);
+
+  const handleSave = useCallback(async (silent = false) => {
     setSaving(true);
     try {
       const payload = parts.map((part, pi) => ({
@@ -191,34 +224,50 @@ export function StructureEditor({ testId, initial }: { testId: number; initial: 
             explanation: q.explanation || null,
             images: q.type === "speaking" ? q.images : [],
             record_limit_seconds: q.type === "speaking" ? q.record_limit_seconds : null,
-            options:
-              q.type === "multiple_choice"
-                ? q.options.map((o) => ({ id: o.id, label: o.label, content: o.content, is_correct: o.is_correct }))
-                : [],
+            options: ["multiple_choice", "select", "fill_blank"].includes(q.type)
+              ? q.options.filter((o) => o.content.trim() !== "" || o.id).map((o) => ({ id: o.id, label: o.label, content: o.content, is_correct: o.is_correct }))
+              : [],
           })),
         })),
       }));
       const res = await saveTestStructure(testId, payload);
+      skipAutosave.current = true;
       setParts(fromServer(res.test.parts));
-      toast.success("Đã lưu cấu trúc đề.");
+      setSaveState("saved");
+      if (!silent) toast.success("Đã lưu cấu trúc đề.");
     } catch (err) {
+      setSaveState("dirty");
       if (err instanceof ApiError) {
         toast.error(err.message || "Không lưu được cấu trúc đề — kiểm tra lại câu hỏi/đáp án.");
-      } else {
+      } else if (!silent) {
         toast.error("Không lưu được cấu trúc đề.");
       }
     } finally {
       setSaving(false);
     }
-  }
+  }, [parts, testId]);
+
+  // Autosave 5s sau khi ngừng chỉnh (bỏ qua lần mount và lần parts được nạp lại từ server).
+  useEffect(() => {
+    if (skipAutosave.current) { skipAutosave.current = false; return; }
+    if (locked) return;
+    setSaveState("dirty");
+    if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+    autosaveTimer.current = setTimeout(() => handleSave(true), 5000);
+    return () => { if (autosaveTimer.current) clearTimeout(autosaveTimer.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parts]);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-text-secondary">{totalQuestions} câu hỏi</p>
-        <Button size="sm" loading={saving} onClick={handleSave}>
-          Lưu cấu trúc
-        </Button>
+        <p className="text-sm text-text-secondary">
+          {totalQuestions} câu · <span className="font-semibold text-text">{scorePerQuestion.toFixed(1)}đ/câu</span> (thang 10 chia đều)
+        </p>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-text-muted" aria-live="polite">{saving ? "Đang lưu…" : saveState === "saved" ? "Đã lưu" : "Chưa lưu"}</span>
+          <Button size="sm" loading={saving} onClick={() => handleSave(false)}>Lưu cấu trúc</Button>
+        </div>
       </div>
 
       {parts.map((part, pi) => (
@@ -299,44 +348,41 @@ export function StructureEditor({ testId, initial }: { testId: number; initial: 
                   </FormField>
                 </div>
 
-                <div className="mt-3 flex flex-col gap-2">
-                  {section.questions.map((q, qi) => (
-                    <QuestionEditor
-                      key={q._cid}
-                      index={qi}
-                      question={q}
-                      onChange={(next) => updateQuestion(pi, si, qi, next)}
-                      onRemove={() => removeQuestion(pi, si, qi)}
-                    />
-                  ))}
-                </div>
+                <DndContext sensors={sensors} collisionDetection={closestCenter}
+                  onDragEnd={(e: DragEndEvent) => {
+                    const { active, over } = e;
+                    if (!over || active.id === over.id) return;
+                    const from = section.questions.findIndex((q) => q._cid === active.id);
+                    const to = section.questions.findIndex((q) => q._cid === over.id);
+                    if (from >= 0 && to >= 0) reorderQuestions(pi, si, from, to);
+                  }}>
+                  <SortableContext items={section.questions.map((q) => q._cid)} strategy={verticalListSortingStrategy}>
+                    <div className="mt-3 flex flex-col gap-2">
+                      {section.questions.map((q, qi) => (
+                        <SortableQuestion
+                          key={q._cid}
+                          id={q._cid}
+                          index={qi}
+                          scorePerQuestion={scorePerQuestion}
+                          question={q}
+                          disabled={locked}
+                          onChange={(next) => updateQuestion(pi, si, qi, next)}
+                          onRemove={() => removeQuestion(pi, si, qi)}
+                          onDuplicate={() => duplicateQuestion(pi, si, qi)}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
 
-                <div className="mt-2 flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    iconLeft={<Plus className="size-3.5" />}
-                    onClick={() => addQuestion(pi, si, "multiple_choice")}
-                  >
-                    Thêm câu trắc nghiệm
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    iconLeft={<Plus className="size-3.5" />}
-                    onClick={() => addQuestion(pi, si, "writing")}
-                  >
-                    Thêm câu viết luận
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    iconLeft={<Plus className="size-3.5" />}
-                    onClick={() => addQuestion(pi, si, "speaking")}
-                  >
-                    Thêm câu nói
-                  </Button>
-                </div>
+                {!locked && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" iconLeft={<Plus className="size-3.5" />} onClick={() => addQuestion(pi, si, "multiple_choice")}>Trắc nghiệm</Button>
+                    <Button variant="outline" size="sm" iconLeft={<Plus className="size-3.5" />} onClick={() => addQuestion(pi, si, "fill_blank")}>Điền từ</Button>
+                    <Button variant="outline" size="sm" iconLeft={<Plus className="size-3.5" />} onClick={() => addQuestion(pi, si, "select")}>True/False/NG</Button>
+                    <Button variant="outline" size="sm" iconLeft={<Plus className="size-3.5" />} onClick={() => addQuestion(pi, si, "writing")}>Viết luận</Button>
+                  </div>
+                )}
               </div>
             ))}
 

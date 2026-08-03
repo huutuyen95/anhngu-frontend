@@ -20,6 +20,7 @@ import {
   type ClassStatus,
 } from "@/lib/types/classroom";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -141,16 +142,14 @@ function ClassesView() {
             className="pl-10"
           />
         </div>
-        <select
+        <Select
           value={status}
-          onChange={(e) => setParam({ status: e.target.value || null })}
-          className="h-11 rounded-[14px] border-[1.5px] border-border bg-surface px-3 text-sm text-text outline-none focus-visible:border-brand"
-        >
+          onChange={(e) => setParam({ status: e.target.value || null })}>
           <option value="">Mọi trạng thái</option>
           <option value="active">Đang diễn ra</option>
           <option value="upcoming">Chưa bắt đầu</option>
           <option value="ended">Đã kết thúc</option>
-        </select>
+        </Select>
         {hasFilter && (
           <Button variant="ghost" size="sm" onClick={() => router.replace("/teacher/classes")}>
             Xoá bộ lọc

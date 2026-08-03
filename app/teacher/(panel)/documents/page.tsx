@@ -29,6 +29,7 @@ import {
 } from "@/lib/api/documents";
 import { formatBytes, categoryColor, type Doc, type DocCategory, type DocListMeta, type StorageUsage } from "@/lib/types/document";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -143,16 +144,16 @@ function DocsView() {
           <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-text-muted" />
           <Input value={search} onChange={(e) => { setSearch(e.target.value); const v = e.target.value; setTimeout(() => setParam({ q: v || null }), 0); }} placeholder="Tìm tiêu đề…" className="pl-10" />
         </div>
-        <select value={categoryId} onChange={(e) => setParam({ category: e.target.value || null })} className="h-11 rounded-[14px] border-[1.5px] border-border bg-surface px-3 text-sm text-text outline-none focus-visible:border-brand">
+        <Select value={categoryId} onChange={(e) => setParam({ category: e.target.value || null })}>
           <option value="">Mọi danh mục</option>
           {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
+        </Select>
         {type === "document" && (
-          <select value={published} onChange={(e) => setParam({ published: e.target.value || null })} className="h-11 rounded-[14px] border-[1.5px] border-border bg-surface px-3 text-sm text-text outline-none focus-visible:border-brand">
+          <Select value={published} onChange={(e) => setParam({ published: e.target.value || null })}>
             <option value="">Thư viện: tất cả</option>
             <option value="true">Đang hiện</option>
             <option value="false">Đang ẩn</option>
-          </select>
+          </Select>
         )}
         {hasFilter && <Button variant="ghost" size="sm" onClick={() => setParam({ q: null, category: null, published: null })}>Xoá lọc</Button>}
       </div>

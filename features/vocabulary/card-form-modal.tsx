@@ -14,6 +14,7 @@ import {
 } from "@/lib/api/decks";
 import type { Card, Deck } from "@/lib/types/deck";
 import { Modal } from "@/components/ui/modal";
+import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -163,10 +164,10 @@ export function CardFormModal({
             </FormField>
             <label className="flex w-24 flex-col gap-1.5 text-sm">
               <span className="font-semibold text-text">Loại</span>
-              <select value={pos} onChange={(e) => setPos(e.target.value)} className="h-11 rounded-[14px] border-[1.5px] border-border bg-surface px-2 text-sm outline-none focus-visible:border-brand">
+              <Select value={pos} onChange={(e) => setPos(e.target.value)}>
                 <option value="">—</option>
                 {POS.map((p) => <option key={p} value={p}>{p}</option>)}
-              </select>
+              </Select>
             </label>
           </div>
 

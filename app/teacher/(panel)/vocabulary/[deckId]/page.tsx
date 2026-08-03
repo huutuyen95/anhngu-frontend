@@ -26,6 +26,7 @@ import {
 import { TTS_RATES, VOICE_OPTIONS, type Card, type Deck } from "@/lib/types/deck";
 import type { VoiceKey } from "@/lib/tts";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -125,12 +126,12 @@ function DeckDetail({ deckId }: { deckId: number }) {
           <button key={k} onClick={() => setMissing(k)} className={"rounded-full px-3 py-1.5 text-xs font-semibold transition-colors " + (missing === k ? "bg-brand text-white" : "bg-surface-alt text-text-secondary hover:bg-brand-soft")}>{l}</button>
         ))}
         <div className="ml-auto flex items-center gap-2">
-          <select value={deck.tts_voice} onChange={(e) => saveTts({ tts_voice: e.target.value as VoiceKey })} className="h-10 rounded-xl border-[1.5px] border-border bg-surface px-2 text-sm outline-none focus-visible:border-brand" aria-label="Giọng đọc">
+          <Select value={deck.tts_voice} onChange={(e) => saveTts({ tts_voice: e.target.value as VoiceKey })} aria-label="Giọng đọc">
             {VOICE_OPTIONS.map((v) => <option key={v.key} value={v.key}>{v.label}</option>)}
-          </select>
-          <select value={deck.tts_rate} onChange={(e) => saveTts({ tts_rate: Number(e.target.value) })} className="h-10 rounded-xl border-[1.5px] border-border bg-surface px-2 text-sm outline-none focus-visible:border-brand" aria-label="Tốc độ">
+          </Select>
+          <Select value={deck.tts_rate} onChange={(e) => saveTts({ tts_rate: Number(e.target.value) })} aria-label="Tốc độ">
             {TTS_RATES.map((r) => <option key={r} value={r}>{r}×</option>)}
-          </select>
+          </Select>
         </div>
       </div>
 

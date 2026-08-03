@@ -11,6 +11,7 @@ import { listClassrooms } from "@/lib/api/classrooms";
 import type { ClassroomRef } from "@/lib/types/student";
 import { SKILL_LABEL } from "@/lib/types/test";
 import { Button, ButtonLink } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
@@ -83,11 +84,9 @@ function ResultsView() {
           Chờ chấm
         </TabButton>
 
-        <select
+        <Select wrapClassName="ml-auto"
           value={["", "pending_review"].includes(filters.status) ? "" : filters.status}
-          onChange={(e) => setParam({ status: e.target.value || null })}
-          className="ml-auto h-11 rounded-[14px] border-[1.5px] border-border bg-surface px-3 text-sm text-text outline-none focus-visible:border-brand"
-        >
+          onChange={(e) => setParam({ status: e.target.value || null })}>
           <option value="">Trạng thái khác…</option>
           {(Object.keys(ATTEMPT_STATUS_LABEL) as AttemptStatus[])
             .filter((s) => s !== "pending_review")
@@ -96,20 +95,18 @@ function ResultsView() {
                 {ATTEMPT_STATUS_LABEL[s]}
               </option>
             ))}
-        </select>
+        </Select>
         {classrooms.length > 0 && (
-          <select
+          <Select
             value={filters.classroom_id}
-            onChange={(e) => setParam({ class: e.target.value || null })}
-            className="h-11 rounded-[14px] border-[1.5px] border-border bg-surface px-3 text-sm text-text outline-none focus-visible:border-brand"
-          >
+            onChange={(e) => setParam({ class: e.target.value || null })}>
             <option value="">Mọi lớp</option>
             {classrooms.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
             ))}
-          </select>
+          </Select>
         )}
       </div>
 
