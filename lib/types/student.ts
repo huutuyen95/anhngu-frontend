@@ -50,5 +50,5 @@ export type ImportPreview = {
 
 export type ImportResult = {
   created: { email: string; password: string }[];
-  summary: { ok: number; duplicate: number; error: number };
+  summary: { ok: number; updated?: number; duplicate: number; error: number };
 };

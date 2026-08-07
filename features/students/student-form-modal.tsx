@@ -1,8 +1,8 @@
 "use client";
 
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { ApiError } from "@/lib/api";
-import { createStudent, updateStudent } from "@/lib/api/students";
+import { checkStudentEmail, createStudent, updateStudent } from "@/lib/api/students";
 import type { ClassroomRef, Student } from "@/lib/types/student";
 import { uploadImage } from "@/lib/api/media";
 import { Modal } from "@/components/ui/modal";
@@ -11,6 +11,7 @@ import { FormField } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 type Props = {
   open: boolean;
@@ -38,6 +39,18 @@ export function StudentFormModal({
   const [classIds, setClassIds] = useState<number[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [confirmClose, setConfirmClose] = useState(false);
+
+  const initial = useMemo(() => ({
+    name: editing?.name ?? "", email: editing?.email ?? "", phone: editing?.phone ?? "",
+    note: editing?.note ?? "", avatar: editing?.avatar_url ?? null,
+    classIds: (editing?.classrooms?.map((c) => c.id) ?? []).slice().sort(),
+  }), [editing]);
+
+  const dirty =
+    name !== initial.name || email !== initial.email || phone !== initial.phone ||
+    note !== initial.note || avatar !== initial.avatar ||
+    JSON.stringify([...classIds].sort()) !== JSON.stringify(initial.classIds);
 
   useEffect(() => {
     if (!open) return;
@@ -49,6 +62,21 @@ export function StudentFormModal({
     setAvatar(editing?.avatar_url ?? null);
     setClassIds(editing?.classrooms?.map((c) => c.id) ?? []);
   }, [open, editing]);
+
+  // dirtyGuard: đóng khi có thay đổi chưa lưu → confirm.
+  function requestClose() {
+    if (dirty && !saving) setConfirmClose(true);
+    else onClose();
+  }
+
+  // Kiểm email trùng khi blur (chỉ khi Thêm).
+  async function checkEmailBlur() {
+    if (isEdit || !email.trim() || !/^\S+@\S+\.\S+$/.test(email)) return;
+    try {
+      const { available } = await checkStudentEmail(email.trim());
+      setErrors((p) => ({ ...p, email: available ? "" : "Email này đã được dùng." }));
+    } catch { /* bỏ qua lỗi mạng khi kiểm tra */ }
+  }
 
   function toggleClass(id: number) {
     setClassIds((prev) =>
@@ -96,13 +124,14 @@ export function StudentFormModal({
   }
 
   return (
+    <>
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={requestClose}
       title={isEdit ? "Sửa học sinh" : "Thêm học sinh"}
       footer={
         <>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={requestClose}>
             Huỷ
           </Button>
           <Button type="submit" form="student-form" loading={saving}>
@@ -142,6 +171,7 @@ export function StudentFormModal({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onBlur={checkEmailBlur}
             disabled={isEdit}
             required
           />
@@ -178,5 +208,16 @@ export function StudentFormModal({
         )}
       </form>
     </Modal>
+
+    <ConfirmDialog
+      open={confirmClose}
+      onClose={() => setConfirmClose(false)}
+      onConfirm={() => { setConfirmClose(false); onClose(); }}
+      title="Bỏ thay đổi chưa lưu?"
+      danger
+      confirmLabel="Bỏ thay đổi"
+      description="Các thông tin vừa nhập sẽ không được lưu."
+    />
+    </>
   );
 }

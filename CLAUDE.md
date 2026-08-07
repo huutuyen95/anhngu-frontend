@@ -46,6 +46,7 @@ Sau mỗi lần `git pull`/merge làm đổi `package.json`, phải `npm install
   `document.ts`, `user.ts`, `attempt.ts`).
 - `components/ui/*` — component dùng lại (button, card, dialog, badge, tabs, select, upload...).
   Dùng lại thay vì tự chế card/badge/dialog mới.
+- `components/student/student-shell.tsx` — khung + điều hướng khu học sinh (xem mục Design).
 - Lọc/tìm kiếm/phân trang trên list page lưu vào **URL query** (`useSearchParams`/`useRouter`),
   không lưu vào state cục bộ — để share link và back/forward hoạt động đúng.
 - `'use client'` cho component có tương tác (form, dnd, tiptap...); giữ page/layout ở `app/`
@@ -61,24 +62,66 @@ Sau mỗi lần `git pull`/merge làm đổi `package.json`, phải `npm install
 - Base URL: `process.env.NEXT_PUBLIC_API_URL` (fallback `http://localhost:8000/api/v1`).
 - 401 giữa phiên (đã có token) → tự xoá token + phát event `auth:expired` (nghe ở `lib/auth.tsx`).
 
-## Design — pillow UI cam/kem
+## Design — 2 hệ, KHÔNG dark mode
 
-Token khai ở `app/globals.css` (`@theme`), nguồn chuẩn `backend/docs/DESIGN-UI-CHI-TIET.md`.
-Không có dark mode.
+Token khai ở `app/globals.css` (`@theme`). Có **hai** bảng màu, tách theo khu:
 
-- Font: **Baloo 2** (`--font-display`, tiêu đề) + **Quicksand** (`--font-sans`, body), nạp qua
-  `next/font` ở `app/layout.tsx`.
-- Màu chính: brand cam `#F2793B` (bold `#D65F27`, soft `#FDEBDD`), nền kem `#FBF7EA`,
-  surface trắng `#FFFFFF`. Có token riêng theo skill đề thi (`--color-skill-reading/listening/
-  writing/speaking`).
+### Khu quản trị (`app/teacher/**`) — pillow UI cam/kem
 
-## Đề thi phía FE
+- Font: **Baloo 2** (`--font-display`, tiêu đề) + **Quicksand** (`--font-sans`, body).
+- Màu: brand cam `#F2793B` (bold `#D65F27`, soft `#FDEBDD`), nền kem `#FBF7EA`, surface trắng.
+  Có token skill đề (`--color-skill-reading/listening/writing/speaking`).
+- Nguồn chuẩn: `backend/docs/DESIGN-UI-CHI-TIET.md`.
+
+### Khu học sinh (`app/login`, `app/forgot-password`, `app/(app)/**`) — Organic
+
+- DS ở **`public/ds/organic.css`** (link trong `app/layout.tsx`), **scope dưới class `.organic`**.
+  File `_ds/organic/styles.css` gốc không có trong repo — DS được dựng lại từ token trong prompt
+  "Đổi giao diện khu Học sinh sang Organic".
+- Cơ chế: trong `.organic`, các biến chung (`--color-bg/surface/text/brand/border`…) được **remap**
+  sang bảng organic → mọi màn học sinh dùng utility (`bg-bg`, `text-brand`, `bg-surface`…) **tự đổi
+  palette**, không phải viết lại. Bọc `.organic` ở `student-shell.tsx`, `app/login`, `app/forgot-password`.
+- Ramp organic khai trong `@theme` (globals.css) để sinh utility Tailwind: `--color-accent-100..900`
+  (terracotta `#c67139`), `--color-accent-2-*` (sage `#7a8a5e`), `--color-neutral-100..900`,
+  `--color-divider` → dùng `bg-accent-200`, `text-accent-800`, `border-divider`, `bg-neutral-100`…
+- Font: **Figtree** (`--font-figtree`, body; subset `latin-ext` — next/font không có "vietnamese"
+  cho Figtree) + **Baloo 2** (heading, đủ dấu tiếng Việt — KHÔNG dùng Caprasimo/Quicksand).
+- Component DS dùng lại: `.btn`(+`-primary/-secondary/-ghost/-icon/-block`) · `.tag`(+ biến thể)
+  · `.seg`/`.seg-opt` (bộ chọn 1-trong-N, có `:has(input:checked)`) · `.field`/`.input`
+  · `.card`(+`-kicker/-title/-body/-meta`) · `.elev-sm/md/lg` · `.washed`. Nút/input bo 999px.
+
+### Điều hướng khu học sinh
+
+- Render qua **`components/student/student-shell.tsx`** — **menu ngang trên header** (76px, 4 mục:
+  Nhiệm vụ /missions · Lớp của em /classes · Thư viện /library · Báo cáo /reports), + ô tìm ⌘K,
+  chuông, avatar; mobile <768px là **bottom nav 66px** (tự ẩn khi bàn phím mở). KHÔNG còn sidebar.
+- `components/layout/app-sidebar/header/footer.tsx` đã **bị xoá** (không dùng nữa).
+- `/classes` và `/reports` chưa có page → nav để "Sắp có" (disabled), tránh 404.
+
+## Đề thi phía FE (`features/tests/*`, khu giáo viên)
 
 - `QuestionType` (`lib/types/test.ts`): `multiple_choice | fill_blank | select | writing |
   speaking`. `speaking` đang ẩn sau flag, để dành giai đoạn sau.
 - **TUYỆT ĐỐI không render đáp án đúng** (`is_correct`) cho học viên khi đang làm bài — field
   này chỉ xuất hiện (và chỉ nên hiển thị) ở trang kết quả sau khi nộp
   (`app/(app)/tests/[id]/result/[attemptId]`).
+- Quản lý đề theo **thư mục** (`test-folder-tree.tsx`, danh mục = `TestCategory`) + các modal
+  tạo/sửa/xoá/di chuyển (`create-test-modal`, `test-action-menu`, `test-folder-modal`,
+  `move-test-modal`, `delete-test-modal`, `preflight-modal`).
+- **Editor A4b** (`test-editor.tsx`): 2 cột, kéo-thả Part/Section/Question bằng **@dnd-kit**
+  (`sortable.tsx`, `sortable-question.tsx`).
+- **Import Word** (`word-import-wizard.tsx` + `word-guide-drawer.tsx`): tải template, upload
+  `.docx` → dry_run xem trước → commit; map về **cùng data model** với tạo tay, chỉ khác cách
+  hiển thị. Parser ở backend (`WordTestParser`, phpoffice/phpword).
+- Mọi `<select>` dùng chung **`components/ui/select.tsx`** (pill, đã propagate ra các page khác) —
+  sửa giao diện dropdown ở 1 chỗ.
+
+## Quản lý học sinh (`features/students/*`)
+
+- `student-detail-modal`, `assign-class-modal`, `student-form-modal` (check email khi blur +
+  dirty-guard), `import-wizard` (radio `on_duplicate`, tải file dòng lỗi, kéo-thả). List page
+  `app/teacher/(panel)/students/page.tsx`: sort theo cột, click hàng mở chi tiết, bulk đổi lớp,
+  banner đã xoá, empty-state 2 CTA.
 
 ## Upload media
 

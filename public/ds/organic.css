@@ -1,0 +1,156 @@
+/*
+  Organic design system — khu học sinh.
+  Dựng lại từ đặc tả token trong prompt "Đổi giao diện khu Học sinh sang Organic"
+  (file _ds/organic/styles.css gốc không có trong repo — xem "Giả định đã chọn").
+  Scope dưới .organic để KHÔNG đụng khu quản trị (giữ token cam/kem cũ ở :root).
+  Trong .organic ta REMAP các biến chung (--color-bg/surface/text/brand…) sang bảng màu
+  organic → các màn học sinh (dùng utility bg-bg/text-brand…) tự đổi palette, không cần viết lại.
+*/
+.organic {
+  /* ── Ramp trung tính (ấm) ── */
+  --color-neutral-100: #fbf7f0;
+  --color-neutral-200: #efe4d2;
+  --color-neutral-300: #ddcdb1;
+  --color-neutral-400: #b8a888;
+  --color-neutral-500: #8a7d69;
+  --color-neutral-600: #6a5f50;
+  --color-neutral-700: #4c443c;
+  --color-neutral-800: #322d28;
+  --color-neutral-900: #201e1d;
+
+  /* ── Terracotta (accent) ── */
+  --color-accent-100: #f7e8db;
+  --color-accent-200: #efd0b6;
+  --color-accent-300: #e3b48d;
+  --color-accent-400: #d59563;
+  --color-accent-500: #c67139;
+  --color-accent-600: #a95d2d;
+  --color-accent-700: #874a24;
+  --color-accent-800: #64381b;
+  --color-accent-900: #432510;
+  --color-accent: #c67139;
+
+  /* ── Sage (accent-2) ── */
+  --color-accent-2-100: #eef1e6;
+  --color-accent-2-200: #dbe2ca;
+  --color-accent-2-300: #c2cdab;
+  --color-accent-2-400: #a2b183;
+  --color-accent-2-500: #7a8a5e;
+  --color-accent-2-600: #63734a;
+  --color-accent-2-700: #4c5939;
+  --color-accent-2-800: #3a462f;
+  --color-accent-2-900: #262d1f;
+  --color-accent-2: #7a8a5e;
+
+  --color-divider: #ddcfb6;
+
+  /* ── Nền / bề mặt / chữ (organic) ── */
+  --color-bg: #f5ead8;
+  --color-surface: #fbf7f0;
+  --color-surface-alt: #efe3cf;
+  --color-text: #201e1d;
+
+  /* ── Spacing / radius / shadow ── */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+  --radius-sm: 8px; --radius-md: 16px; --radius-lg: 28px;
+  --shadow-sm: 0 1px 2px rgba(32, 30, 29, 0.06), 0 2px 6px rgba(32, 30, 29, 0.05);
+  --shadow-md: 0 4px 12px rgba(32, 30, 29, 0.08), 0 8px 24px rgba(32, 30, 29, 0.06);
+  --shadow-lg: 0 12px 32px rgba(32, 30, 29, 0.12), 0 20px 48px rgba(32, 30, 29, 0.08);
+
+  /* ── REMAP token chung (Tailwind @theme) → organic ── */
+  --color-border: var(--color-divider);
+  --color-border-strong: #cdb896;
+  --color-text-secondary: var(--color-neutral-700);
+  --color-text-muted: var(--color-neutral-500);
+  --color-brand: var(--color-accent);
+  --color-brand-bold: var(--color-accent-700);
+  --color-brand-soft: var(--color-accent-200);
+  --color-accent-soft: var(--color-accent-2-200);
+
+  /* Font: body Figtree, heading Baloo 2 (Caprasimo gốc không có dấu tiếng Việt) */
+  --font-sans: var(--font-figtree), system-ui, sans-serif;
+  --font-display: var(--font-baloo), system-ui, sans-serif;
+  --font-heading: var(--font-baloo), system-ui, sans-serif;
+  --font-heading-weight: 700;
+  --font-body: var(--font-figtree), system-ui, sans-serif;
+
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+/* ── Nút ── */
+.organic .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 44px; padding: 0 20px; border-radius: 999px; border: 1.5px solid transparent;
+  font-family: var(--font-body); font-weight: 700; font-size: 15px; line-height: 1;
+  cursor: pointer; transition: background-color .15s, color .15s, border-color .15s, transform .15s;
+  white-space: nowrap;
+}
+.organic .btn:disabled { opacity: .55; cursor: not-allowed; }
+.organic .btn-primary { background: var(--color-accent); color: var(--color-neutral-100); }
+.organic .btn-primary:hover:not(:disabled) { background: var(--color-accent-600); }
+.organic .btn-secondary { background: var(--color-neutral-100); color: var(--color-text); border-color: var(--color-divider); }
+.organic .btn-secondary:hover:not(:disabled) { border-color: var(--color-accent-400); color: var(--color-accent-700); }
+.organic .btn-ghost { background: transparent; color: var(--color-neutral-700); }
+.organic .btn-ghost:hover:not(:disabled) { background: var(--color-neutral-200); color: var(--color-text); }
+.organic .btn-icon { width: 44px; height: 44px; padding: 0; }
+.organic .btn-block { width: 100%; }
+
+/* ── Tag / chip ── */
+.organic .tag {
+  display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px;
+  border-radius: 999px; font-size: 12.5px; font-weight: 700; line-height: 1;
+  background: var(--color-neutral-200); color: var(--color-neutral-700);
+}
+.organic .tag-accent { background: var(--color-accent-200); color: var(--color-accent-800); }
+.organic .tag-accent-solid { background: var(--color-accent); color: var(--color-neutral-100); }
+.organic .tag-accent-2 { background: var(--color-accent-2-200); color: var(--color-accent-2-800); }
+.organic .tag-success { background: var(--color-accent-2-200); color: var(--color-accent-2-800); }
+.organic .tag-danger { background: #f6dcd3; color: #8f3417; }
+
+/* ── Segmented (bộ chọn 1-trong-N) ── */
+.organic .seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--color-neutral-200); }
+.organic .seg-opt {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  color: var(--color-neutral-700); cursor: pointer; transition: background-color .15s, color .15s;
+}
+.organic .seg-opt input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; }
+.organic .seg-opt:has(input:checked) { background: var(--color-neutral-100); color: var(--color-accent-800); font-weight: 700; box-shadow: var(--shadow-sm); }
+
+/* ── Field / input ── */
+.organic .field { display: flex; flex-direction: column; gap: 6px; }
+.organic .field > label { font-size: 13px; font-weight: 700; color: var(--color-text); }
+.organic .input {
+  height: 52px; width: 100%; padding: 0 18px; border-radius: 999px;
+  border: 1.5px solid var(--color-divider); background: var(--color-neutral-100);
+  color: var(--color-text); font-size: 15px; font-family: var(--font-body); outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.organic .input::placeholder { color: var(--color-neutral-500); }
+.organic .input:focus-visible { border-color: var(--color-accent-500); box-shadow: 0 0 0 3px var(--color-accent-200); }
+
+/* ── Card ── */
+.organic .card {
+  background: var(--color-neutral-100); border: 1.5px solid var(--color-divider);
+  border-radius: var(--radius-lg); padding: var(--space-5);
+}
+.organic .card-kicker { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--color-accent-700); }
+.organic .card-title { font-family: var(--font-heading); font-weight: 700; font-size: 20px; color: var(--color-text); }
+.organic .card-body { color: var(--color-neutral-700); font-size: 15px; line-height: 1.6; }
+.organic .card-meta { color: var(--color-neutral-600); font-size: 13px; }
+
+/* ── Độ nổi ── */
+.organic .elev-sm { box-shadow: var(--shadow-sm); }
+.organic .elev-md { box-shadow: var(--shadow-md); }
+.organic .elev-lg { box-shadow: var(--shadow-lg); }
+
+/* Nền chìm nhẹ */
+.organic .washed { background: var(--color-neutral-200); }
+
+.organic h1, .organic h2, .organic h3 { font-family: var(--font-heading); }
+
+@media (prefers-reduced-motion: reduce) {
+  .organic .btn, .organic .seg-opt, .organic .input { transition: color .01ms, background-color .01ms; }
+}

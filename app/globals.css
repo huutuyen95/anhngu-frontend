@@ -53,6 +53,38 @@
   --color-skill-writing-soft: #f1f8de;
   --color-skill-speaking: #b06cd6;
   --color-skill-speaking-soft: #f1e6fa;
+
+  /* Organic ramp (khu học sinh) — sinh utility bg-accent-200/text-neutral-700/border-divider…;
+     giá trị dùng chung, khu học sinh bọc .organic để remap token chung sang bảng màu này. */
+  --color-divider: #ddcfb6;
+  --color-neutral-100: #fbf7f0;
+  --color-neutral-200: #efe4d2;
+  --color-neutral-300: #ddcdb1;
+  --color-neutral-400: #b8a888;
+  --color-neutral-500: #8a7d69;
+  --color-neutral-600: #6a5f50;
+  --color-neutral-700: #4c443c;
+  --color-neutral-800: #322d28;
+  --color-neutral-900: #201e1d;
+  --color-accent-100: #f7e8db;
+  --color-accent-200: #efd0b6;
+  --color-accent-300: #e3b48d;
+  --color-accent-400: #d59563;
+  --color-accent-500: #c67139;
+  --color-accent-600: #a95d2d;
+  --color-accent-700: #874a24;
+  --color-accent-800: #64381b;
+  --color-accent-900: #432510;
+  --color-accent-2: #7a8a5e;
+  --color-accent-2-100: #eef1e6;
+  --color-accent-2-200: #dbe2ca;
+  --color-accent-2-300: #c2cdab;
+  --color-accent-2-400: #a2b183;
+  --color-accent-2-500: #7a8a5e;
+  --color-accent-2-600: #63734a;
+  --color-accent-2-700: #4c5939;
+  --color-accent-2-800: #3a462f;
+  --color-accent-2-900: #262d1f;
 }
 
 /* Map biến shadcn (base-ui components dùng) sang Option 1 */

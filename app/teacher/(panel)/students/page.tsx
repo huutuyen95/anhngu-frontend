@@ -14,6 +14,10 @@ import {
   KeyRound,
   Copy,
   X,
+  GraduationCap,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { downloadFile } from "@/lib/api";
@@ -38,6 +42,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { StudentFormModal } from "@/features/students/student-form-modal";
 import { ImportWizard } from "@/features/students/import-wizard";
+import { StudentDetailModal } from "@/features/students/student-detail-modal";
+import { AssignClassModal } from "@/features/students/assign-class-modal";
 
 function StudentsView() {
   const router = useRouter();
@@ -49,6 +55,8 @@ function StudentsView() {
       status: params.get("status") ?? "",
       classroom_id: params.get("class") ?? "",
       trashed: params.get("trashed") ?? "",
+      sort: params.get("sort") ?? "",
+      dir: (params.get("dir") as "asc" | "desc") || "",
       page: params.get("page") ?? "1",
     }),
     [params],
@@ -71,6 +79,8 @@ function StudentsView() {
   const [confirmDelete, setConfirmDelete] = useState<Student | null>(null);
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [confirmForce, setConfirmForce] = useState<Student | null>(null);
+  const [detailFor, setDetailFor] = useState<Student | null>(null);
+  const [assignOpen, setAssignOpen] = useState(false);
 
   // Cập nhật 1 tham số URL (reset page khi đổi bộ lọc).
   const setParam = useCallback(
@@ -88,21 +98,25 @@ function StudentsView() {
 
   const load = useCallback(() => {
     setLoading(true);
-    setSelected([]);
     listStudents({
       q: filters.q,
       is_active: filters.status,
       classroom_id: filters.classroom_id,
       trashed: filters.trashed,
+      sort: filters.sort || undefined,
+      dir: filters.dir || undefined,
       page: filters.page,
     })
       .then((res) => {
         setRows(res.data);
         setMeta(res.meta);
+        // Giữ selection theo id còn trong trang (§1.3).
+        const present = new Set(res.data.map((r) => r.id));
+        setSelected((prev) => prev.filter((id) => present.has(id)));
       })
       .catch(() => toast.error("Không tải được danh sách học sinh."))
       .finally(() => setLoading(false));
-  }, [filters.q, filters.status, filters.classroom_id, filters.trashed, filters.page]);
+  }, [filters.q, filters.status, filters.classroom_id, filters.trashed, filters.sort, filters.dir, filters.page]);
 
   useEffect(() => {
     load();
@@ -125,6 +139,16 @@ function StudentsView() {
 
   const hasFilters =
     !!filters.q || !!filters.status || !!filters.classroom_id || trashedMode;
+
+  // Sắp xếp theo cột (toggle asc/desc).
+  function sortBy(col: string) {
+    const dir = filters.sort === col && filters.dir === "asc" ? "desc" : "asc";
+    setParam({ sort: col, dir });
+  }
+  function sortIcon(col: string) {
+    if (filters.sort !== col) return <ArrowUpDown className="size-3.5 opacity-40" />;
+    return filters.dir === "asc" ? <ArrowUp className="size-3.5 text-brand" /> : <ArrowDown className="size-3.5 text-brand" />;
+  }
 
   // Chọn hàng.
   const allChecked = rows.length > 0 && selected.length === rows.length;
@@ -332,6 +356,9 @@ function StudentsView() {
             >
               Copy
             </Button>
+            <Button size="sm" iconLeft={<UserPlus className="size-4" />} onClick={() => { setEditing(null); setFormOpen(true); }}>
+              Thêm tiếp
+            </Button>
             <button
               onClick={() => setTempPassword(null)}
               aria-label="Đóng"
@@ -350,23 +377,24 @@ function StudentsView() {
             Đã chọn {selected.length}
           </span>
           <div className="ml-auto flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" onClick={() => doBulk("lock")}>
-              Khoá
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => doBulk("unlock")}>
-              Mở
-            </Button>
-            <Button
-              size="sm"
-              variant="danger"
-              onClick={() => setConfirmBulkDelete(true)}
-            >
-              Xoá
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => setSelected([])}>
-              Bỏ chọn
-            </Button>
+            {!trashedMode && (
+              <>
+                <Button size="sm" variant="outline" onClick={() => doBulk("lock")}>Khoá</Button>
+                <Button size="sm" variant="outline" onClick={() => doBulk("unlock")}>Mở</Button>
+                <Button size="sm" variant="outline" iconLeft={<GraduationCap className="size-4" />} onClick={() => setAssignOpen(true)}>Đổi lớp</Button>
+              </>
+            )}
+            <Button size="sm" variant="danger" onClick={() => setConfirmBulkDelete(true)}>Xoá</Button>
+            <Button size="sm" variant="ghost" onClick={() => setSelected([])}>Bỏ chọn</Button>
           </div>
+        </div>
+      )}
+
+      {/* Banner thùng rác */}
+      {trashedMode && (
+        <div className="mt-4 flex items-center gap-3 rounded-2xl border-[1.5px] border-danger/40 bg-danger-soft px-4 py-3 text-sm text-danger">
+          <Trash2 className="size-5 shrink-0" />
+          <p>Đang xem <b>thùng rác</b> — học sinh đã xoá mềm. Có thể <b>Phục hồi</b> hoặc <b>Xoá hẳn</b> (không khôi phục được).</p>
         </div>
       )}
 
@@ -401,9 +429,14 @@ function StudentsView() {
                 title="Chưa có học sinh nào"
                 description="Thêm học sinh đơn lẻ hoặc import từ file Excel."
                 action={
-                  <Button size="sm" iconLeft={<UserPlus className="size-4" />} onClick={() => setFormOpen(true)}>
-                    Thêm học sinh
-                  </Button>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <Button size="sm" iconLeft={<UserPlus className="size-4" />} onClick={() => { setEditing(null); setFormOpen(true); }}>
+                      Thêm học sinh
+                    </Button>
+                    <Button size="sm" variant="outline" iconLeft={<Upload className="size-4" />} onClick={() => setImportOpen(true)}>
+                      Import Excel
+                    </Button>
+                  </div>
                 }
               />
             )}
@@ -420,8 +453,12 @@ function StudentsView() {
                     aria-label="Chọn tất cả"
                   />
                 </th>
-                <th className="px-3 py-3 text-left font-semibold">Họ tên</th>
-                <th className="px-3 py-3 text-left font-semibold">Email</th>
+                <th className="px-3 py-3 text-left font-semibold">
+                  <button onClick={() => sortBy("name")} className="inline-flex items-center gap-1 hover:text-text">Họ tên {sortIcon("name")}</button>
+                </th>
+                <th className="px-3 py-3 text-left font-semibold">
+                  <button onClick={() => sortBy("email")} className="inline-flex items-center gap-1 hover:text-text">Email {sortIcon("email")}</button>
+                </th>
                 <th className="hidden px-3 py-3 text-left font-semibold lg:table-cell">Lớp</th>
                 <th className="hidden px-3 py-3 text-left font-semibold xl:table-cell">Ghi chú</th>
                 <th className="px-3 py-3 text-left font-semibold">Trạng thái</th>
@@ -432,13 +469,14 @@ function StudentsView() {
               {rows.map((s) => (
                 <tr
                   key={s.id}
+                  onClick={() => setDetailFor(s)}
                   className={
-                    "border-t border-border transition-colors hover:bg-surface-alt " +
+                    "cursor-pointer border-t border-border transition-colors hover:bg-surface-alt " +
                     (highlightId === s.id ? "bg-brand-soft" : "") +
                     (trashedMode ? " opacity-60" : "")
                   }
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
                       checked={selected.includes(s.id)}
                       onCheckedChange={() => toggleOne(s.id)}
@@ -474,7 +512,7 @@ function StudentsView() {
                   <td className="hidden max-w-[200px] truncate px-3 py-3 text-text-muted xl:table-cell">
                     {s.note || "—"}
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
                     {trashedMode ? (
                       <StatusBadge tone="danger">Đã xoá</StatusBadge>
                     ) : (
@@ -490,7 +528,7 @@ function StudentsView() {
                       </div>
                     )}
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-end gap-1">
                       {trashedMode ? (
                         <>
@@ -564,6 +602,9 @@ function StudentsView() {
         onUpdated={() => load()}
       />
       <ImportWizard open={importOpen} onClose={() => setImportOpen(false)} onDone={load} />
+      <StudentDetailModal student={detailFor} open={!!detailFor} onClose={() => setDetailFor(null)} />
+      <AssignClassModal open={assignOpen} onClose={() => setAssignOpen(false)} ids={selected} classrooms={classrooms}
+        onDone={() => { setAssignOpen(false); setSelected([]); load(); }} />
 
       <ConfirmDialog
         open={!!confirmDelete}

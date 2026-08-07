@@ -78,10 +78,18 @@ export function importTemplateUrl(): string {
   return `${API_URL}/students/import-template`;
 }
 
+/** Kiểm tra email trùng (blur ở form). */
+export function checkStudentEmail(email: string, ignoreId?: number): Promise<{ available: boolean }> {
+  const qs = new URLSearchParams({ email });
+  if (ignoreId) qs.set("ignore_id", String(ignoreId));
+  return api(`/students/check-email?${qs.toString()}`);
+}
+
 /** Import cần multipart nên gọi fetch trực tiếp (api() ép JSON). */
-async function importForm(file: File, dryRun: boolean): Promise<Response> {
+async function importForm(file: File, dryRun: boolean, onDuplicate?: "skip" | "update"): Promise<Response> {
   const form = new FormData();
   form.append("file", file);
+  if (onDuplicate) form.append("on_duplicate", onDuplicate);
   const token = getToken();
   return fetch(`${API_URL}/students/import?dry_run=${dryRun ? 1 : 0}`, {
     method: "POST",
@@ -105,6 +113,6 @@ export async function previewImport(file: File): Promise<ImportPreview> {
   return parseImport<ImportPreview>(await importForm(file, true));
 }
 
-export async function commitImport(file: File): Promise<ImportResult> {
-  return parseImport<ImportResult>(await importForm(file, false));
+export async function commitImport(file: File, onDuplicate: "skip" | "update" = "skip"): Promise<ImportResult> {
+  return parseImport<ImportResult>(await importForm(file, false, onDuplicate));
 }
