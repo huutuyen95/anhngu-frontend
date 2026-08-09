@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api, ApiError } from "@/lib/api";
+import { startAttempt } from "@/lib/api/tests";
+import { testRoutes } from "@/features/tests/routes";
 
 type TestMeta = {
   id: number;
@@ -14,36 +16,38 @@ type TestMeta = {
   parts: { sections: { questions: unknown[] }[] }[];
 };
 
-export default function TestIntroPage() {
-  const { id } = useParams<{ id: string }>();
+/**
+ * Trang giới thiệu đề trước khi làm bài. Dùng lại cho mọi root (thư viện, lớp học)
+ * — điều hướng nội bộ tính theo `basePath`, không hardcode "/library".
+ */
+export function StudentTestIntro({
+  basePath,
+  testId,
+}: {
+  basePath: string;
+  testId: string;
+}) {
   const router = useRouter();
+  const routes = useMemo(() => testRoutes(basePath), [basePath]);
 
   const [test, setTest] = useState<TestMeta | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
 
   useEffect(() => {
-    api<TestMeta>(`/tests/${id}`)
+    api<TestMeta>(`/tests/${testId}`)
       .then(setTest)
       .catch((err) =>
         setError(err instanceof ApiError ? err.message : "Không tải được đề thi."),
       );
-  }, [id]);
+  }, [testId]);
 
   async function handleStart() {
     setStarting(true);
     setError(null);
     try {
-      const attempt = await api<{
-        attempt_id: number;
-        started_at: string;
-        deadline: string;
-      }>(`/tests/${id}/attempts`, { method: "POST" });
-      router.push(
-        `/tests/${id}/attempt/${attempt.attempt_id}?deadline=${encodeURIComponent(
-          attempt.deadline,
-        )}`,
-      );
+      const attempt = await startAttempt(testId);
+      router.push(routes.attempt(testId, attempt.attempt_id, attempt.deadline));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Không bắt đầu được bài làm.");
       setStarting(false);
@@ -65,7 +69,7 @@ export default function TestIntroPage() {
   return (
     <div className="mx-auto max-w-lg">
       <Link
-        href="/tests"
+        href={routes.list}
         className="mb-4 inline-block text-sm text-slate-500 hover:underline"
       >
         ← Quay lại danh sách đề

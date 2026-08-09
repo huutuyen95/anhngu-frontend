@@ -35,7 +35,7 @@ const LIBRARY_ITEMS: LibraryItem[] = [
     icon: ClipboardList,
     iconBg: "bg-blue-50",
     iconColor: "text-[#0a2a5e]",
-    href: "/tests",
+    href: "/library/tests",
   },
   {
     key: "vocab",

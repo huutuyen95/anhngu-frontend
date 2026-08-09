@@ -11,14 +11,14 @@ import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrate
 import { ApiError } from "@/lib/api";
 import { saveTestStructure, updateTest } from "@/lib/api/tests";
 import type { Test, TestDetail, TestPart, TestSection, QuestionType } from "@/lib/types/test";
-import { QUESTION_TYPE_LABEL } from "@/lib/types/test";
+import { QUESTION_TYPE_LABEL, SKILL_LABEL } from "@/lib/types/test";
 import { Switch } from "@/components/ui/switch";
 import { AudioUpload } from "@/components/ui/audio-upload";
 import { newDraftQuestion, type DraftQuestion } from "@/features/tests/question-editor";
 import { SortableQuestion } from "@/features/tests/sortable-question";
 import { Sortable } from "@/features/tests/sortable";
 import { PreflightModal } from "@/features/tests/preflight-modal";
-import { SKILL_SHORT, SKILL_CHIP } from "@/features/tests/skill";
+import { SKILL_CHIP } from "@/features/tests/skill";
 import { cn } from "@/lib/utils";
 
 type DraftSection = { _cid: string; id?: number; instruction: string | null; passage: string | null; audio_url: string | null; max_plays: number | null; questions: DraftQuestion[] };
@@ -224,7 +224,7 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
           ) : (
             <div className="rounded-2xl border-[1.5px] border-border bg-surface p-5">
               <div className="mb-4 flex flex-wrap items-center gap-3">
-                <span className={cn("rounded-full px-2.5 py-1 text-xs font-bold uppercase", SKILL_CHIP[initial.skill])}>{SKILL_SHORT[initial.skill]}</span>
+                <span className={cn("rounded-full px-2.5 py-1 text-xs font-bold uppercase", SKILL_CHIP[initial.skill])}>{SKILL_LABEL[initial.skill]}</span>
                 <input value={part.title} onChange={(e) => setParts((p) => p.map((x, i) => i === sel ? { ...x, title: e.target.value } : x))}
                   className="min-w-0 flex-1 border-0 bg-transparent font-display text-lg font-bold text-text outline-none focus:border-b-[1.5px] focus:border-brand" />
                 <div className="flex items-center gap-1">

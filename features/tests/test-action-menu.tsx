@@ -2,8 +2,7 @@
 
 import { Eye, Pencil, Send, BarChart3, Copy, FolderInput, Trash2, type LucideIcon } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
-import type { Test } from "@/lib/types/test";
-import { SKILL_SHORT } from "@/features/tests/skill";
+import { SKILL_LABEL, type Test } from "@/lib/types/test";
 import { cn } from "@/lib/utils";
 
 type Action = { key: string; label: string; desc: string; icon: LucideIcon; wrap: string; danger?: boolean };
@@ -26,7 +25,7 @@ export function TestActionMenu({ test, open, onClose, onAction }: {
   onAction: (key: string, test: Test) => void;
 }) {
   if (!test) return null;
-  const meta = [SKILL_SHORT[test.skill], `${test.question_count ?? 0} câu`, `${test.duration_minutes} phút`,
+  const meta = [SKILL_LABEL[test.skill], `${test.question_count ?? 0} câu`, `${test.duration_minutes} phút`,
     test.attempts_count ? `${test.attempts_count} bài đã làm` : "chưa có bài làm"].join(" · ");
 
   return (

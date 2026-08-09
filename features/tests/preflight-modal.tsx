@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import { Check, AlertCircle, Loader2, Smartphone } from "lucide-react";
 import { getPreflight } from "@/lib/api/tests";
-import type { Test, TestPreflight } from "@/lib/types/test";
+import { SKILL_LABEL, type Test, type TestPreflight } from "@/lib/types/test";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
-import { SKILL_SHORT } from "@/features/tests/skill";
 import { cn } from "@/lib/utils";
 
 /** A4prev — xem trước + checklist trước khi giao. */
@@ -44,7 +43,7 @@ export function PreflightModal({ test, open, onClose, onEdit, onAssign }: {
           <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase text-text-muted"><Smartphone className="size-3.5" /> Mobile</p>
           <div className="rounded-2xl bg-surface p-4 shadow-[0_4px_16px_rgba(58,51,48,0.06)]">
             <p className="font-display text-base font-bold text-text">{test.title}</p>
-            <p className="mt-0.5 text-xs text-text-muted">{SKILL_SHORT[test.skill]} · {test.duration_minutes} phút · {test.question_count ?? 0} câu</p>
+            <p className="mt-0.5 text-xs text-text-muted">{SKILL_LABEL[test.skill]} · {test.duration_minutes} phút · {test.question_count ?? 0} câu</p>
             <div className="mt-3 rounded-xl border border-border p-3 text-sm text-text-secondary">
               <p className="font-semibold text-text">Câu 1.</p>
               <p className="mt-1">Xem trước nội dung câu hỏi ở đây…</p>
