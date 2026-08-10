@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { getToken, setToken } from "@/lib/api";
+import { getToken, setToken, areaForRole } from "@/lib/api";
 import {
   loginRequest,
   logoutRequest,
@@ -55,7 +55,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string, remember = false) {
     const data = await loginRequest(email, password, remember);
-    setToken(data.token);
+    // Lưu theo khu của role (không theo trang login) → teacher đăng nhập ở đâu cũng vào key teacher.
+    setToken(data.token, areaForRole(data.user.role));
     setUser(data.user);
     return data.user;
   }

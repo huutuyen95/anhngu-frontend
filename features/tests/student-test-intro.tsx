@@ -47,7 +47,7 @@ export function StudentTestIntro({
     setError(null);
     try {
       const attempt = await startAttempt(testId);
-      router.push(routes.attempt(testId, attempt.attempt_id, attempt.deadline));
+      router.push(routes.attempt(testId, attempt.attempt_id));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Không bắt đầu được bài làm.");
       setStarting(false);

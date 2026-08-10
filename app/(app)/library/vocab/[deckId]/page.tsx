@@ -119,11 +119,15 @@ function StudyScreen({ deckId }: { deckId: number }) {
 
       {current && (
         <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className="[perspective:1200px]">
-          <button
+          <div
+            role="button"
+            tabIndex={0}
             onClick={() => { interacted.current = true; setFlipped((f) => !f); }}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); interacted.current = true; setFlipped((f) => !f); } }}
             aria-label="Lật thẻ"
+            aria-pressed={flipped}
             className={
-              "relative min-h-[300px] w-full rounded-3xl border-[1.5px] border-border bg-surface p-6 text-center transition-transform duration-300 [transform-style:preserve-3d] motion-reduce:transition-none " +
+              "relative min-h-[300px] w-full cursor-pointer rounded-3xl border-[1.5px] border-border bg-surface p-6 text-center transition-transform duration-300 [transform-style:preserve-3d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none " +
               (flipped ? "[transform:rotateY(180deg)]" : "")
             }
           >
@@ -148,7 +152,7 @@ function StudyScreen({ deckId }: { deckId: number }) {
                 </div>
               )}
             </div>
-          </button>
+          </div>
         </div>
       )}
 

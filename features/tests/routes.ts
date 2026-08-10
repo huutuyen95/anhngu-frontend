@@ -23,12 +23,8 @@ export type TestRoutes = {
   list: string;
   /** Trang giới thiệu đề. */
   detail: (testId: number | string) => string;
-  /** Màn làm bài; `deadline` để hiện đồng hồ đếm ngược. */
-  attempt: (
-    testId: number | string,
-    attemptId: number | string,
-    deadline?: string,
-  ) => string;
+  /** Màn làm bài. Hạn nộp KHÔNG truyền qua URL — màn thi tự lấy từ GET /attempts/{id}. */
+  attempt: (testId: number | string, attemptId: number | string) => string;
   /** Trang kết quả sau khi nộp. */
   result: (testId: number | string, attemptId: number | string) => string;
 };
@@ -37,9 +33,7 @@ export function testRoutes(basePath: string): TestRoutes {
   return {
     list: basePath,
     detail: (testId) => `${basePath}/${testId}`,
-    attempt: (testId, attemptId, deadline) =>
-      `${basePath}/${testId}/attempt/${attemptId}` +
-      (deadline ? `?deadline=${encodeURIComponent(deadline)}` : ""),
+    attempt: (testId, attemptId) => `${basePath}/${testId}/attempt/${attemptId}`,
     result: (testId, attemptId) => `${basePath}/${testId}/result/${attemptId}`,
   };
 }

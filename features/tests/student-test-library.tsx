@@ -189,9 +189,7 @@ export function StudentTestLibrary({ basePath }: { basePath: string }) {
     setStartError(null);
     try {
       const attempt = await startAttempt(test.id);
-      router.push(
-        routes.attempt(test.id, attempt.attempt_id, attempt.deadline),
-      );
+      router.push(routes.attempt(test.id, attempt.attempt_id));
     } catch (err) {
       setStartError(
         err instanceof ApiError ? err.message : "Không bắt đầu được bài làm.",

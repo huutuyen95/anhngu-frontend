@@ -1,19 +1,43 @@
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
-const TOKEN_KEY = "auth_token";
+// Token lưu tách theo KHU (teacher / student) để 2 tab trong cùng trình duyệt không đè phiên
+// của nhau. Khu suy từ URL: mọi path dưới /teacher là khu giáo viên, còn lại là khu học sinh.
+export type AuthArea = "teacher" | "student";
 
-export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
+const TOKEN_KEY_PREFIX = "auth_token";
+
+export function areaForPath(pathname: string): AuthArea {
+  return pathname === "/teacher" || pathname.startsWith("/teacher/") ? "teacher" : "student";
 }
 
-export function setToken(token: string | null): void {
+export function areaForRole(role: string): AuthArea {
+  return role === "student" ? "student" : "teacher";
+}
+
+function currentArea(): AuthArea {
+  if (typeof window === "undefined") return "student";
+  return areaForPath(window.location.pathname);
+}
+
+function tokenKey(area: AuthArea): string {
+  return `${TOKEN_KEY_PREFIX}_${area}`;
+}
+
+/** Đọc token của khu hiện tại (theo URL), hoặc của khu chỉ định. */
+export function getToken(area?: AuthArea): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(tokenKey(area ?? currentArea()));
+}
+
+/** Ghi/xoá token cho khu chỉ định (mặc định là khu hiện tại theo URL). */
+export function setToken(token: string | null, area?: AuthArea): void {
   if (typeof window === "undefined") return;
+  const key = tokenKey(area ?? currentArea());
   if (token) {
-    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(key, token);
   } else {
-    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(key);
   }
 }
 
