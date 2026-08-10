@@ -9,10 +9,4 @@ export const SKILL_CHIP: Record<Skill, string> = {
   mixed: "bg-brand-soft text-brand",
 };
 
-export const SKILL_SHORT: Record<Skill, string> = {
-  reading: "Trắc nghiệm",
-  listening: "Đề nghe",
-  writing: "Writing",
-  speaking: "Nói",
-  mixed: "Tổng hợp",
-};
+// Nhãn loại đề nằm ở SKILL_LABEL (@/lib/types/test) — file này chỉ giữ phần màu sắc.

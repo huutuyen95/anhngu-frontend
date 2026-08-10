@@ -1,11 +1,18 @@
 export type Skill = "reading" | "listening" | "speaking" | "writing" | "mixed";
 
+/**
+ * "Loại đề" — nhãn DUY NHẤT cho `tests.skill`, dùng chung cho cả khu giáo viên lẫn khu học viên.
+ * Đừng khai lại bảng nhãn ở màn khác: trước đây có 3 bảng lệch nhau nên cùng một đề hiện
+ * "Trắc nghiệm" bên admin mà "Đọc" bên học viên.
+ *
+ * `mixed` = đề trắc nghiệm tổng hợp. Thứ tự key = thứ tự hiện ở dropdown và chip lọc.
+ */
 export const SKILL_LABEL: Record<Skill, string> = {
-  reading: "Đọc",
   listening: "Nghe",
   speaking: "Nói",
+  reading: "Đọc",
   writing: "Viết",
-  mixed: "Tổng hợp",
+  mixed: "Trắc nghiệm",
 };
 
 /**
@@ -152,4 +159,83 @@ export type TestDetail = {
   is_combo: boolean;
   thumbnail_url: string | null;
   parts: TestPart[];
+};
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Khu HỌC VIÊN — danh sách đề tự luyện (`GET /tests`, khác `/admin/tests`).
+   Khớp `StudentTestResource` + meta của backend.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/** Nhóm trạng thái dùng cho bộ lọc + nhãn trên card. */
+export type TestBucket = "todo" | "doing" | "done" | "grading";
+
+export const BUCKET_LABEL: Record<TestBucket, string> = {
+  todo: "Chưa làm",
+  doing: "Đang làm",
+  done: "Đã làm",
+  grading: "Chờ cô chấm",
+};
+
+/** Lượt làm gần nhất của học viên với đề này (null = chưa từng làm). */
+export type StudentTestAttempt = {
+  id: number;
+  status: "in_progress" | "pending_review" | "submitted" | "graded";
+  bucket: TestBucket;
+  best_score: number | null;
+  attempt_count: number;
+  last_attempted_at: string | null;
+  /** Chỉ có khi đang làm dở — dùng hiện tiến độ "câu 12/40". */
+  answered_count: number | null;
+  question_count: number | null;
+};
+
+export type StudentTestCategory = {
+  id: number;
+  name: string;
+  parent_name: string | null;
+  classroom_name: string | null;
+  /** Đường dẫn hiển thị, ví dụ "6A1 / Unit 5". */
+  path: string;
+};
+
+export type StudentTest = {
+  id: number;
+  title: string;
+  description: string | null;
+  slug: string;
+  skill: Skill;
+  duration_minutes: number;
+  total_score: number;
+  word_limit: number | null;
+  question_count: number;
+  attempts_total: number;
+  /** Điểm trung bình toàn hệ, 1 chữ số thập phân. */
+  avg_score: number | null;
+  created_at: string;
+  category: StudentTestCategory | null;
+  attempt: StudentTestAttempt | null;
+};
+
+export type StudentTestListMeta = {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  new_this_week: number;
+  status_counts: Record<TestBucket, number>;
+};
+
+export type StudentTestListResponse = {
+  data: StudentTest[];
+  meta: StudentTestListMeta;
+};
+
+export type StudentTestFilters = {
+  q?: string;
+  skill?: string;
+  /** Nhiều bucket nối bằng dấu phẩy: "todo,doing". */
+  status?: string;
+  sort?: "newest" | "popular" | "name" | string;
+  page?: string | number;
+  per_page?: string | number;
 };

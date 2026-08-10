@@ -1,5 +1,7 @@
 import { api, getToken } from "@/lib/api";
 import type {
+  StudentTestFilters,
+  StudentTestListResponse,
   Test,
   TestCategory,
   TestDetail,
@@ -20,6 +22,39 @@ export function listTests(filters: TestFilters): Promise<TestListResponse> {
   const query = qs.toString();
   return api<TestListResponse>(`/admin/tests${query ? `?${query}` : ""}`);
 }
+
+/* ── Khu học viên ──────────────────────────────────────────────────────────── */
+
+/**
+ * Danh sách đề tự luyện của học viên — `GET /tests` (KHÔNG phải `/admin/tests`).
+ * Backend chỉ trả đề đã bật "Hiện trong thư viện" cho lớp của học viên.
+ */
+export function listStudentTests(
+  filters: StudentTestFilters,
+): Promise<StudentTestListResponse> {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(filters)) {
+    if (v !== undefined && v !== null && v !== "") qs.set(k, String(v));
+  }
+  const query = qs.toString();
+  return api<StudentTestListResponse>(`/tests${query ? `?${query}` : ""}`);
+}
+
+export type StartedAttempt = {
+  attempt_id: number;
+  started_at: string;
+  deadline: string;
+};
+
+/** Tạo lượt làm mới cho một đề. Dùng chung cho trang giới thiệu đề và thư viện. */
+export function startAttempt(testId: number | string): Promise<StartedAttempt> {
+  return api<StartedAttempt>(`/tests/${testId}/attempts`, { method: "POST" });
+}
+
+// Đường dẫn FE của luồng làm bài nằm ở `features/tests/routes.ts` — không để lẫn
+// vào đây vì route phụ thuộc root (thư viện / lớp học), còn path API thì không.
+
+/* ── Khu quản trị ──────────────────────────────────────────────────────────── */
 
 export type TestPayload = {
   title: string;

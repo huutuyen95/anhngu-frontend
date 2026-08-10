@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { EmptyState } from "@/components/ui/empty-state";
-import { SKILL_CHIP, SKILL_SHORT } from "@/features/tests/skill";
+import { SKILL_CHIP } from "@/features/tests/skill";
 import { TestFolderTree } from "@/features/tests/test-folder-tree";
 import { CreateTestModal } from "@/features/tests/create-test-modal";
 import { TestActionMenu } from "@/features/tests/test-action-menu";
@@ -175,10 +175,10 @@ function TestsView() {
                     <tr key={t.id} className="h-[58px] border-t border-border transition-colors hover:bg-surface-alt">
                       <td className="max-w-0 px-4">
                         <button onClick={() => router.push(`/teacher/tests/${t.id}/edit`)} className="block max-w-full truncate text-left font-semibold text-text hover:text-brand">{t.title}</button>
-                        <div className="truncate text-xs text-text-muted">{SKILL_SHORT[t.skill]} · {t.duration_minutes} phút</div>
+                        <div className="truncate text-xs text-text-muted">{SKILL_LABEL[t.skill]} · {t.duration_minutes} phút</div>
                       </td>
                       <td className="hidden max-w-[140px] px-3 md:table-cell"><span className="truncate text-text-secondary">{t.category_name ?? "—"}</span></td>
-                      <td className="px-3"><span className={cn("inline-block rounded-full px-2.5 py-1 text-xs font-semibold", SKILL_CHIP[t.skill])}>{SKILL_SHORT[t.skill]}</span></td>
+                      <td className="px-3"><span className={cn("inline-block rounded-full px-2.5 py-1 text-xs font-semibold", SKILL_CHIP[t.skill])}>{SKILL_LABEL[t.skill]}</span></td>
                       <td className="hidden px-3 text-text-secondary sm:table-cell">{t.question_count ?? "—"}</td>
                       <td className="px-3"><Switch checked={t.is_published} onCheckedChange={() => togglePublish(t)} aria-label="Hiện trong thư viện" /></td>
                       <td className="pl-3 pr-6" style={{ width: 116 }}>

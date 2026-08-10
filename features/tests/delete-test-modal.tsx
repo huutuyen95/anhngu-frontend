@@ -5,8 +5,7 @@ import { AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { deleteTest, updateTest } from "@/lib/api/tests";
 import { Modal } from "@/components/ui/modal";
-import type { Test } from "@/lib/types/test";
-import { SKILL_SHORT } from "@/features/tests/skill";
+import { SKILL_LABEL, type Test } from "@/lib/types/test";
 
 /** A4del — xoá đề: cảnh báo mất N bài làm, gợi ý ẩn khỏi thư viện. */
 export function DeleteTestModal({ test, open, onClose, onDone }: {
@@ -44,7 +43,7 @@ export function DeleteTestModal({ test, open, onClose, onDone }: {
 
   return (
     <Modal open={open} onClose={onClose} title={`Xoá "${test.title}"?`}
-      description={`${SKILL_SHORT[test.skill]} · ${test.question_count ?? 0} câu`}
+      description={`${SKILL_LABEL[test.skill]} · ${test.question_count ?? 0} câu`}
       footer={
         <div className="flex w-full flex-wrap items-center gap-2">
           <button onClick={hideInstead} disabled={busy}
