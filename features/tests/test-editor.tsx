@@ -95,7 +95,6 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
 
   useEffect(() => {
     if (skipAutosave.current) { skipAutosave.current = false; return; }
-    if (locked) return;
     setSaveState("dirty");
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => save(true), 5000);
@@ -152,7 +151,7 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
         </div>
       </div>
 
-      {locked && <div className="mt-4 rounded-2xl bg-accent-soft px-4 py-3 text-sm text-text-secondary">⚠ Đề đã có <b className="text-text">{initial.attempts_count} bài làm</b> — sửa không đổi bài đã nộp, không xoá được câu.</div>}
+      {locked && <div className="mt-4 rounded-2xl bg-accent-soft px-4 py-3 text-sm text-text-secondary">⚠ Đề đã có <b className="text-text">{initial.attempts_count} bài làm</b> — vẫn thêm được câu mới, nhưng câu cũ không xoá / đổi thứ tự / đổi loại được. Bài đã nộp giữ nguyên.</div>}
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[260px_1fr]">
         {/* ── Cột trái: cây cấu trúc + cấu hình ── */}
@@ -230,7 +229,7 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
                 <div className="flex items-center gap-1">
                   <button onClick={() => movePart(sel, -1)} disabled={sel === 0} aria-label="Đưa Part lên" className="flex size-8 items-center justify-center rounded-full text-text-muted hover:bg-surface-alt disabled:opacity-30"><ChevronUp className="size-4" /></button>
                   <button onClick={() => movePart(sel, 1)} disabled={sel >= parts.length - 1} aria-label="Đưa Part xuống" className="flex size-8 items-center justify-center rounded-full text-text-muted hover:bg-surface-alt disabled:opacity-30"><ChevronDown className="size-4" /></button>
-                  {!locked && <button onClick={() => { removePart(sel); setSel(Math.max(0, sel - 1)); }} aria-label="Xoá Part" className="flex size-8 items-center justify-center rounded-full text-text-muted hover:bg-danger-soft hover:text-danger"><Trash2 className="size-4" /></button>}
+                  {(!locked || part.id === undefined) && <button onClick={() => { removePart(sel); setSel(Math.max(0, sel - 1)); }} aria-label="Xoá Part" className="flex size-8 items-center justify-center rounded-full text-text-muted hover:bg-danger-soft hover:text-danger"><Trash2 className="size-4" /></button>}
                 </div>
               </div>
 
@@ -251,7 +250,7 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
                         className="flex size-6 cursor-grab touch-none items-center justify-center rounded-md text-text-muted hover:text-text active:cursor-grabbing"><GripVertical className="size-4" /></button>
                     )}
                     <span className="text-xs font-bold uppercase text-text-muted">Section {si + 1}</span>
-                    {!locked && part.sections.length > 1 && (
+                    {(!locked || section.id === undefined) && part.sections.length > 1 && (
                       <button onClick={() => setParts((p) => p.map((pt, i) => i === sel ? { ...pt, sections: pt.sections.filter((_, j) => j !== si) } : pt))}
                         aria-label="Xoá section" className="ml-auto flex size-7 items-center justify-center rounded-full text-text-muted hover:bg-danger-soft hover:text-danger"><Trash2 className="size-3.5" /></button>
                     )}
@@ -284,20 +283,22 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
                     <SortableContext items={section.questions.map((q) => q._cid)} strategy={verticalListSortingStrategy}>
                       <div className="flex flex-col gap-2">
                         {section.questions.map((q, qi) => (
-                          <SortableQuestion key={q._cid} id={q._cid} index={qi} scorePerQuestion={perQ} question={q} disabled={locked}
+                          // Câu đã lưu của đề có bài làm thì khoá (xoá/kéo/đổi loại sẽ làm hỏng
+                          // bài đã nộp); câu vừa thêm (chưa có `id`) vẫn sửa thoải mái.
+                          <SortableQuestion key={q._cid} id={q._cid} index={qi} scorePerQuestion={perQ} question={q} disabled={locked && q.id !== undefined}
                             onChange={(next) => patchQuestion(sel, si, qi, next)} onRemove={() => removeQuestion(sel, si, qi)} onDuplicate={() => dupQuestion(sel, si, qi)} />
                         ))}
                       </div>
                     </SortableContext>
                   </DndContext>
 
-                  {!locked && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {(["multiple_choice", "fill_blank", "select", "writing"] as QuestionType[]).map((t) => (
-                        <button key={t} onClick={() => addQuestion(sel, si, t)} className="inline-flex items-center gap-1 rounded-full border-[1.5px] border-border px-3 py-1.5 text-xs font-semibold text-text-secondary hover:border-brand hover:text-brand"><Plus className="size-3.5" /> {QUESTION_TYPE_LABEL[t]}</button>
-                      ))}
-                    </div>
-                  )}
+                  {/* Thêm câu hỏi luôn mở, kể cả đề đã có bài làm — khoá chỉ áp cho
+                      câu CŨ (câu đã có `id`): không xoá / đổi thứ tự / đổi loại. */}
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {(["multiple_choice", "fill_blank", "select", "writing"] as QuestionType[]).map((t) => (
+                      <button key={t} onClick={() => addQuestion(sel, si, t)} className="inline-flex items-center gap-1 rounded-full border-[1.5px] border-border px-3 py-1.5 text-xs font-semibold text-text-secondary hover:border-brand hover:text-brand"><Plus className="size-3.5" /> {QUESTION_TYPE_LABEL[t]}</button>
+                    ))}
+                  </div>
                   </>
                   )}
                 </Sortable>
@@ -305,7 +306,7 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
               </SortableContext>
               </DndContext>
 
-              {!locked && <button onClick={() => addSection(sel)} className="w-full rounded-xl border border-dashed border-border-strong py-2.5 text-sm font-semibold text-text-secondary hover:border-brand hover:text-brand">+ Thêm section vào {part.title}</button>}
+              <button onClick={() => addSection(sel)} className="w-full rounded-xl border border-dashed border-border-strong py-2.5 text-sm font-semibold text-text-secondary hover:border-brand hover:text-brand">+ Thêm section vào {part.title}</button>
             </div>
           )}
         </div>
