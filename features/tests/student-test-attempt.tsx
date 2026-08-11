@@ -1,70 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { api, ApiError } from "@/lib/api";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Modal } from "@/components/ui/modal";
-import { testRoutes } from "@/features/tests/routes";
-import { SKILL_LABEL, type Skill } from "@/lib/types/test";
-
-type Option = { id: number; label: string; content: string };
-
-type Question = {
-  id: number;
-  order: number;
-  type: "multiple_choice" | "fill_blank" | "select" | "writing" | "upload";
-  content: string;
-  audio_url: string | null;
-  options: Option[];
-};
-
-type Section = {
-  id: number;
-  instruction: string | null;
-  passage: string | null;
-  audio_url: string | null;
-  order: number;
-  questions: Question[];
-};
-
-type Part = {
-  id: number;
-  title: string;
-  order: number;
-  sections: Section[];
-};
-
-type TestDetail = {
-  id: number;
-  title: string;
-  skill: Skill;
-  duration_minutes: number;
-  total_score: number;
-  parts: Part[];
-};
-
-type Answer = { question_id: number; question_option_id?: number; answer_text?: string };
-
-/** Trạng thái lượt làm lấy từ GET /attempts/{id} — nguồn tính giờ + khôi phục bài. */
-type AttemptState = {
-  id: number;
-  status: "in_progress" | "submitted" | "pending_review" | "graded" | "expired";
-  started_at: string | null;
-  deadline: string | null;
-  tab_exit_count: number;
-  tab_exit_limit: number;
-  answers: Answer[];
-};
-
-/** Phản hồi khi báo một lần thoát tab. */
-type TabExitResponse = {
-  tab_exit_count: number;
-  tab_exit_limit: number;
-  auto_submitted: boolean;
-  result?: unknown;
-};
+import { SKILL_LABEL } from "@/lib/types/test";
+import {
+  useTestAttempt,
+  hasAnswer,
+  partLabel,
+  formatRemaining,
+  type Answer,
+  type Question,
+  type TestDetail,
+  type TestAttemptState,
+} from "@/features/tests/use-test-attempt";
+import { ReadingTestAttempt } from "@/features/tests/reading-test-attempt";
 
 /* ────────────────────────────────────────────────────────────────────────────
    Màn làm bài (S7). Đề hỗn hợp: 3 dạng câu dùng CHUNG một cấu trúc card, chỉ
@@ -76,6 +27,10 @@ type TabExitResponse = {
    Toàn bộ câu hỏi nằm trong MỘT khung cuộn cao cố định 640px; đồng hồ, lưới câu
    và nút Nộp bài ở rail phải sticky nên luôn trong tầm mắt. Không phân trang
    từng câu, không nút "Câu trước/Câu sau".
+
+   Đề kỹ năng Đọc (S7d) dùng layout khác hẳn — trang sách 2 cột toàn màn hình,
+   xem `reading-test-attempt.tsx`. Logic vòng đời lượt làm (tải đề, autosave,
+   đếm giờ, chống thoát tab, nộp bài) dùng CHUNG qua `useTestAttempt`.
    ──────────────────────────────────────────────────────────────────────────── */
 
 /** 3 dạng trả lời hiển thị — gom từ `QuestionType` của backend. */
@@ -89,43 +44,10 @@ const FORM_META: Record<AnswerForm, { label: string; hint: string; fg: string; b
 
 const FORM_ORDER: AnswerForm[] = ["choice", "blank", "short"];
 
-/** Số lần rời tab tối đa nếu server chưa kịp trả về (server vẫn là nguồn chuẩn). */
-const DEFAULT_EXIT_LIMIT = 3;
-
 function answerForm(type: Question["type"]): AnswerForm {
   if (type === "multiple_choice" || type === "select") return "choice";
   if (type === "fill_blank") return "blank";
   return "short";
-}
-
-/**
- * Nhãn phần. `part.title` đã là "Phần 1"/"Reading"… nên KHÔNG ghép thêm số vào:
- * `part.order` chạy từ 0 nên ghép sẽ ra "Phần 0 · Phần 1". Chỉ khi đề không đặt
- * tiêu đề mới tự sinh số từ `order` (0-based → +1).
- */
-function partLabel(part: Pick<Part, "order" | "title">): string {
-  const title = part.title?.trim();
-  return title || `Phần ${part.order + 1}`;
-}
-
-function formatRemaining(ms: number): string {
-  const total = Math.max(0, Math.floor(ms / 1000));
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  const mm = m.toString().padStart(2, "0");
-  const ss = s.toString().padStart(2, "0");
-  return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
-}
-
-function formatClock(date: Date): string {
-  return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
-}
-
-function hasAnswer(answer: Answer | undefined): boolean {
-  if (!answer) return false;
-  if (answer.question_option_id !== undefined) return true;
-  return !!answer.answer_text && answer.answer_text.trim() !== "";
 }
 
 /** Viền/nền ô nhập: đã có nội dung → cam; còn trống → be nhạt. */
@@ -156,307 +78,46 @@ export function StudentTestAttempt({
   testId: string;
   attemptId: string;
 }) {
-  const router = useRouter();
-  const routes = useMemo(() => testRoutes(basePath), [basePath]);
+  const attempt = useTestAttempt({ basePath, testId: id, attemptId });
 
-  const [test, setTest] = useState<TestDetail | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  // Lượt làm bài không còn hợp lệ (bị xoá do mở lượt mới / đã kết thúc) → chặn thao tác, báo rõ.
-  const [attemptGone, setAttemptGone] = useState(false);
-  const [answers, setAnswers] = useState<Record<number, Answer>>({});
-  const [marked, setMarked] = useState<Set<number>>(new Set());
-  const [savedAt, setSavedAt] = useState<string | null>(null);
-  const [confirmSubmit, setConfirmSubmit] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [now, setNow] = useState(() => Date.now());
+  if (attempt.attemptGone) {
+    return (
+      <div className="mx-auto flex max-w-lg flex-col items-center gap-4 rounded-[20px] border-[1.5px] border-border bg-surface px-8 py-12 text-center">
+        <h1 className="font-display text-[22px] font-bold text-text">Lượt làm bài không còn nữa</h1>
+        <p className="text-[14.5px] leading-relaxed text-text-secondary">
+          Lượt làm bài này đã kết thúc hoặc được thay bằng một lượt mới (có thể em đã mở lại đề ở
+          nơi khác). Em quay lại danh sách đề và bắt đầu lại nhé.
+        </p>
+        <Link
+          href={attempt.routes.list}
+          className="mt-1 inline-flex h-11 items-center rounded-full bg-brand px-6 text-sm font-bold text-white transition-colors hover:bg-brand-bold"
+        >
+          Về danh sách đề
+        </Link>
+      </div>
+    );
+  }
 
-  // Hạn nộp lấy từ server (không còn qua URL). null = chưa tải / không giới hạn.
-  const [deadline, setDeadline] = useState<number | null>(null);
+  if (attempt.error && !attempt.test) {
+    return <p className="text-sm text-[#C1442F]">{attempt.error}</p>;
+  }
 
-  // Chống gian lận: đếm số lần rời tab. Cảnh báo khi quay lại; vượt hạn → tự nộp ngay.
-  const [exitCount, setExitCount] = useState(0);
-  const [exitLimit, setExitLimit] = useState<number>(DEFAULT_EXIT_LIMIT);
-  const [exitWarn, setExitWarn] = useState<{ count: number; limit: number } | null>(null);
-  const [autoSubmitted, setAutoSubmitted] = useState(false); // popup "đã bị nộp vì rời quá số lần"
+  if (!attempt.test) {
+    return <p className="text-sm text-text-secondary">Đang tải...</p>;
+  }
 
-  const submittedRef = useRef(false);
-  const submitTriggeredRef = useRef(false); // đã kích hoạt nộp (chặn gọi nộp 2 lần)
-  const answersRef = useRef(answers);
+  if (attempt.test.skill === "reading") {
+    return <ReadingTestAttempt attempt={attempt} test={attempt.test} />;
+  }
+
+  return <DefaultTestAttempt attempt={attempt} test={attempt.test} />;
+}
+
+function DefaultTestAttempt({ attempt, test }: { attempt: TestAttemptState; test: TestDetail }) {
+  const { routes } = attempt;
+
   const questionRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const exitCountRef = useRef(0);
-  const exitLimitRef = useRef(DEFAULT_EXIT_LIMIT);
-  const awayRef = useRef(false); // đang ở ngoài tab (đã tính 1 lần thoát, chờ quay lại)
-
-  useEffect(() => {
-    answersRef.current = answers;
-  }, [answers]);
-
-  // Tải cấu trúc đề + trạng thái lượt làm (hạn nộp, đáp án đã lưu, số lần thoát).
-  useEffect(() => {
-    let cancelled = false;
-
-    api<TestDetail>(`/tests/${id}`)
-      .then((data) => {
-        if (!cancelled) setTest(data);
-      })
-      .catch((err) => {
-        if (!cancelled)
-          setError(err instanceof ApiError ? err.message : "Không tải được đề thi.");
-      });
-
-    api<AttemptState>(`/attempts/${attemptId}`)
-      .then((state) => {
-        if (cancelled) return;
-        // Lượt đã kết thúc trước đó → sang thẳng trang kết quả.
-        if (state.status !== "in_progress") {
-          submittedRef.current = true;
-          router.replace(routes.result(id, attemptId));
-          return;
-        }
-        setDeadline(state.deadline ? new Date(state.deadline).getTime() : null);
-        setExitLimit(state.tab_exit_limit);
-        exitLimitRef.current = state.tab_exit_limit;
-        exitCountRef.current = state.tab_exit_count;
-        setExitCount(state.tab_exit_count);
-        // Khôi phục đáp án đã lưu (làm tiếp sau khi reload / vào lại).
-        if (state.answers.length > 0) {
-          const restored: Record<number, Answer> = {};
-          for (const a of state.answers) {
-            restored[a.question_id] = {
-              question_id: a.question_id,
-              ...(a.question_option_id != null
-                ? { question_option_id: a.question_option_id }
-                : {}),
-              ...(a.answer_text != null ? { answer_text: a.answer_text } : {}),
-            };
-          }
-          setAnswers(restored);
-        }
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        // 404 = lượt làm bài không còn (đã bị thay bằng lượt mới, hoặc đã kết thúc).
-        if (err instanceof ApiError && err.status === 404) {
-          submittedRef.current = true; // chặn beforeunload + mọi lần tự nộp
-          setAttemptGone(true);
-          return;
-        }
-        // Lỗi khác (mạng…) → vẫn cho làm bài, coi như không giới hạn giờ.
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [id, attemptId, router, routes]);
-
-  function buildAnswersPayload(): Answer[] {
-    return Object.values(answersRef.current);
-  }
-
-  const saveAnswers = useCallback(async () => {
-    const payload = buildAnswersPayload();
-    if (payload.length === 0 || submittedRef.current) return;
-    try {
-      await api(`/attempts/${attemptId}/answers`, {
-        method: "PUT",
-        body: JSON.stringify({ answers: payload }),
-      });
-      setSavedAt(formatClock(new Date()));
-    } catch {
-      // Bỏ qua lỗi auto-save tạm thời — vẫn còn cơ hội lưu ở lần nộp bài cuối
-    }
-  }, [attemptId]);
-
-  const storeResult = useCallback(
-    (result: unknown) => {
-      try {
-        sessionStorage.setItem(`test-result-${attemptId}`, JSON.stringify(result));
-      } catch {
-        // sessionStorage có thể đầy/bị chặn — trang kết quả sẽ fallback GET /result.
-      }
-    },
-    [attemptId],
-  );
-
-  const goToResult = useCallback(() => {
-    router.push(routes.result(id, attemptId));
-  }, [id, attemptId, router, routes]);
-
-  /** Nộp bài thủ công / hết giờ → nộp xong chuyển thẳng sang trang kết quả. */
-  const handleSubmit = useCallback(async () => {
-    if (submittedRef.current || submitTriggeredRef.current) return;
-    submitTriggeredRef.current = true;
-    setSubmitting(true);
-    try {
-      await api(`/attempts/${attemptId}/answers`, {
-        method: "PUT",
-        body: JSON.stringify({ answers: buildAnswersPayload() }),
-      });
-      const result = await api(`/attempts/${attemptId}/submit`, { method: "POST" });
-      submittedRef.current = true;
-      storeResult(result);
-      goToResult();
-    } catch (err) {
-      // Lượt đã bị xoá (mở lượt mới ở tab khác…) → báo rõ thay vì lỗi kỹ thuật.
-      if (err instanceof ApiError && err.status === 404) {
-        submittedRef.current = true;
-        setAttemptGone(true);
-        return;
-      }
-      setError(err instanceof ApiError ? err.message : "Không nộp được bài.");
-      submitTriggeredRef.current = false;
-      setSubmitting(false);
-    }
-  }, [attemptId, storeResult, goToResult]);
-
-  /**
-   * Rời tab quá số lần cho phép → NỘP NGAY phía client (không chờ response tab-exit),
-   * rồi bật popup "đã bị nộp". Việc nộp ngay lập tức là điểm mấu chốt: không phụ thuộc
-   * vào thứ tự trả về của request nền khi tab đang ẩn.
-   */
-  const autoSubmitOnExit = useCallback(async () => {
-    if (submittedRef.current || submitTriggeredRef.current) return;
-    submitTriggeredRef.current = true;
-    setSubmitting(true);
-    try {
-      await api(`/attempts/${attemptId}/answers`, {
-        method: "PUT",
-        body: JSON.stringify({ answers: buildAnswersPayload() }),
-      });
-      const result = await api(`/attempts/${attemptId}/submit`, { method: "POST" });
-      storeResult(result);
-    } catch (err) {
-      // Lượt không còn tồn tại → báo rõ, không hiện popup "đã nộp" gây hiểu nhầm.
-      if (err instanceof ApiError && err.status === 404) {
-        submittedRef.current = true;
-        setSubmitting(false);
-        setExitWarn(null);
-        setAttemptGone(true);
-        return;
-      }
-      // Lỗi khác → vẫn coi là đã nộp, trang kết quả sẽ fallback GET /result.
-    }
-    submittedRef.current = true;
-    setSubmitting(false);
-    setExitWarn(null);
-    setAutoSubmitted(true);
-  }, [attemptId, storeResult]);
-
-  // Đồng hồ đếm ngược, tự nộp khi hết giờ
-  useEffect(() => {
-    if (!deadline) return;
-    const interval = setInterval(() => {
-      const current = Date.now();
-      setNow(current);
-      if (current >= deadline) {
-        handleSubmit();
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [deadline, handleSubmit]);
-
-  // Chống gian lận: đếm số lần rời tab.
-  //  - Lần CHƯA vượt hạn: báo server (đếm bền vững qua reload) + cảnh báo khi quay lại.
-  //  - Lần VƯỢT hạn: tự nộp NGAY phía client, không chờ server, rồi bật popup "đã bị nộp".
-  useEffect(() => {
-    // Đồng bộ bộ đếm với server cho các lần chưa vượt hạn.
-    async function reportExitCount() {
-      try {
-        const res = await api<TabExitResponse>(`/attempts/${attemptId}/tab-exit`, {
-          method: "POST",
-        });
-        exitCountRef.current = Math.max(exitCountRef.current, res.tab_exit_count);
-        setExitCount(exitCountRef.current);
-        exitLimitRef.current = res.tab_exit_limit;
-        setExitLimit(res.tab_exit_limit);
-        // Phòng khi client lệch: nếu server bảo đã tự nộp thì cũng nộp/hiện popup.
-        if (res.auto_submitted && !submittedRef.current && !submitTriggeredRef.current) {
-          void autoSubmitOnExit();
-        }
-      } catch {
-        // Bỏ qua lỗi mạng — vẫn đếm optimistic ở client.
-      }
-    }
-
-    function onVisibility() {
-      const limit = exitLimitRef.current;
-
-      // Đã nộp/đang nộp: khi quay lại chỉ hiện popup đã nộp, không đếm nữa.
-      if (submittedRef.current || submitTriggeredRef.current) {
-        if (document.visibilityState === "visible") {
-          awayRef.current = false;
-          setAutoSubmitted(true);
-        }
-        return;
-      }
-
-      if (document.visibilityState === "hidden") {
-        if (awayRef.current) return; // đã tính cho lần rời này rồi
-        awayRef.current = true;
-        exitCountRef.current += 1;
-        const count = exitCountRef.current;
-        setExitCount(count);
-        if (count > limit) {
-          void autoSubmitOnExit(); // vượt hạn → nộp ngay, không gọi tab-exit
-        } else {
-          void reportExitCount();
-        }
-      } else if (document.visibilityState === "visible") {
-        if (!awayRef.current) return;
-        awayRef.current = false;
-        if (exitCountRef.current > limit) {
-          void autoSubmitOnExit();
-        } else {
-          setExitWarn({ count: exitCountRef.current, limit });
-        }
-      }
-    }
-
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, [attemptId, autoSubmitOnExit]);
-
-  // Chặn đóng/tải lại tab giữa chừng — hiện hộp thoại xác nhận mặc định của trình duyệt.
-  useEffect(() => {
-    function onBeforeUnload(e: BeforeUnloadEvent) {
-      if (submittedRef.current) return;
-      e.preventDefault();
-      e.returnValue = "";
-    }
-    window.addEventListener("beforeunload", onBeforeUnload);
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, []);
-
-  // Auto-save sau mỗi lựa chọn / mỗi lần gõ (gộp 1.2s để không bắn request mỗi ký tự).
-  useEffect(() => {
-    if (Object.keys(answers).length === 0) return;
-    const timer = setTimeout(() => saveAnswers(), 1200);
-    return () => clearTimeout(timer);
-  }, [answers, saveAnswers]);
-
-  function setOptionAnswer(questionId: number, optionId: number) {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: { question_id: questionId, question_option_id: optionId },
-    }));
-  }
-
-  function setTextAnswer(questionId: number, text: string) {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: { question_id: questionId, answer_text: text },
-    }));
-  }
-
-  function toggleMark(questionId: number) {
-    setMarked((prev) => {
-      const next = new Set(prev);
-      if (next.has(questionId)) next.delete(questionId);
-      else next.add(questionId);
-      return next;
-    });
-  }
 
   /** Cuộn tới câu — cuộn BÊN TRONG khung, không cuộn cả trang. */
   function goToQuestion(questionId: number) {
@@ -466,39 +127,13 @@ export function StudentTestAttempt({
     scroller.scrollTo({ top: Math.max(0, el.offsetTop - 22), behavior: "smooth" });
   }
 
-  if (attemptGone) {
-    return (
-      <div className="mx-auto flex max-w-lg flex-col items-center gap-4 rounded-[20px] border-[1.5px] border-border bg-surface px-8 py-12 text-center">
-        <h1 className="font-display text-[22px] font-bold text-text">Lượt làm bài không còn nữa</h1>
-        <p className="text-[14.5px] leading-relaxed text-text-secondary">
-          Lượt làm bài này đã kết thúc hoặc được thay bằng một lượt mới (có thể em đã mở lại đề ở
-          nơi khác). Em quay lại danh sách đề và bắt đầu lại nhé.
-        </p>
-        <Link
-          href={routes.list}
-          className="mt-1 inline-flex h-11 items-center rounded-full bg-brand px-6 text-sm font-bold text-white transition-colors hover:bg-brand-bold"
-        >
-          Về danh sách đề
-        </Link>
-      </div>
-    );
-  }
-
-  if (error && !test) {
-    return <p className="text-sm text-[#C1442F]">{error}</p>;
-  }
-
-  if (!test) {
-    return <p className="text-sm text-text-secondary">Đang tải...</p>;
-  }
-
   const sortedParts = test.parts.slice().sort((a, b) => a.order - b.order);
   const allQuestions = sortedParts
     .flatMap((part) => part.sections.slice().sort((a, b) => a.order - b.order))
     .flatMap((section) => section.questions.slice().sort((a, b) => a.order - b.order));
   const questionIndex = new Map(allQuestions.map((q, i) => [q.id, i + 1]));
 
-  const answeredCount = allQuestions.filter((q) => hasAnswer(answers[q.id])).length;
+  const answeredCount = allQuestions.filter((q) => hasAnswer(attempt.answers[q.id])).length;
 
   const forms = new Set(allQuestions.map((q) => answerForm(q.type)));
   const formChip = FORM_ORDER.filter((f) => forms.has(f))
@@ -508,7 +143,7 @@ export function StudentTestAttempt({
   const skillLabel = test.skill === "mixed" ? "Đề hỗn hợp" : SKILL_LABEL[test.skill] ?? "Đề thi";
   const headerBadge = `${skillLabel} · ${allQuestions.length} câu`.toUpperCase();
 
-  const remainingMs = deadline ? Math.max(0, deadline - now) : null;
+  const remainingMs = attempt.deadline ? Math.max(0, attempt.deadline - attempt.now) : null;
   const totalMs = test.duration_minutes > 0 ? test.duration_minutes * 60_000 : null;
   const remainingRatio =
     remainingMs !== null && totalMs ? Math.min(1, Math.max(0, remainingMs / totalMs)) : null;
@@ -533,7 +168,7 @@ export function StudentTestAttempt({
           </span>
         </div>
 
-        {error && <p className="text-sm font-semibold text-[#C1442F]">{error}</p>}
+        {attempt.error && <p className="text-sm font-semibold text-[#C1442F]">{attempt.error}</p>}
 
         <div className="flex h-[640px] flex-col overflow-hidden rounded-[20px] border-[1.5px] border-border bg-surface">
           {/* Header khung cuộn */}
@@ -547,7 +182,7 @@ export function StudentTestAttempt({
               </span>
             )}
             <span className="ml-auto shrink-0 text-xs font-semibold text-text-muted">
-              {savedAt ? `Đã tự lưu lúc ${savedAt}` : "Bài làm được tự lưu"}
+              {attempt.savedAt ? `Đã tự lưu lúc ${attempt.savedAt}` : "Bài làm được tự lưu"}
             </span>
           </div>
 
@@ -594,11 +229,11 @@ export function StudentTestAttempt({
                           }}
                           question={question}
                           index={questionIndex.get(question.id) ?? 0}
-                          answer={answers[question.id]}
-                          marked={marked.has(question.id)}
-                          onSelectOption={setOptionAnswer}
-                          onChangeText={setTextAnswer}
-                          onToggleMark={toggleMark}
+                          answer={attempt.answers[question.id]}
+                          marked={attempt.marked.has(question.id)}
+                          onSelectOption={attempt.setOptionAnswer}
+                          onChangeText={attempt.setTextAnswer}
+                          onToggleMark={attempt.toggleMark}
                         />
                       ))}
                   </div>
@@ -648,13 +283,13 @@ export function StudentTestAttempt({
         </div>
 
         {/* Cảnh báo chống thoát tab */}
-        {exitLimit !== null && (
+        {attempt.exitLimit !== null && (
           <div
             className="rounded-[20px] border-[1.5px] px-[22px] py-3.5"
             style={
-              exitCount >= exitLimit
+              attempt.exitCount >= attempt.exitLimit
                 ? { borderColor: "#E5604C", background: "#FDE7E2" }
-                : exitCount > 0
+                : attempt.exitCount > 0
                   ? { borderColor: "#FFC94D", background: "#FFF3D3" }
                   : { borderColor: "#EFE7D4", background: "#FFFFFF" }
             }
@@ -665,13 +300,13 @@ export function StudentTestAttempt({
               </span>
               <span
                 className="font-display text-sm font-bold tabular-nums"
-                style={{ color: exitCount >= exitLimit ? "#C1442F" : "#3A3330" }}
+                style={{ color: attempt.exitCount >= attempt.exitLimit ? "#C1442F" : "#3A3330" }}
               >
-                {exitCount}/{exitLimit}
+                {attempt.exitCount}/{attempt.exitLimit}
               </span>
             </div>
             <p className="mt-1 text-[11.5px] font-semibold text-text-secondary">
-              Rời quá {exitLimit} lần, bài sẽ tự động nộp.
+              Rời quá {attempt.exitLimit} lần, bài sẽ tự động nộp.
             </p>
           </div>
         )}
@@ -689,8 +324,8 @@ export function StudentTestAttempt({
 
           <div className="mt-3.5 grid grid-cols-5 gap-2">
             {allQuestions.map((question) => {
-              const answered = hasAnswer(answers[question.id]);
-              const isMarked = marked.has(question.id);
+              const answered = hasAnswer(attempt.answers[question.id]);
+              const isMarked = attempt.marked.has(question.id);
               const style = answered
                 ? { background: "#FDEBDD", border: "1.5px solid #FDEBDD", color: "#D65F27" }
                 : isMarked
@@ -719,20 +354,20 @@ export function StudentTestAttempt({
 
         <button
           type="button"
-          onClick={() => setConfirmSubmit(true)}
-          disabled={submitting}
+          onClick={() => attempt.setConfirmSubmit(true)}
+          disabled={attempt.submitting}
           className="h-[50px] w-full rounded-full bg-brand text-[15px] font-bold text-white shadow-[0_3px_0_#D65F27] transition-all hover:bg-brand-bold active:translate-y-[3px] active:shadow-none disabled:opacity-60"
         >
-          {submitting ? "Đang nộp..." : "Nộp bài"}
+          {attempt.submitting ? "Đang nộp..." : "Nộp bài"}
         </button>
       </aside>
 
       <ConfirmDialog
-        open={confirmSubmit}
-        onClose={() => setConfirmSubmit(false)}
+        open={attempt.confirmSubmit}
+        onClose={() => attempt.setConfirmSubmit(false)}
         onConfirm={() => {
-          setConfirmSubmit(false);
-          handleSubmit();
+          attempt.setConfirmSubmit(false);
+          attempt.handleSubmit();
         }}
         title="Nộp bài?"
         confirmLabel="Nộp bài"
@@ -745,32 +380,32 @@ export function StudentTestAttempt({
 
       {/* Cảnh báo khi học sinh quay lại sau khi rời tab (không hiện nếu đã tự nộp). */}
       <Modal
-        open={exitWarn !== null && !autoSubmitted}
-        onClose={() => setExitWarn(null)}
+        open={attempt.exitWarn !== null && !attempt.autoSubmitted}
+        onClose={() => attempt.setExitWarn(null)}
         title="Em vừa rời khỏi màn thi"
         footer={
           <button
             type="button"
-            onClick={() => setExitWarn(null)}
+            onClick={() => attempt.setExitWarn(null)}
             className="h-11 rounded-full bg-brand px-6 text-sm font-bold text-white transition-colors hover:bg-brand-bold"
           >
             Tiếp tục làm bài
           </button>
         }
       >
-        {exitWarn && (
+        {attempt.exitWarn && (
           <div className="text-[14.5px] leading-relaxed text-text-secondary">
             <p>
               Em đã rời khỏi màn làm bài{" "}
               <b className="text-[#C1442F]">
-                {exitWarn.count}/{exitWarn.limit}
+                {attempt.exitWarn.count}/{attempt.exitWarn.limit}
               </b>{" "}
               lần.
             </p>
             <p className="mt-2">
-              {exitWarn.count >= exitWarn.limit
+              {attempt.exitWarn.count >= attempt.exitWarn.limit
                 ? "Đây là lần cuối được phép — rời thêm một lần nữa, bài sẽ TỰ ĐỘNG NỘP ngay."
-                : `Rời khỏi màn thi quá ${exitWarn.limit} lần thì bài sẽ tự động nộp. Em tập trung làm bài nhé!`}
+                : `Rời khỏi màn thi quá ${attempt.exitWarn.limit} lần thì bài sẽ tự động nộp. Em tập trung làm bài nhé!`}
             </p>
           </div>
         )}
@@ -778,13 +413,13 @@ export function StudentTestAttempt({
 
       {/* Popup báo đã tự động nộp vì rời quá số lần cho phép. */}
       <Modal
-        open={autoSubmitted}
-        onClose={goToResult}
+        open={attempt.autoSubmitted}
+        onClose={attempt.goToResult}
         title="Bài đã được nộp"
         footer={
           <button
             type="button"
-            onClick={goToResult}
+            onClick={attempt.goToResult}
             className="h-11 rounded-full bg-brand px-6 text-sm font-bold text-white transition-colors hover:bg-brand-bold"
           >
             Xem kết quả
@@ -794,7 +429,7 @@ export function StudentTestAttempt({
         <div className="text-[14.5px] leading-relaxed text-text-secondary">
           <p>
             Em đã rời khỏi màn thi quá{" "}
-            <b className="text-[#C1442F]">{exitLimit}</b> lần cho phép, nên hệ thống đã{" "}
+            <b className="text-[#C1442F]">{attempt.exitLimit}</b> lần cho phép, nên hệ thống đã{" "}
             <b className="text-[#C1442F]">tự động nộp bài</b>.
           </p>
           <p className="mt-2">Em xem lại kết quả nhé.</p>
