@@ -11,7 +11,7 @@ type NavItem = { label: string; href: string; icon: typeof Library; ready?: bool
 
 const NAV: NavItem[] = [
   { label: "Nhiệm vụ", href: "/missions", icon: ListChecks, ready: true },
-  { label: "Lớp của em", href: "/classes", icon: School },
+  { label: "Lớp của em", href: "/classes", icon: School, ready: true },
   { label: "Thư viện", href: "/library", icon: Library, ready: true },
   { label: "Báo cáo", href: "/reports", icon: BarChart3 },
 ];

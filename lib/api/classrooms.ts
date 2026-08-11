@@ -3,6 +3,8 @@ import type {
   Classroom,
   ClassroomListResponse,
   CoverPreset,
+  MyClassroom,
+  Roadmap,
 } from "@/lib/types/classroom";
 
 const API_URL =
@@ -79,4 +81,13 @@ export async function uploadCover(file: File): Promise<{ url: string }> {
   const data = await res.json().catch(() => null);
   if (!res.ok) throw new Error(data?.message ?? "Tải ảnh thất bại.");
   return data;
+}
+
+// ── Lớp của em (khu học sinh) ──────────────────────────────────────────────
+export function getMyClassrooms(): Promise<{ data: MyClassroom[] }> {
+  return api<{ data: MyClassroom[] }>("/me/classrooms");
+}
+
+export function getClassroomRoadmap(id: number): Promise<Roadmap> {
+  return api<Roadmap>(`/classrooms/${id}/roadmap`);
 }

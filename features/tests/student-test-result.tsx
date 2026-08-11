@@ -51,6 +51,8 @@ type Result = {
   // BE chưa trả `started_at` ở endpoint result → ô "THỜI GIAN" hiện "—" khi thiếu.
   started_at?: string | null;
   submitted_at?: string | null;
+  // Cấu hình hiển thị điểm (theo snapshot lúc bắt đầu): số thập phân + điểm đạt.
+  grading?: { decimals: number; pass_score: number };
   test: {
     id: number;
     title: string;
@@ -155,9 +157,9 @@ function answerLine(
     : `Em trả lời: "${text}"`;
 }
 
-/** Bỏ đuôi .0 cho gọn: 8.5 → "8.5", 9 → "9". */
-function formatScore(value: number): string {
-  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+/** Bỏ đuôi .0 cho gọn, làm tròn theo số thập phân cấu hình: 8.5 → "8.5", 9 → "9". */
+function formatScore(value: number, decimals = 1): string {
+  return Number.isInteger(value) ? String(value) : Number(value.toFixed(decimals)).toString();
 }
 
 function formatDuration(from?: string | null, to?: string | null): string | null {
@@ -248,10 +250,14 @@ export function StudentTestResult({ attemptId }: { attemptId: string }) {
   const scoreOn10 = scoreRatio * 10;
   const perQuestion = total > 0 ? maxScore / total : 0;
 
+  // Cấu hình hiển thị điểm (đọc từ cấu hình theo snapshot lúc bắt đầu).
+  const decimals = result.grading?.decimals ?? 1;
+  const passScore = result.grading?.pass_score ?? 5;
+
   const tier: Verdict =
-    scoreOn10 >= 8 ? "correct" : scoreOn10 >= 5 ? "pending" : "wrong";
+    scoreOn10 >= 8 ? "correct" : scoreOn10 >= passScore ? "pending" : "wrong";
   const praise =
-    scoreOn10 >= 8 ? "Tuyệt vời!" : scoreOn10 >= 5 ? "Khá rồi!" : "Cần cố thêm!";
+    scoreOn10 >= 8 ? "Tuyệt vời!" : scoreOn10 >= passScore ? "Khá rồi!" : "Cần cố thêm!";
   const summaryBadge =
     pendingCount > 0
       ? `Đã chấm tự động ${gradedCount}/${total} câu · ${pendingCount} câu chờ cô`
@@ -278,7 +284,7 @@ export function StudentTestResult({ attemptId }: { attemptId: string }) {
           >
             <div className="flex size-[118px] flex-col items-center justify-center rounded-full bg-surface">
               <span className="font-display text-[38px] font-bold leading-none text-text">
-                {formatScore(score)}
+                {formatScore(score, decimals)}
               </span>
               <span className="mt-1.5 text-[11px] font-bold text-text-secondary">
                 / {formatScore(maxScore)} điểm

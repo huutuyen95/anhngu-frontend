@@ -12,6 +12,7 @@ import {
   Files,
   ClipboardList,
   PenLine,
+  Settings,
   Bell,
   LogOut,
 } from "lucide-react";
@@ -43,8 +44,13 @@ export function TeacherShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { user, logout } = useAuth();
 
+  // "Cài đặt" chỉ hiện với super admin, đặt ở CUỐI danh sách.
+  const nav = user?.is_super_admin
+    ? [...NAV, { label: "Cài đặt", href: "/teacher/settings", icon: Settings, ready: true }]
+    : NAV;
+
   const active =
-    NAV.filter((n) => pathname === n.href || pathname.startsWith(n.href + "/"))
+    nav.filter((n) => pathname === n.href || pathname.startsWith(n.href + "/"))
       .sort((a, b) => b.href.length - a.href.length)[0]?.href ?? "/teacher";
 
   async function handleLogout() {
@@ -66,7 +72,7 @@ export function TeacherShell({ children }: { children: ReactNode }) {
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-2 xl:p-3">
-          {NAV.map((item) => {
+          {nav.map((item) => {
             const isActive = active === item.href;
             const Icon = item.icon;
             const content = (
@@ -125,7 +131,7 @@ export function TeacherShell({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-surface/90 px-6 backdrop-blur">
           <span className="font-display text-base font-bold text-text">
-            {NAV.find((n) => n.href === active)?.label ?? "Tổng quan"}
+            {nav.find((n) => n.href === active)?.label ?? "Tổng quan"}
           </span>
           <div className="ml-auto flex items-center gap-3">
             <button
