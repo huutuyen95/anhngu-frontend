@@ -119,6 +119,8 @@ export type TestAttemptState = {
   toggleMark: (questionId: number) => void;
   handleSubmit: () => void;
   goToResult: () => void;
+  /** Ép lưu nháp ngay (bỏ qua debounce 1.2s) — dùng cho nút "Lưu nháp" thủ công. */
+  saveNow: () => void;
 };
 
 /**
@@ -160,6 +162,7 @@ export function useTestAttempt({
 
   const submittedRef = useRef(false);
   const submitTriggeredRef = useRef(false); // đã kích hoạt nộp (chặn gọi nộp 2 lần)
+  const deadlineFiredRef = useRef(false); // hết giờ đã kích hoạt nộp (chỉ 1 lần duy nhất)
   const answersRef = useRef(answers);
   const exitCountRef = useRef(0);
   const exitLimitRef = useRef(DEFAULT_EXIT_LIMIT);
@@ -266,10 +269,14 @@ export function useTestAttempt({
     submitTriggeredRef.current = true;
     setSubmitting(true);
     try {
-      await api(`/attempts/${attemptId}/answers`, {
-        method: "PUT",
-        body: JSON.stringify({ answers: buildAnswersPayload() }),
-      });
+      // Chưa làm câu nào thì khỏi gọi lưu — không có gì để lưu, cứ nộp thẳng.
+      const payload = buildAnswersPayload();
+      if (payload.length > 0) {
+        await api(`/attempts/${attemptId}/answers`, {
+          method: "PUT",
+          body: JSON.stringify({ answers: payload }),
+        });
+      }
       const result = await api(`/attempts/${attemptId}/submit`, { method: "POST" });
       submittedRef.current = true;
       storeResult(result);
@@ -297,10 +304,13 @@ export function useTestAttempt({
     submitTriggeredRef.current = true;
     setSubmitting(true);
     try {
-      await api(`/attempts/${attemptId}/answers`, {
-        method: "PUT",
-        body: JSON.stringify({ answers: buildAnswersPayload() }),
-      });
+      const payload = buildAnswersPayload();
+      if (payload.length > 0) {
+        await api(`/attempts/${attemptId}/answers`, {
+          method: "PUT",
+          body: JSON.stringify({ answers: payload }),
+        });
+      }
       const result = await api(`/attempts/${attemptId}/submit`, { method: "POST" });
       storeResult(result);
     } catch (err) {
@@ -320,14 +330,19 @@ export function useTestAttempt({
     setAutoSubmitted(true);
   }, [attemptId, storeResult]);
 
-  // Đồng hồ đếm ngược, tự nộp khi hết giờ
+  // Đồng hồ đếm ngược, tự nộp khi hết giờ.
+  // Hết giờ chỉ được kích hoạt nộp ĐÚNG MỘT LẦN: trước đây tick nào quá hạn cũng gọi
+  // handleSubmit, nên chỉ cần lần nộp đó lỗi là mỗi giây thử lại một lần → nút "Nộp bài"
+  // nhấp nháy giữa "Nộp bài" ↔ "Đang nộp..." và không bao giờ nộp xong.
   useEffect(() => {
     if (!deadline) return;
     const interval = setInterval(() => {
       const current = Date.now();
       setNow(current);
-      if (current >= deadline) {
-        handleSubmit();
+      if (current >= deadline && !deadlineFiredRef.current) {
+        deadlineFiredRef.current = true;
+        clearInterval(interval);
+        void handleSubmit();
       }
     }, 1000);
     return () => clearInterval(interval);
@@ -458,5 +473,6 @@ export function useTestAttempt({
     toggleMark,
     handleSubmit,
     goToResult,
+    saveNow: () => void saveAnswers(),
   };
 }

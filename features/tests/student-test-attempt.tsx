@@ -16,6 +16,7 @@ import {
   type TestAttemptState,
 } from "@/features/tests/use-test-attempt";
 import { ReadingTestAttempt } from "@/features/tests/reading-test-attempt";
+import { WritingTestAttempt } from "@/features/tests/writing-test-attempt";
 
 /* ────────────────────────────────────────────────────────────────────────────
    Màn làm bài (S7). Đề hỗn hợp: 3 dạng câu dùng CHUNG một cấu trúc card, chỉ
@@ -29,8 +30,10 @@ import { ReadingTestAttempt } from "@/features/tests/reading-test-attempt";
    từng câu, không nút "Câu trước/Câu sau".
 
    Đề kỹ năng Đọc (S7d) dùng layout khác hẳn — trang sách 2 cột toàn màn hình,
-   xem `reading-test-attempt.tsx`. Logic vòng đời lượt làm (tải đề, autosave,
-   đếm giờ, chống thoát tab, nộp bài) dùng CHUNG qua `useTestAttempt`.
+   xem `reading-test-attempt.tsx`. Đề kỹ năng Viết (S8) cũng khác hẳn — một cột,
+   mỗi câu một khung khép kín có trình soạn thảo riêng, xem `writing-test-attempt.tsx`.
+   Logic vòng đời lượt làm (tải đề, autosave, đếm giờ, chống thoát tab, nộp bài)
+   dùng CHUNG qua `useTestAttempt`.
    ──────────────────────────────────────────────────────────────────────────── */
 
 /** 3 dạng trả lời hiển thị — gom từ `QuestionType` của backend. */
@@ -108,6 +111,10 @@ export function StudentTestAttempt({
 
   if (attempt.test.skill === "reading") {
     return <ReadingTestAttempt attempt={attempt} test={attempt.test} />;
+  }
+
+  if (attempt.test.skill === "writing") {
+    return <WritingTestAttempt attempt={attempt} test={attempt.test} />;
   }
 
   return <DefaultTestAttempt attempt={attempt} test={attempt.test} />;

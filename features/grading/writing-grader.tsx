@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { htmlToText } from "@/lib/sanitize";
 import type { AttemptQuestion } from "@/lib/types/attempt";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,9 @@ type Props = {
 };
 
 export function WritingGrader({ index, question, wordLimit, value, onChange, maxScore }: Props) {
-  const answerText = question.answer?.answer_text ?? "";
+  // Bài viết lưu dạng HTML (tiptap) — bóc thẻ trước khi hiện và trước khi đếm từ,
+  // nếu không "<p>" cũng bị tính là một từ.
+  const answerText = htmlToText(question.answer?.answer_text);
   const wordCount = countWords(answerText);
   const overLimit = !!wordLimit && wordCount > wordLimit;
   const alreadyGraded = question.answer?.graded_at != null;
