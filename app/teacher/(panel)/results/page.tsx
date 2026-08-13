@@ -6,7 +6,7 @@ import { ClipboardList, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { listAttempts } from "@/lib/api/attempts";
 import type { Attempt, AttemptListMeta, AttemptStatus } from "@/lib/types/attempt";
-import { ATTEMPT_STATUS_LABEL, ATTEMPT_STATUS_TONE } from "@/lib/types/attempt";
+import { ATTEMPT_SOURCE_LABEL, ATTEMPT_STATUS_LABEL, ATTEMPT_STATUS_TONE } from "@/lib/types/attempt";
 import { listClassrooms } from "@/lib/api/classrooms";
 import type { ClassroomRef } from "@/lib/types/student";
 import { SKILL_LABEL } from "@/lib/types/test";
@@ -23,6 +23,7 @@ function ResultsView() {
   const filters = useMemo(
     () => ({
       status: params.get("status") ?? "",
+      source: params.get("source") ?? "",
       classroom_id: params.get("class") ?? "",
       page: params.get("page") ?? "1",
     }),
@@ -49,14 +50,19 @@ function ResultsView() {
 
   const load = useCallback(() => {
     setLoading(true);
-    listAttempts({ status: filters.status, classroom_id: filters.classroom_id, page: filters.page })
+    listAttempts({
+      status: filters.status,
+      source: filters.source,
+      classroom_id: filters.classroom_id,
+      page: filters.page,
+    })
       .then((res) => {
         setRows(res.data);
         setMeta(res.meta);
       })
       .catch(() => toast.error("Không tải được danh sách bài làm."))
       .finally(() => setLoading(false));
-  }, [filters.status, filters.classroom_id, filters.page]);
+  }, [filters.status, filters.source, filters.classroom_id, filters.page]);
 
   useEffect(() => {
     load();
@@ -95,6 +101,13 @@ function ResultsView() {
                 {ATTEMPT_STATUS_LABEL[s]}
               </option>
             ))}
+        </Select>
+        <Select
+          value={filters.source}
+          onChange={(e) => setParam({ source: e.target.value || null })}>
+          <option value="">Mọi nguồn</option>
+          <option value="assignment">{ATTEMPT_SOURCE_LABEL.assignment}</option>
+          <option value="library">{ATTEMPT_SOURCE_LABEL.library}</option>
         </Select>
         {classrooms.length > 0 && (
           <Select
@@ -136,6 +149,7 @@ function ResultsView() {
                 <th className="px-4 py-3 text-left font-semibold">Đề thi</th>
                 <th className="px-3 py-3 text-left font-semibold">Dạng</th>
                 <th className="px-3 py-3 text-left font-semibold">Học sinh</th>
+                <th className="hidden px-3 py-3 text-left font-semibold md:table-cell">Nguồn</th>
                 <th className="hidden px-3 py-3 text-left font-semibold sm:table-cell">Điểm</th>
                 <th className="px-3 py-3 text-left font-semibold">Trạng thái</th>
                 <th className="px-3 py-3 text-right font-semibold">Hành động</th>
@@ -153,6 +167,14 @@ function ResultsView() {
                   <td className="px-3 py-3">
                     <div className="text-text">{a.student.name}</div>
                     <div className="text-xs text-text-muted">{a.student.email}</div>
+                  </td>
+                  <td className="hidden px-3 py-3 md:table-cell">
+                    <StatusBadge tone={a.source === "assignment" ? "info" : "neutral"}>
+                      {ATTEMPT_SOURCE_LABEL[a.source]}
+                    </StatusBadge>
+                    {a.classroom && (
+                      <div className="mt-0.5 text-xs text-text-muted">{a.classroom.name}</div>
+                    )}
                   </td>
                   <td className="hidden px-3 py-3 text-text-secondary sm:table-cell">
                     {a.total_score !== null

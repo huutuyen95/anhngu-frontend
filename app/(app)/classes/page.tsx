@@ -263,7 +263,7 @@ function ClassesInner() {
               ) : (
                 <div className="mt-4 flex flex-col gap-3">
                   {activeSession.items.map((item) => (
-                    <ContentCard key={item.id} item={item} ended={ended} />
+                    <ContentCard key={item.id} item={item} classId={selectedClassId!} ended={ended} />
                   ))}
                 </div>
               )}

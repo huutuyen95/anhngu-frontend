@@ -19,13 +19,18 @@ type TestMeta = {
 /**
  * Trang giới thiệu đề trước khi làm bài. Dùng lại cho mọi root (thư viện, lớp học)
  * — điều hướng nội bộ tính theo `basePath`, không hardcode "/library".
+ *
+ * `missionId` chỉ có khi vào từ lớp học: nó quyết định lượt làm được tính là BÀI CÔ GIAO
+ * hay em TỰ LUYỆN — hai nguồn tách hẳn nhau (xem `startAttempt`).
  */
 export function StudentTestIntro({
   basePath,
   testId,
+  missionId = null,
 }: {
   basePath: string;
   testId: string;
+  missionId?: number | null;
 }) {
   const router = useRouter();
   const routes = useMemo(() => testRoutes(basePath), [basePath]);
@@ -46,7 +51,7 @@ export function StudentTestIntro({
     setStarting(true);
     setError(null);
     try {
-      const attempt = await startAttempt(testId);
+      const attempt = await startAttempt(testId, missionId);
       router.push(routes.attempt(testId, attempt.attempt_id));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Không bắt đầu được bài làm.");

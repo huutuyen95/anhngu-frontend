@@ -7,11 +7,20 @@ import type { RoadmapItem } from "@/lib/types/classroom";
 import { itemCta, attemptsNote, typeMeta, statusChip } from "./roadmap-helpers";
 
 /** Một thẻ nội dung trong buổi. Click thân thẻ = bấm CTA chính. */
-export function ContentCard({ item, ended }: { item: RoadmapItem; ended?: boolean }) {
+export function ContentCard({
+  item,
+  classId,
+  ended,
+}: {
+  item: RoadmapItem;
+  /** Lớp đang xem — CTA phải đi qua root của lớp để lượt làm gắn đúng nhiệm vụ. */
+  classId: number | string;
+  ended?: boolean;
+}) {
   const router = useRouter();
   const meta = typeMeta(item);
   const chip = statusChip(item);
-  const cta0 = itemCta(item);
+  const cta0 = itemCta(item, classId);
   const cta = ended && !cta0.disabled ? { ...cta0, label: "Xem lại" } : cta0;
   const note = attemptsNote(item);
   const Icon = meta.icon;

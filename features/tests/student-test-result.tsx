@@ -243,9 +243,12 @@ function readStoredResult(attemptId: string): Result | null {
 export function StudentTestResult({
   basePath,
   attemptId,
+  missionId = null,
 }: {
   basePath: string;
   attemptId: string;
+  /** Có khi xem kết quả từ lớp học — "Làm lại" phải mở tiếp lượt của nhiệm vụ đó. */
+  missionId?: number | null;
 }) {
   const router = useRouter();
   const routes = useMemo(() => testRoutes(basePath), [basePath]);
@@ -273,7 +276,7 @@ export function StudentTestResult({
     setRetrying(true);
     setError(null);
     try {
-      const attempt = await startAttempt(testId);
+      const attempt = await startAttempt(testId, missionId);
       router.push(routes.attempt(testId, attempt.attempt_id));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Không bắt đầu lại được bài.");

@@ -10,10 +10,14 @@
  * `LIBRARY_TESTS_ROOT`.
  */
 
-/** Root của luồng đề thi trong khu Thư viện. */
+/** Root của luồng đề thi trong khu Thư viện (tự luyện — không gắn lớp nào). */
 export const LIBRARY_TESTS_ROOT = "/library/tests";
 
-/** Root của luồng đề thi trong một lớp — dùng khi thêm route lớp học. */
+/**
+ * Root của luồng đề thi trong một lớp. Bài làm ở đây gắn `mission_id` (truyền qua query
+ * `?mission=`) nên tính vào tiến trình + báo cáo của lớp; cùng đề đó mở từ Thư viện thì
+ * KHÔNG. Đừng trỏ nhiệm vụ trong lớp về `LIBRARY_TESTS_ROOT`.
+ */
 export function classTestsRoot(classId: number | string): string {
   return `/classes/${classId}/tests`;
 }
