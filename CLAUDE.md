@@ -35,7 +35,11 @@ Sau mỗi lần `git pull`/merge làm đổi `package.json`, phải `npm install
   - `app/(app)/*` — khu học viên: `tests`, `library/vocab`, `library/documents`, `missions`,
     `classes` (Lớp của em — lộ trình buổi học; đọc `GET /me/classrooms` + `/classrooms/{id}/roadmap`,
     lớp/buổi ghi vào `?class=&session=`; CTA thẻ nội dung tái dùng route `/library/*`. Code:
-    `features/classes/{content-card,roadmap-helpers}`).
+    `features/classes/{content-card,roadmap-helpers}`), `profile` + `profile/password` (Hồ sơ cá nhân —
+    `GET/PUT /me`, avatar crop, đổi mật khẩu giữ phiên; `lib/api/profile.ts`, `features/profile/*`;
+    header avatar → `/profile`, `useAuth().refreshUser()` cập nhật tên/avatar sau khi lưu).
+  - ⚠ `components/student/student-shell.tsx` bọc nội dung học sinh trong `<div class="organic">` — cần thiết
+    để mọi component class organic (`.btn/.field/.seg/.input/.card`) áp đúng. Đừng bỏ class này.
   - `app/teacher/(panel)/*` — khu giáo viên/admin: `classes`, `students`, `tests`, `vocabulary`,
     `documents`, `results`, `reports`, `settings` (Cài đặt hệ thống — CHỈ admin, mục cuối sidebar).
     - `settings`: CHỈ super admin (`user.is_super_admin`). 6 nhóm cấu hình đọc từ `GET /admin/settings`;

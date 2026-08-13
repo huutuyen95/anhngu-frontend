@@ -23,6 +23,8 @@ type AuthContextValue = {
   login: (email: string, password: string, remember?: boolean) => Promise<User>;
   logout: () => Promise<void>;
   clearSession: () => void;
+  /** Nạp lại user từ server (dùng sau khi đổi tên/avatar để header cập nhật ngay). */
+  refreshUser: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -77,8 +79,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
+  async function refreshUser() {
+    try {
+      setUser(await meRequest());
+    } catch {
+      // Bỏ qua — giữ user hiện tại nếu không nạp lại được.
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, clearSession }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, clearSession, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
