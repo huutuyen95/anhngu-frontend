@@ -44,11 +44,27 @@ export type StartedAttempt = {
   attempt_id: number;
   started_at: string;
   deadline: string;
+  mission_id: number | null;
+  /** `assignment` = bài cô giao trong lớp · `library` = em tự luyện. */
+  source: "assignment" | "library";
 };
 
-/** Tạo lượt làm mới cho một đề. Dùng chung cho trang giới thiệu đề và thư viện. */
-export function startAttempt(testId: number | string): Promise<StartedAttempt> {
-  return api<StartedAttempt>(`/tests/${testId}/attempts`, { method: "POST" });
+/**
+ * Tạo lượt làm mới cho một đề.
+ *
+ * `missionId` quyết định NGUỒN của lượt và hai nguồn tách hẳn nhau ở backend:
+ *   - có `missionId` (vào từ lớp học) → tính vào tiến trình + báo cáo của lớp, bị giới hạn
+ *     số lần theo `attempts_allowed` của nhiệm vụ;
+ *   - không có (vào từ Thư viện) → tự luyện, làm lại thoải mái, KHÔNG đụng tới lớp.
+ */
+export function startAttempt(
+  testId: number | string,
+  missionId?: number | null,
+): Promise<StartedAttempt> {
+  return api<StartedAttempt>(`/tests/${testId}/attempts`, {
+    method: "POST",
+    body: JSON.stringify(missionId ? { mission_id: missionId } : {}),
+  });
 }
 
 // Đường dẫn FE của luồng làm bài nằm ở `features/tests/routes.ts` — không để lẫn

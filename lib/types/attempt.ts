@@ -29,10 +29,21 @@ export const ATTEMPT_STATUS_TONE: Record<
   expired: "danger",
 };
 
+/** Nguồn của lượt làm: bài cô giao trong lớp, hay em tự luyện ở Thư viện. */
+export type AttemptSource = "assignment" | "library";
+
+export const ATTEMPT_SOURCE_LABEL: Record<AttemptSource, string> = {
+  assignment: "Bài giao",
+  library: "Tự luyện",
+};
+
 /** Dòng danh sách "Kết quả làm bài" — khớp `AttemptResource`. */
 export type Attempt = {
   id: number;
   status: AttemptStatus;
+  source: AttemptSource;
+  /** Lớp của bài giao; `null` với lượt tự luyện. */
+  classroom: { id: number; name: string } | null;
   test: { id: number; title: string; skill: Skill };
   student: { id: number; name: string; email: string };
   total_score: number | null;
@@ -53,6 +64,7 @@ export type AttemptListResponse = { data: Attempt[]; meta: AttemptListMeta };
 
 export type AttemptFilters = {
   status?: string;
+  source?: string;
   classroom_id?: string;
   test_id?: string;
   user_id?: string;
@@ -107,6 +119,8 @@ export type AttemptPart = {
 export type AttemptDetail = {
   id: number;
   status: AttemptStatus;
+  source: AttemptSource;
+  classroom: { id: number; name: string } | null;
   total_score: number | null;
   correct_count: number | null;
   question_count: number | null;

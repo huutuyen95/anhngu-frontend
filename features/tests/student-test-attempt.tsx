@@ -15,6 +15,7 @@ import {
   type TestDetail,
   type TestAttemptState,
 } from "@/features/tests/use-test-attempt";
+import { OriginChip } from "@/features/tests/attempt-origin";
 import { ReadingTestAttempt } from "@/features/tests/reading-test-attempt";
 import { WritingTestAttempt } from "@/features/tests/writing-test-attempt";
 
@@ -173,6 +174,8 @@ function DefaultTestAttempt({ attempt, test }: { attempt: TestAttemptState; test
           <span className="shrink-0 rounded-full bg-brand-soft px-3 py-[5px] text-xs font-bold text-brand-bold">
             {headerBadge}
           </span>
+          {/* Đang làm bài cô giao hay tự luyện — hai luồng dùng chung màn này. */}
+          <OriginChip origin={attempt.origin} />
         </div>
 
         {attempt.error && <p className="text-sm font-semibold text-[#C1442F]">{attempt.error}</p>}

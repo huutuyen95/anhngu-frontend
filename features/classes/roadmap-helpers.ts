@@ -7,13 +7,26 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { RoadmapItem } from "@/lib/types/classroom";
+import { classTestsRoot } from "@/features/tests/routes";
 
 export type ItemCta = { label: string; href: string | null; disabled: boolean };
 
-/** Nhãn + đích đến của nút CTA theo loại + trạng thái (bảng 13 dòng). */
-export function itemCta(item: RoadmapItem): ItemCta {
-  const t = `/library/tests/${item.target_id}`;
+/**
+ * Nhãn + đích đến của nút CTA theo loại + trạng thái (bảng 13 dòng).
+ *
+ * Đề thi/writing đi qua root CỦA LỚP kèm `?mission=` — không phải `/library/tests`. Nhờ đó
+ * backend gắn lượt làm vào đúng nhiệm vụ, và lượt em tự luyện cùng đề ở Thư viện không bị
+ * tính nhầm thành đã làm bài cô giao.
+ */
+export function itemCta(item: RoadmapItem, classId: number | string): ItemCta {
+  const base = `${classTestsRoot(classId)}/${item.target_id}`;
+  // `item.id` LÀ mission id (roadmap dựng thẻ từ mission). Giữ nó trên cả trang kết quả để
+  // nút "Làm lại" mở đúng lượt của nhiệm vụ chứ không rơi về tự luyện.
+  const mission = `?mission=${item.id}`;
+  const t = `${base}${mission}`;
   const attempt = item.attempt_id;
+  const at = (attemptId: number) => `${base}/attempt/${attemptId}${mission}`;
+  const resultAt = (attemptId: number) => `${base}/result/${attemptId}${mission}`;
   const exhausted = item.attempts_used >= item.attempts_allowed;
 
   switch (item.type) {
@@ -33,22 +46,22 @@ export function itemCta(item: RoadmapItem): ItemCta {
 
     case "writing":
       if (item.status === "in_progress")
-        return { label: "Viết tiếp", href: attempt ? `${t}/attempt/${attempt}` : t, disabled: false };
+        return { label: "Viết tiếp", href: attempt ? at(attempt) : t, disabled: false };
       if (item.status === "pending_review" || item.status === "submitted")
-        return { label: "Xem bài đã nộp", href: attempt ? `${t}/result/${attempt}` : t, disabled: false };
+        return { label: "Xem bài đã nộp", href: attempt ? resultAt(attempt) : t, disabled: false };
       if (item.status === "graded")
-        return { label: "Xem nhận xét", href: attempt ? `${t}/result/${attempt}` : t, disabled: false };
+        return { label: "Xem nhận xét", href: attempt ? resultAt(attempt) : t, disabled: false };
       return { label: "Viết bài", href: t, disabled: false };
 
     case "test":
     default:
       if (item.status === "in_progress")
-        return { label: "Tiếp tục", href: attempt ? `${t}/attempt/${attempt}` : t, disabled: false };
+        return { label: "Tiếp tục", href: attempt ? at(attempt) : t, disabled: false };
       if (item.status === "graded" || item.status === "submitted" || item.status === "pending_review")
-        return { label: "Xem kết quả", href: attempt ? `${t}/result/${attempt}` : t, disabled: false };
+        return { label: "Xem kết quả", href: attempt ? resultAt(attempt) : t, disabled: false };
       // Chưa làm: hết lượt thì chặn (vẫn xem được kết quả nếu có attempt).
       if (exhausted)
-        return { label: "Đã dùng hết lượt", href: attempt ? `${t}/result/${attempt}` : null, disabled: !attempt };
+        return { label: "Đã dùng hết lượt", href: attempt ? resultAt(attempt) : null, disabled: !attempt };
       return { label: "Làm bài", href: t, disabled: false };
   }
 }

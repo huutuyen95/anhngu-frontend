@@ -6,6 +6,15 @@ import { useRouter } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
 import { startAttempt } from "@/lib/api/tests";
 import { testRoutes } from "@/features/tests/routes";
+import {
+  AttemptsNote,
+  BackButton,
+  OriginBanner,
+  hasAttemptsLeft,
+  isAssignment,
+  type AttemptMission,
+  type AttemptSource,
+} from "@/features/tests/attempt-origin";
 import { htmlToText } from "@/lib/sanitize";
 
 type Option = { id: number; label: string; content: string; is_correct: boolean };
@@ -66,6 +75,9 @@ type Result = {
   submitted_at?: string | null;
   // Cấu hình hiển thị điểm (theo snapshot lúc bắt đầu): số thập phân + điểm đạt.
   grading?: { decimals: number; pass_score: number };
+  // Nguồn của lượt — quyết định màn này vẽ như khu lớp học hay khu tự luyện.
+  source?: AttemptSource | null;
+  mission?: AttemptMission | null;
   test: {
     id: number;
     title: string;
@@ -243,9 +255,12 @@ function readStoredResult(attemptId: string): Result | null {
 export function StudentTestResult({
   basePath,
   attemptId,
+  missionId = null,
 }: {
   basePath: string;
   attemptId: string;
+  /** Có khi xem kết quả từ lớp học — "Làm lại" phải mở tiếp lượt của nhiệm vụ đó. */
+  missionId?: number | null;
 }) {
   const router = useRouter();
   const routes = useMemo(() => testRoutes(basePath), [basePath]);
@@ -273,7 +288,9 @@ export function StudentTestResult({
     setRetrying(true);
     setError(null);
     try {
-      const attempt = await startAttempt(testId);
+      // Ưu tiên mission của chính lượt vừa xem: mở lại đúng nguồn kể cả khi vào trang
+      // bằng link không mang `?mission=`.
+      const attempt = await startAttempt(testId, result?.mission?.id ?? missionId);
       router.push(routes.attempt(testId, attempt.attempt_id));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Không bắt đầu lại được bài.");
@@ -349,10 +366,17 @@ export function StudentTestResult({
 
   const duration = formatDuration(result.started_at, result.submitted_at);
 
+  const origin = { source: result.source, mission: result.mission };
+  const assigned = isAssignment(origin);
+  const canRetry = hasAttemptsLeft(origin);
+
   return (
     <div className="flex items-start gap-7 pb-2">
-      {/* ── Rail trái: điểm + hành động tiếp theo ── */}
+      {/* ── Rail trái: nguồn + điểm + hành động tiếp theo ── */}
       <aside className="flex w-[360px] shrink-0 flex-col gap-[18px]">
+        {/* Nói rõ đây là bài cô giao hay bài tự luyện — hai luồng dùng chung màn này. */}
+        <OriginBanner origin={origin} />
+
         <div className="rounded-[20px] border-[1.5px] border-border bg-surface p-7 text-center">
           <p className="mb-5 truncate text-[11px] font-bold uppercase tracking-[0.5px] text-text-secondary">
             {result.test.title}
@@ -397,30 +421,48 @@ export function StudentTestResult({
           )}
         </div>
 
+        {/*
+          Hành động tiếp theo KHÁC hẳn nhau theo nguồn:
+            - bài cô giao → về lớp, và chỉ được làm lại khi còn lượt cô cho;
+            - tự luyện    → về Thư viện, làm lại thoải mái.
+          Trước đây cả hai đều hiện "Về Nhiệm vụ" + "Làm lại từ đầu" của khu tự luyện,
+          nên bấm làm lại từ lớp là ăn 422 vì đã hết lượt.
+        */}
         <div className="flex flex-col gap-2.5">
-          <Link
-            href="/missions"
-            className="flex h-[46px] items-center justify-center rounded-full bg-brand text-sm font-bold text-white shadow-[0_3px_0_#D65F27] transition-all hover:bg-brand-bold active:translate-y-[3px] active:shadow-none"
-          >
-            Về Nhiệm vụ
-          </Link>
-          <button
-            type="button"
-            onClick={() => handleRetry(result.test.id)}
-            disabled={retrying}
-            className="flex h-[46px] items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-sm font-bold text-text transition-colors hover:border-brand hover:text-brand-bold disabled:opacity-60"
-          >
-            {retrying ? "Đang mở đề…" : "Làm lại từ đầu"}
-          </button>
+          <BackButton origin={origin} listHref={routes.list} />
+
+          {canRetry ? (
+            <button
+              type="button"
+              onClick={() => handleRetry(result.test.id)}
+              disabled={retrying}
+              className="flex h-[46px] items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-sm font-bold text-text transition-colors hover:border-brand hover:text-brand-bold disabled:opacity-60"
+            >
+              {retrying ? "Đang mở đề…" : assigned ? "Làm lại lượt nữa" : "Làm lại từ đầu"}
+            </button>
+          ) : (
+            <Link
+              href={`/library/tests/${result.test.id}`}
+              className="flex h-[46px] items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-sm font-bold text-text transition-colors hover:border-brand hover:text-brand-bold"
+            >
+              Luyện lại đề này ở Thư viện
+            </Link>
+          )}
+
+          <AttemptsNote origin={origin} />
+
           {/* /reports chưa có page — để "Sắp có" thay vì điều hướng ra 404. */}
-          <button
-            type="button"
-            disabled
-            title="Sắp có"
-            className="flex h-[46px] items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-sm font-bold text-text-muted"
-          >
-            Xem báo cáo của em
-          </button>
+          {!assigned && (
+            <button
+              type="button"
+              disabled
+              title="Sắp có"
+              className="flex h-[46px] items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-sm font-bold text-text-muted"
+            >
+              Xem báo cáo của em
+            </button>
+          )}
+
           {error && (
             <p className="text-[13px] font-semibold text-[#C1442F]">{error}</p>
           )}
