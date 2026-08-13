@@ -6,6 +6,7 @@ import Link from "next/link";
 import { api, ApiError } from "@/lib/api";
 import { startAttempt } from "@/lib/api/tests";
 import { testRoutes } from "@/features/tests/routes";
+import { OriginBanner } from "@/features/tests/attempt-origin";
 
 type TestMeta = {
   id: number;
@@ -77,8 +78,22 @@ export function StudentTestIntro({
         href={routes.list}
         className="mb-4 inline-block text-sm text-slate-500 hover:underline"
       >
-        ← Quay lại danh sách đề
+        {missionId ? "← Về lớp học" : "← Quay lại danh sách đề"}
       </Link>
+
+      {/*
+        Nói rõ ngay từ trang giới thiệu em sắp làm bài cô giao hay bài tự luyện — lượt làm
+        gắn nguồn ngay lúc bấm "Bắt đầu", sau đó không đổi được nữa.
+        Chưa có lượt nên chưa biết tên lớp/buổi; chỉ cần phân biệt được hai khu là đủ.
+      */}
+      <OriginBanner
+        className="mb-4"
+        origin={
+          missionId
+            ? { source: "assignment", mission: { id: missionId } }
+            : { source: "library", mission: null }
+        }
+      />
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h1 className="mb-1 text-2xl font-semibold text-slate-900">

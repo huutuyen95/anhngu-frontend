@@ -33,9 +33,20 @@ export type TestRoutes = {
   result: (testId: number | string, attemptId: number | string) => string;
 };
 
+/**
+ * "Danh sách đề" của một root. Thư viện có trang danh sách thật; lớp học thì KHÔNG —
+ * `/classes/{id}/tests` không phải một trang, nội dung buổi nằm ở trang lớp. Trả sai chỗ
+ * này thì mọi nút "Thoát" / "Quay lại danh sách đề" trong luồng lớp đều rơi vào 404.
+ */
+function listHrefFor(basePath: string): string {
+  const classId = basePath.match(/^\/classes\/([^/]+)\/tests$/)?.[1];
+
+  return classId ? `/classes?class=${classId}` : basePath;
+}
+
 export function testRoutes(basePath: string): TestRoutes {
   return {
-    list: basePath,
+    list: listHrefFor(basePath),
     detail: (testId) => `${basePath}/${testId}`,
     attempt: (testId, attemptId) => `${basePath}/${testId}/attempt/${attemptId}`,
     result: (testId, attemptId) => `${basePath}/${testId}/result/${attemptId}`,

@@ -4,6 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
 import { testRoutes, type TestRoutes } from "@/features/tests/routes";
+import type {
+  AttemptMission,
+  AttemptOrigin,
+  AttemptSource,
+} from "@/features/tests/attempt-origin";
 import type { Skill } from "@/lib/types/test";
 
 export type Option = { id: number; label: string; content: string };
@@ -51,6 +56,8 @@ export type ExitAction = "log" | "warn" | "autosubmit";
 type AttemptState = {
   id: number;
   status: "in_progress" | "submitted" | "pending_review" | "graded" | "expired";
+  source?: AttemptSource | null;
+  mission?: AttemptMission | null;
   started_at: string | null;
   deadline: string | null;
   tab_exit_count: number;
@@ -121,6 +128,8 @@ export type TestAttemptState = {
   exitWarn: { count: number; limit: number } | null;
   setExitWarn: (warn: { count: number; limit: number } | null) => void;
   autoSubmitted: boolean;
+  /** Bài cô giao (kèm lớp/buổi) hay em tự luyện — để header nói rõ em đang làm bài nào. */
+  origin: AttemptOrigin;
   routes: TestRoutes;
   setOptionAnswer: (questionId: number, optionId: number) => void;
   setTextAnswer: (questionId: number, text: string) => void;
@@ -147,6 +156,8 @@ export function useTestAttempt({
 }): TestAttemptState {
   const router = useRouter();
   const routes = useMemo(() => testRoutes(basePath), [basePath]);
+
+  const [origin, setOrigin] = useState<AttemptOrigin>({});
 
   const [test, setTest] = useState<TestDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -206,6 +217,7 @@ export function useTestAttempt({
           router.replace(routes.result(id, attemptId));
           return;
         }
+        setOrigin({ source: state.source, mission: state.mission });
         setDeadline(state.deadline ? new Date(state.deadline).getTime() : null);
         setExitLimit(state.tab_exit_limit);
         exitLimitRef.current = state.tab_exit_limit;
@@ -503,6 +515,7 @@ export function useTestAttempt({
     exitWarn,
     setExitWarn,
     autoSubmitted,
+    origin,
     routes,
     setOptionAnswer,
     setTextAnswer,
