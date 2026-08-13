@@ -151,3 +151,78 @@ export type ClassReport = {
   }[];
   pending_count: number;
 };
+
+// ── Lớp của em (roadmap học sinh) ──────────────────────────────────────────
+export type MyClassroom = {
+  id: number;
+  name: string;
+  cover_url: string | null;
+  teacher_name: string | null;
+  students_count: number;
+  starts_on: string | null;
+  ends_on: string | null;
+  status: ClassStatus;
+  my_progress_pct: number;
+};
+
+export type RoadmapItemType = "test" | "writing" | "deck" | "document";
+
+export type RoadmapItemStatus =
+  | "todo"
+  | "in_progress"
+  | "submitted"
+  | "pending_review"
+  | "graded"
+  | "viewed";
+
+export type RoadmapItem = {
+  id: number;
+  type: RoadmapItemType;
+  target_id: number;
+  title: string;
+  meta: string;
+  due_date: string | null;
+  status: RoadmapItemStatus;
+  progress_pct: number;
+  score: number | null;
+  attempt_id: number | null;
+  attempts_used: number;
+  attempts_allowed: number;
+  is_overdue: boolean;
+};
+
+export type RoadmapSession = {
+  id: number;
+  order: number;
+  title: string;
+  note: string | null;
+  is_visible: boolean;
+  locked: boolean;
+  progress_pct: number;
+  done: number;
+  total: number;
+  items: RoadmapItem[];
+};
+
+export type Roadmap = {
+  classroom: {
+    id: number;
+    name: string;
+    description: string | null;
+    teacher_name: string | null;
+    students_count: number;
+    starts_on: string | null;
+    ends_on: string | null;
+    status: ClassStatus;
+  };
+  stats: {
+    my_progress_pct: number;
+    done_count: number;
+    total_count: number;
+    my_avg_score: number | null;
+    class_avg_score: number | null;
+    attended_sessions: number;
+    total_sessions: number;
+  };
+  sessions: RoadmapSession[];
+};

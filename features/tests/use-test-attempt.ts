@@ -44,6 +44,9 @@ export type TestDetail = {
 
 export type Answer = { question_id: number; question_option_id?: number; answer_text?: string };
 
+/** Hành vi khi vượt số lần rời tab (theo cấu hình đề, snapshot lúc bắt đầu). */
+export type ExitAction = "log" | "warn" | "autosubmit";
+
 /** Trạng thái lượt làm lấy từ GET /attempts/{id} — nguồn tính giờ + khôi phục bài. */
 type AttemptState = {
   id: number;
@@ -52,6 +55,9 @@ type AttemptState = {
   deadline: string | null;
   tab_exit_count: number;
   tab_exit_limit: number;
+  tab_exit_action?: ExitAction;
+  block_copy?: boolean;
+  autosubmit_on_timeout?: boolean;
   answers: Answer[];
 };
 
@@ -59,6 +65,7 @@ type AttemptState = {
 type TabExitResponse = {
   tab_exit_count: number;
   tab_exit_limit: number;
+  tab_exit_action?: ExitAction;
   auto_submitted: boolean;
   result?: unknown;
 };
@@ -110,6 +117,7 @@ export type TestAttemptState = {
   deadline: number | null;
   exitCount: number;
   exitLimit: number;
+  exitAction: ExitAction;
   exitWarn: { count: number; limit: number } | null;
   setExitWarn: (warn: { count: number; limit: number } | null) => void;
   autoSubmitted: boolean;
@@ -159,6 +167,8 @@ export function useTestAttempt({
   const [exitLimit, setExitLimit] = useState<number>(DEFAULT_EXIT_LIMIT);
   const [exitWarn, setExitWarn] = useState<{ count: number; limit: number } | null>(null);
   const [autoSubmitted, setAutoSubmitted] = useState(false); // popup "đã bị nộp vì rời quá số lần"
+  const [exitAction, setExitAction] = useState<ExitAction>("warn");
+  const [blockCopy, setBlockCopy] = useState(true); // chặn sao chép khi làm bài
 
   const submittedRef = useRef(false);
   const submitTriggeredRef = useRef(false); // đã kích hoạt nộp (chặn gọi nộp 2 lần)
@@ -166,6 +176,8 @@ export function useTestAttempt({
   const answersRef = useRef(answers);
   const exitCountRef = useRef(0);
   const exitLimitRef = useRef(DEFAULT_EXIT_LIMIT);
+  const exitActionRef = useRef<ExitAction>("warn"); // xử lý khi vượt hạn (theo cấu hình)
+  const autosubmitTimeoutRef = useRef(true); // tự nộp khi hết giờ (theo cấu hình)
   const awayRef = useRef(false); // đang ở ngoài tab (đã tính 1 lần thoát, chờ quay lại)
 
   useEffect(() => {
@@ -197,6 +209,10 @@ export function useTestAttempt({
         setDeadline(state.deadline ? new Date(state.deadline).getTime() : null);
         setExitLimit(state.tab_exit_limit);
         exitLimitRef.current = state.tab_exit_limit;
+        exitActionRef.current = state.tab_exit_action ?? "warn";
+        setExitAction(state.tab_exit_action ?? "warn");
+        autosubmitTimeoutRef.current = state.autosubmit_on_timeout ?? true;
+        setBlockCopy(state.block_copy ?? true);
         exitCountRef.current = state.tab_exit_count;
         setExitCount(state.tab_exit_count);
         // Khôi phục đáp án đã lưu (làm tiếp sau khi reload / vào lại).
@@ -339,7 +355,7 @@ export function useTestAttempt({
     const interval = setInterval(() => {
       const current = Date.now();
       setNow(current);
-      if (current >= deadline && !deadlineFiredRef.current) {
+      if (current >= deadline && !deadlineFiredRef.current && autosubmitTimeoutRef.current) {
         deadlineFiredRef.current = true;
         clearInterval(interval);
         void handleSubmit();
@@ -373,6 +389,7 @@ export function useTestAttempt({
 
     function onVisibility() {
       const limit = exitLimitRef.current;
+      const action = exitActionRef.current;
 
       // Đã nộp/đang nộp: khi quay lại chỉ hiện popup đã nộp, không đếm nữa.
       if (submittedRef.current || submitTriggeredRef.current) {
@@ -389,18 +406,20 @@ export function useTestAttempt({
         exitCountRef.current += 1;
         const count = exitCountRef.current;
         setExitCount(count);
-        if (count > limit) {
-          void autoSubmitOnExit(); // vượt hạn → nộp ngay, không gọi tab-exit
+        // Chỉ tự nộp NGAY khi cấu hình là 'autosubmit' và đã vượt hạn.
+        if (action === "autosubmit" && count > limit) {
+          void autoSubmitOnExit();
         } else {
-          void reportExitCount();
+          void reportExitCount(); // 'warn'/'log' và các lần chưa vượt: chỉ đếm ở server
         }
       } else if (document.visibilityState === "visible") {
         if (!awayRef.current) return;
         awayRef.current = false;
-        if (exitCountRef.current > limit) {
+        if (action === "log") return; // ghi nhận ngầm — không làm phiền học sinh
+        if (action === "autosubmit" && exitCountRef.current > limit) {
           void autoSubmitOnExit();
         } else {
-          setExitWarn({ count: exitCountRef.current, limit });
+          setExitWarn({ count: exitCountRef.current, limit }); // 'warn' (và autosubmit chưa vượt)
         }
       }
     }
@@ -419,6 +438,22 @@ export function useTestAttempt({
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, []);
+
+  // Chặn sao chép / dán / chuột phải khi làm bài (theo cấu hình exam.block_copy).
+  useEffect(() => {
+    if (!blockCopy) return;
+    const prevent = (e: Event) => e.preventDefault();
+    document.addEventListener("copy", prevent);
+    document.addEventListener("cut", prevent);
+    document.addEventListener("paste", prevent);
+    document.addEventListener("contextmenu", prevent);
+    return () => {
+      document.removeEventListener("copy", prevent);
+      document.removeEventListener("cut", prevent);
+      document.removeEventListener("paste", prevent);
+      document.removeEventListener("contextmenu", prevent);
+    };
+  }, [blockCopy]);
 
   // Auto-save sau mỗi lựa chọn / mỗi lần gõ (gộp 1.2s để không bắn request mỗi ký tự).
   useEffect(() => {
@@ -464,6 +499,7 @@ export function useTestAttempt({
     deadline,
     exitCount,
     exitLimit,
+    exitAction,
     exitWarn,
     setExitWarn,
     autoSubmitted,

@@ -32,9 +32,23 @@ Sau mỗi lần `git pull`/merge làm đổi `package.json`, phải `npm install
 ## Kiến trúc
 
 - `app/` — route mỏng (page/layout gọi vào `features/`, không chứa logic nghiệp vụ nặng).
-  - `app/(app)/*` — khu học viên: `tests`, `library/vocab`, `library/documents`, `missions`.
+  - `app/(app)/*` — khu học viên: `tests`, `library/vocab`, `library/documents`, `missions`,
+    `classes` (Lớp của em — lộ trình buổi học; đọc `GET /me/classrooms` + `/classrooms/{id}/roadmap`,
+    lớp/buổi ghi vào `?class=&session=`; CTA thẻ nội dung tái dùng route `/library/*`. Code:
+    `features/classes/{content-card,roadmap-helpers}`), `profile` + `profile/password` (Hồ sơ cá nhân —
+    `GET/PUT /me`, avatar crop, đổi mật khẩu giữ phiên; `lib/api/profile.ts`, `features/profile/*`;
+    header avatar → `/profile`, `useAuth().refreshUser()` cập nhật tên/avatar sau khi lưu).
+  - ⚠ `components/student/student-shell.tsx` bọc nội dung học sinh trong `<div class="organic">` — cần thiết
+    để mọi component class organic (`.btn/.field/.seg/.input/.card`) áp đúng. Đừng bỏ class này.
   - `app/teacher/(panel)/*` — khu giáo viên/admin: `classes`, `students`, `tests`, `vocabulary`,
-    `documents`, `results`, `reports`.
+    `documents`, `results`, `reports`, `settings` (Cài đặt hệ thống — CHỈ admin, mục cuối sidebar).
+    - `settings`: CHỈ super admin (`user.is_super_admin`). 6 nhóm cấu hình đọc từ `GET /admin/settings`;
+      sửa vào state, chỉ 1 `PUT` khi Lưu; lịch sử + hoàn tác; upload logo/favicon; gửi email thử.
+      Control ở `features/settings/*`. `components/branding-loader.tsx` nạp `/public/branding` đặt
+      favicon + tiêu đề tab theo khu.
+- **Guard quyền trang** (`lib/access-guard.ts`): `useAccessGuard(predicate, fallback)` /
+  `useRequireSuperAdmin()` — thiếu quyền thì **redirect về `/teacher`** (không hiện màn 403). Dùng lại
+  cho mọi trang cần chặn quyền. Backend chặn song song bằng middleware (`superadmin`/`role`/`maintenance`).
   - `app/login`, `app/teacher/login`, `app/forgot-password`, `app/reset-password` — auth, ngoài
     2 khu trên (route group riêng, không có panel/nav).
 - `features/<domain>/*` — logic + component theo domain (`tests`, `classes`, `students`,

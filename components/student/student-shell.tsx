@@ -2,8 +2,8 @@
 
 import { type ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { ListChecks, School, Library, BarChart3, Search, Bell, LogOut } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { ListChecks, School, Library, BarChart3, Search, Bell } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -11,7 +11,7 @@ type NavItem = { label: string; href: string; icon: typeof Library; ready?: bool
 
 const NAV: NavItem[] = [
   { label: "Nhiệm vụ", href: "/missions", icon: ListChecks, ready: true },
-  { label: "Lớp của em", href: "/classes", icon: School },
+  { label: "Lớp của em", href: "/classes", icon: School, ready: true },
   { label: "Thư viện", href: "/library", icon: Library, ready: true },
   { label: "Báo cáo", href: "/reports", icon: BarChart3 },
 ];
@@ -27,9 +27,7 @@ const SCREEN_TITLE: Record<string, string> = {
 
 export function StudentShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, logout } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { user } = useAuth();
   const [kbOpen, setKbOpen] = useState(false);
 
   // Ẩn bottom nav khi bàn phím mở (visualViewport co lại) để không che input.
@@ -41,16 +39,13 @@ export function StudentShell({ children }: { children: ReactNode }) {
     return () => vv.removeEventListener("resize", onResize);
   }, []);
 
-  async function handleLogout() {
-    await logout();
-    router.replace("/login");
-  }
-
   const initial = (user?.name ?? "?").charAt(0).toUpperCase();
+  const avatarUrl = user?.avatar_url ?? null;
+  const onProfile = pathname.startsWith("/profile");
   const screenTitle = SCREEN_TITLE[Object.keys(SCREEN_TITLE).find((k) => pathname.startsWith(k)) ?? ""] ?? "";
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg">
+    <div className="organic flex min-h-screen flex-col bg-bg">
       {/* ── Header desktop (menu ngang) ── */}
       <header
         className="sticky top-0 z-40 hidden h-[76px] items-center gap-2 border-b border-border px-8 md:flex"
@@ -94,24 +89,22 @@ export function StudentShell({ children }: { children: ReactNode }) {
             <Bell className="size-[18px]" strokeWidth={2.75} />
             <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-brand" />
           </button>
-          <div className="relative">
-            <button onClick={() => setMenuOpen((v) => !v)} aria-label="Tài khoản"
-              className="flex size-[42px] items-center justify-center rounded-full bg-brand-soft font-display text-sm font-bold text-brand-bold">{initial}</button>
-            {menuOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 top-12 z-50 w-48 overflow-hidden rounded-2xl border-[1.5px] border-border bg-surface py-1 shadow-lg">
-                  <div className="px-4 py-2 text-sm">
-                    <p className="font-semibold text-text">{user?.name}</p>
-                    <p className="truncate text-xs text-text-secondary">{user?.email}</p>
-                  </div>
-                  <button onClick={handleLogout} className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-alt">
-                    <LogOut className="size-4" strokeWidth={2.75} /> Đăng xuất
-                  </button>
-                </div>
-              </>
+          <Link
+            href="/profile"
+            aria-label="Hồ sơ cá nhân"
+            aria-current={onProfile ? "page" : undefined}
+            className={cn(
+              "flex size-[42px] items-center justify-center overflow-hidden rounded-full font-display text-sm font-bold",
+              onProfile ? "bg-accent text-bg" : "bg-accent-2-200 text-accent-2-800",
             )}
-          </div>
+          >
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt="" className="size-full object-cover" />
+            ) : (
+              initial
+            )}
+          </Link>
         </div>
       </header>
 
@@ -125,7 +118,13 @@ export function StudentShell({ children }: { children: ReactNode }) {
         <div className="ml-auto flex items-center gap-2">
           <button aria-label="Tìm kiếm" className="flex size-10 items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-text"><Search className="size-[18px]" strokeWidth={2.75} /></button>
           <button aria-label="Thông báo" className="relative flex size-10 items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-text"><Bell className="size-[18px]" strokeWidth={2.75} /><span className="absolute right-2 top-2 size-2 rounded-full bg-brand" /></button>
-          <button onClick={handleLogout} aria-label="Đăng xuất" className="flex size-10 items-center justify-center rounded-full bg-brand-soft font-display text-sm font-bold text-brand-bold">{initial}</button>
+          <Link href="/profile" aria-label="Hồ sơ cá nhân" aria-current={onProfile ? "page" : undefined}
+            className={cn("flex size-10 items-center justify-center overflow-hidden rounded-full font-display text-sm font-bold", onProfile ? "bg-accent text-bg" : "bg-accent-2-200 text-accent-2-800")}>
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt="" className="size-full object-cover" />
+            ) : initial}
+          </Link>
         </div>
       </header>
 

@@ -64,6 +64,8 @@ type Result = {
   previous_best_score?: number | null;
   started_at?: string | null;
   submitted_at?: string | null;
+  // Cấu hình hiển thị điểm (theo snapshot lúc bắt đầu): số thập phân + điểm đạt.
+  grading?: { decimals: number; pass_score: number };
   test: {
     id: number;
     title: string;
@@ -184,9 +186,14 @@ function answerLine(
     : `Em trả lời: "${text}"`;
 }
 
-/** Bỏ đuôi thừa cho gọn: 9 → "9", 8.5 → "8.5", 0.25 → "0.25", 3.333 → "3.33". */
-function formatScore(value: number): string {
-  return Number.isInteger(value) ? String(value) : String(Math.round(value * 100) / 100);
+/**
+ * Bỏ đuôi thừa cho gọn: 9 → "9", 8.5 → "8.5", 3.333 → "3.33".
+ * Có `decimals` (từ grading config) thì làm tròn theo đó; không thì mặc định 2 chữ số.
+ */
+function formatScore(value: number, decimals?: number): string {
+  if (Number.isInteger(value)) return String(value);
+  if (decimals !== undefined) return Number(value.toFixed(decimals)).toString();
+  return String(Math.round(value * 100) / 100);
 }
 
 function formatDateTime(value: string): string {
@@ -322,10 +329,14 @@ export function StudentTestResult({
   const scoreOn10 = scoreRatio * 10;
   const perQuestion = total > 0 ? maxScore / total : 0;
 
+  // Cấu hình hiển thị điểm (đọc từ cấu hình theo snapshot lúc bắt đầu).
+  const decimals = result.grading?.decimals ?? 1;
+  const passScore = result.grading?.pass_score ?? 5;
+
   const tier: Verdict =
-    scoreOn10 >= 8 ? "correct" : scoreOn10 >= 5 ? "pending" : "wrong";
+    scoreOn10 >= 8 ? "correct" : scoreOn10 >= passScore ? "pending" : "wrong";
   const praise =
-    scoreOn10 >= 8 ? "Tuyệt vời!" : scoreOn10 >= 5 ? "Khá rồi!" : "Cần cố thêm!";
+    scoreOn10 >= 8 ? "Tuyệt vời!" : scoreOn10 >= passScore ? "Khá rồi!" : "Cần cố thêm!";
 
   // Còn câu chờ cô → nói rõ đang chờ. Đề toàn câu cô chấm (writing) → nói theo điểm
   // vì "câu đúng" không có nghĩa. Còn lại → praise theo số câu đúng.
@@ -357,7 +368,7 @@ export function StudentTestResult({
           >
             <div className="flex size-[118px] flex-col items-center justify-center rounded-full bg-surface">
               <span className="font-display text-[38px] font-bold leading-none text-text">
-                {formatScore(score)}
+                {formatScore(score, decimals)}
               </span>
               <span className="mt-1.5 text-[11px] font-bold text-text-secondary">
                 / {formatScore(maxScore)} điểm
