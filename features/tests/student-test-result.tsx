@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
+import { startAttempt } from "@/lib/api/tests";
+import { testRoutes } from "@/features/tests/routes";
+import { htmlToText } from "@/lib/sanitize";
 
 type Option = { id: number; label: string; content: string; is_correct: boolean };
 
@@ -14,6 +18,8 @@ type Question = {
   audio_url: string | null;
   explanation: string | null;
   options: Option[];
+  /** Điểm tối đa của câu — mẫu số khi hiện điểm cô chấm. */
+  score?: number | null;
   // Chỉ có ở câu fill_blank — đáp án đúng lưu trên question, không phải options
   correct_answer_text?: string | null;
 };
@@ -39,16 +45,23 @@ type ResultAnswer = {
   question_option_id: number | null;
   answer_text: string | null;
   is_correct: boolean | null;
+  // Phần cô chấm tay (câu writing) — chỉ có ở payload GET result, không có ở
+  // payload lúc vừa nộp bài.
+  score?: number | null;
+  feedback?: string | null;
+  graded_by?: string | null;
+  graded_at?: string | null;
 };
 
 type Result = {
   id: number;
+  /** in_progress | submitted | pending_review | graded */
+  status?: string | null;
   total_score: number;
   correct_count: number;
   question_count: number;
   is_new_best?: boolean;
   previous_best_score?: number | null;
-  // BE chưa trả `started_at` ở endpoint result → ô "THỜI GIAN" hiện "—" khi thiếu.
   started_at?: string | null;
   submitted_at?: string | null;
   // Cấu hình hiển thị điểm (theo snapshot lúc bắt đầu): số thập phân + điểm đạt.
@@ -69,7 +82,7 @@ type Result = {
    ──────────────────────────────────────────────────────────────────────────── */
 
 /** Kết quả một câu — quyết định màu, badge và dòng đáp án. */
-type Verdict = "correct" | "wrong" | "pending";
+type Verdict = "correct" | "wrong" | "pending" | "graded";
 
 const VERDICT: Record<
   Verdict,
@@ -78,7 +91,22 @@ const VERDICT: Record<
   correct: { fg: "#5E8418", bg: "#F1F8DE", border: "#C6E38A", badge: "Đúng ✓" },
   wrong: { fg: "#C1442F", bg: "#FDE7E2", border: "#F0B5A9", badge: "Sai ✕" },
   pending: { fg: "#B8860B", bg: "#FFF3D3", border: "#FFC94D", badge: "Chờ cô chấm" },
+  // Câu cô chấm tay: badge/màu thật sự lấy theo điểm cô cho (xem `gradedStyle`),
+  // các giá trị ở đây chỉ là mặc định khi chưa biết điểm tối đa.
+  graded: { fg: "#B8860B", bg: "#FFF3D3", border: "#FFC94D", badge: "Cô đã chấm" },
 };
+
+/**
+ * Câu chấm tay không có đúng/sai — dùng chính điểm cô cho để chọn màu:
+ * tối đa → xanh, 0 → đỏ, còn lại → vàng (một phần).
+ */
+function gradedStyle(score: number, max: number) {
+  const base = max > 0 && score >= max ? "correct" : score <= 0 ? "wrong" : "pending";
+  return {
+    ...VERDICT[base],
+    badge: `Cô chấm · ${formatScore(score)}${max > 0 ? `/${formatScore(max)}` : ""}đ`,
+  };
+}
 
 /**
  * Nhãn phần. `part.title` đã là "Phần 1"/"Reading"… nên KHÔNG ghép thêm số vào:
@@ -98,8 +126,8 @@ function isManualType(type: Question["type"]): boolean {
 function verdictOf(question: Question, answer: ResultAnswer | undefined): Verdict {
   if (answer?.is_correct === true) return "correct";
   if (answer?.is_correct === false) return "wrong";
-  // Chưa chấm: câu tự luận thì chờ cô, câu tự chấm mà bỏ trống thì tính sai.
-  return isManualType(question.type) ? "pending" : "wrong";
+  if (!isManualType(question.type)) return "wrong"; // câu tự chấm bỏ trống → sai
+  return answer?.graded_at ? "graded" : "pending";
 }
 
 /** Đáp án đúng của câu: MCQ lấy option đúng; fill_blank lấy mọi cách viết được chấp nhận. */
@@ -134,7 +162,8 @@ function answerLine(
     return correct ? `${picked} — đáp án đúng: ${correct}` : picked;
   }
 
-  const text = answer?.answer_text?.trim();
+  // Câu viết lưu HTML (tiptap) → bóc thẻ, không thì hiện ra "<p>…</p>".
+  const text = htmlToText(answer?.answer_text);
 
   if (question.type === "fill_blank") {
     if (!text) {
@@ -150,16 +179,33 @@ function answerLine(
 
   // Trả lời ngắn / tự luận
   if (!text) return "Em chưa trả lời câu này";
-  if (verdict === "pending") return `Em trả lời: "${text}"`;
+  if (verdict === "pending" || verdict === "graded") return `Em trả lời: "${text}"`;
   if (verdict === "correct") return `Em trả lời: "${text}" — chính xác`;
   return correct
     ? `Em trả lời: "${text}" — đáp án gợi ý: "${correct}"`
     : `Em trả lời: "${text}"`;
 }
 
-/** Bỏ đuôi .0 cho gọn, làm tròn theo số thập phân cấu hình: 8.5 → "8.5", 9 → "9". */
-function formatScore(value: number, decimals = 1): string {
-  return Number.isInteger(value) ? String(value) : Number(value.toFixed(decimals)).toString();
+/**
+ * Bỏ đuôi thừa cho gọn: 9 → "9", 8.5 → "8.5", 3.333 → "3.33".
+ * Có `decimals` (từ grading config) thì làm tròn theo đó; không thì mặc định 2 chữ số.
+ */
+function formatScore(value: number, decimals?: number): string {
+  if (Number.isInteger(value)) return String(value);
+  if (decimals !== undefined) return Number(value.toFixed(decimals)).toString();
+  return String(Math.round(value * 100) / 100);
+}
+
+function formatDateTime(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? ""
+    : date.toLocaleString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        day: "2-digit",
+        month: "2-digit",
+      });
 }
 
 function formatDuration(from?: string | null, to?: string | null): string | null {
@@ -175,8 +221,10 @@ function formatDuration(from?: string | null, to?: string | null): string | null
   return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
 
-// Ưu tiên payload trả về ngay từ lúc nộp bài (lưu ở sessionStorage) — vì attempt điểm
-// thấp có thể đã bị BE xoá nên không phải lúc nào GET result cũng còn dùng được.
+// Payload lúc vừa nộp bài (lưu ở sessionStorage) dùng để vẽ ngay, khỏi chờ mạng —
+// và để dự phòng: attempt điểm thấp có thể đã bị BE dedup xoá nên GET result không
+// phải lúc nào cũng còn. Nhưng nó là ảnh chụp LÚC NỘP, chưa có phần cô chấm, nên
+// luôn gọi GET đè lên khi gọi được.
 function readStoredResult(attemptId: string): Result | null {
   if (typeof window === "undefined") return null;
   const stored = sessionStorage.getItem(`test-result-${attemptId}`);
@@ -190,27 +238,50 @@ function readStoredResult(attemptId: string): Result | null {
 
 /**
  * Trang kết quả sau khi nộp — nơi DUY NHẤT được phép hiện đáp án đúng.
- * Không nhận `basePath`: rail chỉ có 2 hành động tiếp theo (Nhiệm vụ / Báo cáo),
- * không có đường quay lại danh sách đề nên màn này độc lập với root.
+ * `basePath` chỉ dùng để dựng link làm lại đề (root thư viện hay lớp học).
  */
-export function StudentTestResult({ attemptId }: { attemptId: string }) {
+export function StudentTestResult({
+  basePath,
+  attemptId,
+}: {
+  basePath: string;
+  attemptId: string;
+}) {
+  const router = useRouter();
+  const routes = useMemo(() => testRoutes(basePath), [basePath]);
+
   const [result, setResult] = useState<Result | null>(() =>
     readStoredResult(attemptId),
   );
   const [error, setError] = useState<string | null>(null);
   const [onlyWrong, setOnlyWrong] = useState(false);
+  const [retrying, setRetrying] = useState(false);
 
   useEffect(() => {
-    if (readStoredResult(attemptId)) return;
-
+    // Luôn gọi GET: bài writing được cô chấm SAU khi nộp nên bản lưu ở
+    // sessionStorage không bao giờ có điểm/nhận xét của cô.
     api<Result>(`/attempts/${attemptId}/result`)
       .then(setResult)
-      .catch((err) =>
-        setError(err instanceof ApiError ? err.message : "Không tải được kết quả."),
-      );
+      .catch((err) => {
+        // Còn bản chụp lúc nộp thì cứ hiện, đừng ném lỗi ra màn hình.
+        if (readStoredResult(attemptId)) return;
+        setError(err instanceof ApiError ? err.message : "Không tải được kết quả.");
+      });
   }, [attemptId]);
 
-  if (error) {
+  async function handleRetry(testId: number) {
+    setRetrying(true);
+    setError(null);
+    try {
+      const attempt = await startAttempt(testId);
+      router.push(routes.attempt(testId, attempt.attempt_id));
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Không bắt đầu lại được bài.");
+      setRetrying(false);
+    }
+  }
+
+  if (error && !result) {
     return <p className="text-sm font-semibold text-[#C1442F]">{error}</p>;
   }
 
@@ -241,11 +312,19 @@ export function StudentTestResult({ attemptId }: { attemptId: string }) {
   const correctCount = allQuestions.filter(
     (q) => verdicts.get(q.id) === "correct",
   ).length;
-  const gradedCount = total - pendingCount;
+  const autoGradedCount = total - pendingCount;
+  const manualCount = allQuestions.filter((q) => isManualType(q.type)).length;
+  const teacherGradedCount = allQuestions.filter(
+    (q) => verdicts.get(q.id) === "graded",
+  ).length;
   const hasExplanation = allQuestions.some((q) => q.explanation);
 
   const maxScore = result.test.total_score || 10;
   const score = result.total_score ?? 0;
+  // Điểm câu (`question.score`) ở thang riêng của câu, còn tổng ở thang của đề —
+  // quy điểm câu về thang đề để "cô chấm x/yđ" và tổng không lệch đơn vị.
+  const questionScoreSum = allQuestions.reduce((sum, q) => sum + (q.score ?? 0), 0);
+  const scoreScale = questionScoreSum > 0 ? maxScore / questionScoreSum : 1;
   const scoreRatio = maxScore > 0 ? Math.min(1, Math.max(0, score / maxScore)) : 0;
   const scoreOn10 = scoreRatio * 10;
   const perQuestion = total > 0 ? maxScore / total : 0;
@@ -258,10 +337,15 @@ export function StudentTestResult({ attemptId }: { attemptId: string }) {
     scoreOn10 >= 8 ? "correct" : scoreOn10 >= passScore ? "pending" : "wrong";
   const praise =
     scoreOn10 >= 8 ? "Tuyệt vời!" : scoreOn10 >= passScore ? "Khá rồi!" : "Cần cố thêm!";
+
+  // Còn câu chờ cô → nói rõ đang chờ. Đề toàn câu cô chấm (writing) → nói theo điểm
+  // vì "câu đúng" không có nghĩa. Còn lại → praise theo số câu đúng.
   const summaryBadge =
     pendingCount > 0
-      ? `Đã chấm tự động ${gradedCount}/${total} câu · ${pendingCount} câu chờ cô`
-      : `${praise} ${correctCount}/${total} câu đúng`;
+      ? `Đã chấm tự động ${autoGradedCount}/${total} câu · ${pendingCount} câu chờ cô`
+      : manualCount === total && teacherGradedCount > 0
+        ? `Cô đã chấm xong · ${formatScore(score)}/${formatScore(maxScore)} điểm`
+        : `${praise} ${correctCount}/${total} câu đúng`;
 
   const duration = formatDuration(result.started_at, result.submitted_at);
 
@@ -320,6 +404,14 @@ export function StudentTestResult({ attemptId }: { attemptId: string }) {
           >
             Về Nhiệm vụ
           </Link>
+          <button
+            type="button"
+            onClick={() => handleRetry(result.test.id)}
+            disabled={retrying}
+            className="flex h-[46px] items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-sm font-bold text-text transition-colors hover:border-brand hover:text-brand-bold disabled:opacity-60"
+          >
+            {retrying ? "Đang mở đề…" : "Làm lại từ đầu"}
+          </button>
           {/* /reports chưa có page — để "Sắp có" thay vì điều hướng ra 404. */}
           <button
             type="button"
@@ -329,6 +421,9 @@ export function StudentTestResult({ attemptId }: { attemptId: string }) {
           >
             Xem báo cáo của em
           </button>
+          {error && (
+            <p className="text-[13px] font-semibold text-[#C1442F]">{error}</p>
+          )}
         </div>
       </aside>
 
@@ -395,6 +490,7 @@ export function StudentTestResult({ attemptId }: { attemptId: string }) {
                         index={questionIndex.get(question.id) ?? question.order}
                         answer={answersByQuestion.get(question.id)}
                         verdict={verdicts.get(question.id) ?? "wrong"}
+                        scoreScale={scoreScale}
                       />
                     ))}
                   </div>
@@ -430,13 +526,19 @@ function ReviewCard({
   index,
   answer,
   verdict,
+  scoreScale,
 }: {
   question: Question;
   index: number;
   answer: ResultAnswer | undefined;
   verdict: Verdict;
+  /** Hệ số quy điểm câu về thang điểm của đề. */
+  scoreScale: number;
 }) {
-  const style = VERDICT[verdict];
+  const style =
+    verdict === "graded"
+      ? gradedStyle((answer?.score ?? 0) * scoreScale, (question.score ?? 0) * scoreScale)
+      : VERDICT[verdict];
 
   return (
     <article
@@ -472,17 +574,33 @@ function ReviewCard({
         {answerLine(question, answer, verdict)}
       </p>
 
-      {verdict === "pending" ? (
+      {verdict === "pending" && (
         <p className="mt-3 text-[13px] font-medium text-text-secondary">
           Cô sẽ chấm và gửi nhận xét cho em trong 24h.
         </p>
-      ) : (
-        verdict === "wrong" &&
-        question.explanation && (
-          <div className="mt-3 rounded-[14px] bg-surface-alt p-3.5 text-[13px] font-medium leading-[1.65] text-text-secondary">
-            <b className="text-text">Lời giải:</b> {question.explanation}
-          </div>
-        )
+      )}
+
+      {verdict === "graded" && (
+        <div className="mt-3 rounded-[14px] bg-surface-alt p-3.5 text-[13px] font-medium leading-[1.65] text-text-secondary">
+          {answer?.feedback?.trim() ? (
+            <p>
+              <b className="text-text">Nhận xét của cô:</b> {answer.feedback}
+            </p>
+          ) : (
+            <p>Cô đã chấm bài nhưng chưa để lại nhận xét cho câu này.</p>
+          )}
+          <p className="mt-1.5 text-xs text-text-muted">
+            {/* Tên trong DB đã là "Cô giáo"/"Cô Uyên" — đừng chèn thêm "Cô" nữa. */}
+            {answer?.graded_by ? `${answer.graded_by} đã chấm` : "Đã chấm"}
+            {answer?.graded_at ? ` · ${formatDateTime(answer.graded_at)}` : ""}
+          </p>
+        </div>
+      )}
+
+      {verdict === "wrong" && question.explanation && (
+        <div className="mt-3 rounded-[14px] bg-surface-alt p-3.5 text-[13px] font-medium leading-[1.65] text-text-secondary">
+          <b className="text-text">Lời giải:</b> {question.explanation}
+        </div>
       )}
     </article>
   );
