@@ -52,14 +52,24 @@ export type Answer = { question_id: number; question_option_id?: number; answer_
 /** Hành vi khi vượt số lần rời tab (theo cấu hình đề, snapshot lúc bắt đầu). */
 export type ExitAction = "log" | "warn" | "autosubmit";
 
+/**
+ * Đồng hồ của lượt làm. Chỉ chạy khi học viên đang ở trong màn làm bài: rời ra thì
+ * server dừng và chốt `remaining_seconds`, quay lại thì chạy tiếp từ đúng chỗ đó.
+ */
+type ClockState = {
+  /** Mốc hết giờ khi đồng hồ ĐANG CHẠY; null nếu đang dừng / đề không giới hạn giờ. */
+  deadline: string | null;
+  remaining_seconds: number | null;
+  clock_running: boolean;
+};
+
 /** Trạng thái lượt làm lấy từ GET /attempts/{id} — nguồn tính giờ + khôi phục bài. */
-type AttemptState = {
+type AttemptState = ClockState & {
   id: number;
   status: "in_progress" | "submitted" | "pending_review" | "graded" | "expired";
   source?: AttemptSource | null;
   mission?: AttemptMission | null;
   started_at: string | null;
-  deadline: string | null;
   tab_exit_count: number;
   tab_exit_limit: number;
   tab_exit_action?: ExitAction;
@@ -170,8 +180,12 @@ export function useTestAttempt({
   const [submitting, setSubmitting] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
-  // Hạn nộp lấy từ server (không còn qua URL). null = chưa tải / không giới hạn.
+  // Hạn nộp lấy từ server (không còn qua URL). null = chưa tải / không giới hạn /
+  // đồng hồ đang tạm dừng.
   const [deadline, setDeadline] = useState<number | null>(null);
+  // Đồng hồ chỉ chạy khi học viên đang ở trong màn làm bài. Rời ra → dừng cả ở client
+  // (không để đếm tiếp rồi tự nộp lúc em đang ở ngoài) lẫn ở server (chốt số giây còn lại).
+  const [clockRunning, setClockRunning] = useState(true);
 
   // Chống gian lận: đếm số lần rời tab. Cảnh báo khi quay lại; vượt hạn → tự nộp ngay.
   const [exitCount, setExitCount] = useState(0);
@@ -194,6 +208,51 @@ export function useTestAttempt({
   useEffect(() => {
     answersRef.current = answers;
   }, [answers]);
+
+  const applyClock = useCallback((clock: ClockState) => {
+    if (clock.deadline) {
+      setDeadline(new Date(clock.deadline).getTime());
+    } else if (clock.remaining_seconds !== null) {
+      // Đang tạm dừng: quy số giây còn lại thành "hạn nộp" tính từ bây giờ, để chỗ hiển
+      // thị (deadline − now) vẫn ra đúng số phút còn lại. Nó đứng yên vì bộ đếm đã dừng.
+      setDeadline(Date.now() + clock.remaining_seconds * 1000);
+    } else {
+      setDeadline(null); // đề không giới hạn thời gian
+    }
+    setClockRunning(clock.clock_running);
+  }, []);
+
+  /**
+   * Báo server dừng/chạy lại đồng hồ. Các lệnh xếp hàng nối đuôi nhau: đổi tab nhanh
+   * có thể bắn pause rồi resume sát nhau, về đích sai thứ tự là đồng hồ kẹt ở trạng
+   * thái sai. `keepalive` cho lúc đóng/rời trang — request vẫn đi khi trang đã gỡ.
+   */
+  const clockOpRef = useRef<Promise<unknown>>(Promise.resolve());
+  const sendClock = useCallback(
+    (action: "pause" | "resume", keepalive = false) => {
+      const run = async () => {
+        if (submittedRef.current) return;
+        try {
+          const clock = await api<ClockState>(`/attempts/${attemptId}/${action}`, {
+            method: "POST",
+            keepalive,
+          });
+          if (!submittedRef.current) applyClock(clock);
+        } catch {
+          // Mất mạng → giữ nguyên đồng hồ đang có, lần vào lại sau sẽ đồng bộ lại.
+        }
+      };
+      clockOpRef.current = clockOpRef.current.then(run, run);
+      return clockOpRef.current;
+    },
+    [attemptId, applyClock],
+  );
+
+  const pauseClock = useCallback(
+    (keepalive = false) => sendClock("pause", keepalive),
+    [sendClock],
+  );
+  const resumeClock = useCallback(() => sendClock("resume"), [sendClock]);
 
   // Tải cấu trúc đề + trạng thái lượt làm (hạn nộp, đáp án đã lưu, số lần thoát).
   useEffect(() => {
@@ -218,7 +277,10 @@ export function useTestAttempt({
           return;
         }
         setOrigin({ source: state.source, mission: state.mission });
-        setDeadline(state.deadline ? new Date(state.deadline).getTime() : null);
+        applyClock(state);
+        // Vào màn làm bài = đồng hồ chạy. Gọi resume vô điều kiện (server tự bỏ qua nếu
+        // đang chạy rồi) để không phụ thuộc vào việc lệnh pause trước đó đã về hay chưa.
+        void resumeClock();
         setExitLimit(state.tab_exit_limit);
         exitLimitRef.current = state.tab_exit_limit;
         exitActionRef.current = state.tab_exit_action ?? "warn";
@@ -256,7 +318,38 @@ export function useTestAttempt({
     return () => {
       cancelled = true;
     };
-  }, [id, attemptId, router, routes]);
+  }, [id, attemptId, router, routes, applyClock, resumeClock]);
+
+  // Rời khỏi màn làm bài → dừng đồng hồ; quay lại → chạy tiếp từ đúng chỗ đã dừng.
+  // Dừng ở client TRƯỚC khi gọi server: nếu chờ response, đồng hồ cũ vẫn đếm và có thể
+  // chạm hạn rồi tự nộp trong lúc em đang ở ngoài.
+  useEffect(() => {
+    function onVisibilityClock() {
+      if (submittedRef.current) return;
+      if (document.visibilityState === "hidden") {
+        setClockRunning(false);
+        void pauseClock();
+      } else {
+        void resumeClock();
+      }
+    }
+
+    // Đóng tab / F5 / bấm link đi nơi khác — `pagehide` chắc chắn hơn `beforeunload`.
+    function onPageHide() {
+      if (submittedRef.current) return;
+      setClockRunning(false);
+      void pauseClock(true);
+    }
+
+    document.addEventListener("visibilitychange", onVisibilityClock);
+    window.addEventListener("pagehide", onPageHide);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityClock);
+      window.removeEventListener("pagehide", onPageHide);
+      // Rời màn bằng điều hướng trong app (bấm "Thoát") → cũng phải dừng đồng hồ.
+      if (!submittedRef.current) void pauseClock(true);
+    };
+  }, [pauseClock, resumeClock]);
 
   function buildAnswersPayload(): Answer[] {
     return Object.values(answersRef.current);
@@ -363,7 +456,8 @@ export function useTestAttempt({
   // handleSubmit, nên chỉ cần lần nộp đó lỗi là mỗi giây thử lại một lần → nút "Nộp bài"
   // nhấp nháy giữa "Nộp bài" ↔ "Đang nộp..." và không bao giờ nộp xong.
   useEffect(() => {
-    if (!deadline) return;
+    // Đồng hồ tạm dừng (em đã rời màn làm bài) → không đếm, không tự nộp.
+    if (!deadline || !clockRunning) return;
     const interval = setInterval(() => {
       const current = Date.now();
       setNow(current);
@@ -374,7 +468,7 @@ export function useTestAttempt({
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [deadline, handleSubmit]);
+  }, [deadline, clockRunning, handleSubmit]);
 
   // Chống gian lận: đếm số lần rời tab.
   //  - Lần CHƯA vượt hạn: báo server (đếm bền vững qua reload) + cảnh báo khi quay lại.
