@@ -1,4 +1,4 @@
-import { api, getToken } from "@/lib/api";
+import { api, apiForm, getToken } from "@/lib/api";
 import type {
   StudentTestFilters,
   StudentTestListResponse,
@@ -65,6 +65,31 @@ export function startAttempt(
     method: "POST",
     body: JSON.stringify(missionId ? { mission_id: missionId } : {}),
   });
+}
+
+/**
+ * Nộp bản ghi âm của một câu Nói. Trả về URL để màn làm bài phát lại ngay.
+ *
+ * Đi qua endpoint riêng của lượt làm (KHÔNG phải `/media/upload`): backend cần kiểm câu đó
+ * đúng là câu speaking của đề trong lượt này, và tự xoá file cũ khi em ghi lại.
+ */
+export function uploadAttemptAudio(
+  attemptId: number | string,
+  questionId: number,
+  file: File,
+): Promise<{ url: string }> {
+  const form = new FormData();
+  form.append("file", file);
+
+  return apiForm(`/attempts/${attemptId}/answers/${questionId}/audio`, form);
+}
+
+/** Xoá bản ghi âm đã nộp (nút "Ghi lại"). */
+export function deleteAttemptAudio(
+  attemptId: number | string,
+  questionId: number,
+): Promise<{ message: string }> {
+  return api(`/attempts/${attemptId}/answers/${questionId}/audio`, { method: "DELETE" });
 }
 
 // Đường dẫn FE của luồng làm bài nằm ở `features/tests/routes.ts` — không để lẫn

@@ -23,6 +23,8 @@ export type DraftQuestion = {
   id?: number;
   type: QuestionType;
   content: string | null;
+  /** Gợi ý hiện cho học viên lúc đang làm bài (khác `explanation` = lời giải sau khi nộp). */
+  hint?: string | null;
   explanation?: string | null;
   images: string[];
   record_limit_seconds: number | null;
@@ -44,7 +46,7 @@ function optionsFor(type: QuestionType): DraftOption[] {
 }
 
 export function newDraftQuestion(type: QuestionType): DraftQuestion {
-  return { _cid: crypto.randomUUID(), type, content: "", explanation: "", images: [], record_limit_seconds: null, options: optionsFor(type) };
+  return { _cid: crypto.randomUUID(), type, content: "", hint: "", explanation: "", images: [], record_limit_seconds: null, options: optionsFor(type) };
 }
 
 type Props = {
@@ -102,7 +104,7 @@ export function QuestionEditor({ index, scorePerQuestion, question, onChange, on
         <div className="flex items-center gap-1.5">
           <select value={t} onChange={(e) => setType(e.target.value as QuestionType)} disabled={disabled}
             className="h-8 rounded-full border-[1.5px] border-border bg-surface px-2.5 text-xs text-text outline-none focus-visible:border-brand disabled:opacity-50">
-            {Object.entries(QUESTION_TYPE_LABEL).filter(([k]) => k !== "speaking").map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+            {Object.entries(QUESTION_TYPE_LABEL).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
           </select>
           {onDuplicate && <button onClick={onDuplicate} aria-label="Nhân bản câu hỏi" className="flex size-8 items-center justify-center rounded-full text-text-muted hover:bg-surface hover:text-brand"><Copy className="size-3.5" /></button>}
           <button onClick={onRemove} disabled={disabled} aria-label="Xoá câu hỏi"
@@ -146,6 +148,13 @@ export function QuestionEditor({ index, scorePerQuestion, question, onChange, on
 
       {isSpeaking && (
         <div className="mt-3 flex flex-col gap-3">
+          <div>
+            <label className={labelClass}>Gợi ý cho học viên (không bắt buộc)</label>
+            <textarea value={question.hint ?? ""} onChange={(e) => onChange({ ...question, hint: e.target.value })} rows={3}
+              placeholder={"Ví dụ:\nYou should say:\n- where you went\n- who you went with\n- why you liked it"}
+              className={textareaClass} />
+            <p className="mt-1 text-[11.5px] text-text-muted">Hiện ngay cạnh đề bài lúc em làm bài — khác “Lời giải” (chỉ lộ sau khi nộp).</p>
+          </div>
           <div><label className={labelClass}>Ảnh gợi ý (không bắt buộc)</label><ImageGridUpload images={question.images} onChange={(images) => onChange({ ...question, images })} /></div>
           <div>
             <label className={labelClass}>Giới hạn thời lượng ghi âm</label>

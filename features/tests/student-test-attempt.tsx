@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { SubmitConfirmDialog, missingNumbers } from "@/features/tests/submit-confirm";
 import { Modal } from "@/components/ui/modal";
 import { SKILL_LABEL } from "@/lib/types/test";
 import {
@@ -17,6 +17,7 @@ import {
 } from "@/features/tests/use-test-attempt";
 import { OriginChip } from "@/features/tests/attempt-origin";
 import { ReadingTestAttempt } from "@/features/tests/reading-test-attempt";
+import { SpeakingTestAttempt } from "@/features/tests/speaking-test-attempt";
 import { WritingTestAttempt } from "@/features/tests/writing-test-attempt";
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -118,6 +119,12 @@ export function StudentTestAttempt({
     return <WritingTestAttempt attempt={attempt} test={attempt.test} />;
   }
 
+  // Đề Nói có màn riêng (ghi âm + ảnh gợi ý). Không có nhánh này thì câu speaking rơi
+  // vào layout đề hỗn hợp và bị render thành ô nhập text.
+  if (attempt.test.skill === "speaking") {
+    return <SpeakingTestAttempt attempt={attempt} test={attempt.test} />;
+  }
+
   return <DefaultTestAttempt attempt={attempt} test={attempt.test} />;
 }
 
@@ -142,6 +149,8 @@ function DefaultTestAttempt({ attempt, test }: { attempt: TestAttemptState; test
   const questionIndex = new Map(allQuestions.map((q, i) => [q.id, i + 1]));
 
   const answeredCount = allQuestions.filter((q) => hasAnswer(attempt.answers[q.id])).length;
+  // Danh sách câu còn trống — hiện rõ trong hộp xác nhận nộp bài để em không bỏ sót.
+  const missingList = missingNumbers(allQuestions, (q) => hasAnswer(attempt.answers[q.id]));
 
   const forms = new Set(allQuestions.map((q) => answerForm(q.type)));
   const formChip = FORM_ORDER.filter((f) => forms.has(f))
@@ -372,20 +381,15 @@ function DefaultTestAttempt({ attempt, test }: { attempt: TestAttemptState; test
         </button>
       </aside>
 
-      <ConfirmDialog
+      <SubmitConfirmDialog
         open={attempt.confirmSubmit}
         onClose={() => attempt.setConfirmSubmit(false)}
         onConfirm={() => {
           attempt.setConfirmSubmit(false);
           attempt.handleSubmit();
         }}
-        title="Nộp bài?"
-        confirmLabel="Nộp bài"
-        description={
-          answeredCount < allQuestions.length
-            ? `Em còn ${allQuestions.length - answeredCount} câu chưa làm — câu bỏ trống tính 0 điểm. Nộp bài luôn?`
-            : "Em chắc chắn muốn nộp bài? Sau khi nộp sẽ không sửa được nữa."
-        }
+        missing={missingList}
+        total={allQuestions.length}
       />
 
       {/* Cảnh báo khi học sinh quay lại sau khi rời tab (không hiện nếu đã tự nộp). */}

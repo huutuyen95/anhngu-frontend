@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { SubmitConfirmDialog, missingNumbers } from "@/features/tests/submit-confirm";
 import { Modal } from "@/components/ui/modal";
 import {
   formatRemaining,
@@ -50,7 +50,10 @@ export function WritingTestAttempt({
 
   // Không dùng hasAnswer() ở đây: answer_text lưu HTML từ tiptap, rỗng vẫn ra "<p></p>"
   // (khác rỗng theo hasAnswer) — đếm theo số từ thực tế mới đúng trạng thái "đã viết".
-  const answeredCount = allQuestions.filter((q) => (wordCounts[q.id] ?? 0) > 0).length;
+  // Danh sách câu còn trống — hiện rõ trong hộp xác nhận nộp bài để em không bỏ sót.
+  // Đếm theo SỐ TỪ chứ không dùng hasAnswer(): answer_text lưu HTML từ tiptap, ô rỗng
+  // vẫn ra "<p></p>" nên hasAnswer sẽ tưởng là đã viết.
+  const missingList = missingNumbers(allQuestions, (q) => (wordCounts[q.id] ?? 0) > 0);
 
   const remainingMs = attempt.deadline ? Math.max(0, attempt.deadline - attempt.now) : null;
   const urgent = remainingMs !== null && remainingMs < 5 * 60_000;
@@ -82,23 +85,28 @@ export function WritingTestAttempt({
           {`BÀI VIẾT · ${allQuestions.length} CÂU`}
         </span>
 
+        {/* Đồng hồ · trạng thái lưu · Nộp bài nằm CÙNG một hàng. Đừng xếp chồng đồng hồ
+            với dòng trạng thái thành cột: cột đó cao hơn nút 42px nên căn giữa xong
+            đồng hồ bị trồi lên, lệch hẳn với nút Nộp bài. */}
         <div className="ml-auto flex shrink-0 items-center gap-3.5">
-          <div className="text-right">
-            <div
-              className="flex h-[42px] items-center rounded-full px-4"
-              style={{ background: "#FFFFFF", border: "1.5px solid #EFE7D4" }}
+          <div
+            className="flex h-[42px] items-center rounded-full px-4"
+            style={{ background: "#FFFFFF", border: "1.5px solid #EFE7D4" }}
+          >
+            <span
+              className="font-display text-[16px] font-bold tabular-nums"
+              style={{ color: urgent ? "#C1442F" : "#3A3330" }}
             >
-              <span
-                className="font-display text-[16px] font-bold tabular-nums"
-                style={{ color: urgent ? "#C1442F" : "#3A3330" }}
-              >
-                {remainingMs !== null ? formatRemaining(remainingMs) : "Không giới hạn"}
-              </span>
-            </div>
-            <p className="mt-1 text-[12px] font-semibold" style={{ color: "#B5AC9C" }}>
-              {attempt.savedAt ? `Đã lưu nháp ${attempt.savedAt}` : "Chưa lưu nháp"}
-            </p>
+              {remainingMs !== null ? formatRemaining(remainingMs) : "Không giới hạn"}
+            </span>
           </div>
+
+          <p
+            className="whitespace-nowrap text-[12px] font-semibold"
+            style={{ color: "#B5AC9C" }}
+          >
+            {attempt.savedAt ? `Đã lưu nháp ${attempt.savedAt}` : "Chưa lưu nháp"}
+          </p>
 
           <button
             type="button"
@@ -202,20 +210,16 @@ export function WritingTestAttempt({
         </div>
       </div>
 
-      <ConfirmDialog
+      <SubmitConfirmDialog
         open={attempt.confirmSubmit}
         onClose={() => attempt.setConfirmSubmit(false)}
         onConfirm={() => {
           attempt.setConfirmSubmit(false);
           attempt.handleSubmit();
         }}
-        title="Nộp bài?"
-        confirmLabel="Nộp bài"
-        description={
-          answeredCount < allQuestions.length
-            ? `Em còn ${allQuestions.length - answeredCount} câu chưa viết — câu bỏ trống tính 0 điểm. Nộp bài luôn?`
-            : "Em chắc chắn muốn nộp bài? Sau khi nộp sẽ không sửa được nữa."
-        }
+        missing={missingList}
+        total={allQuestions.length}
+        verb="chưa viết"
       />
 
       <Modal

@@ -16,9 +16,15 @@ export type Option = { id: number; label: string; content: string };
 export type Question = {
   id: number;
   order: number;
-  type: "multiple_choice" | "fill_blank" | "select" | "writing" | "upload";
+  type: "multiple_choice" | "fill_blank" | "select" | "writing" | "speaking" | "upload";
   content: string;
+  /** Gợi ý hiện ngay lúc làm bài (câu Nói: "You should say…"). */
+  hint?: string | null;
   audio_url: string | null;
+  /** Ảnh gợi ý của câu Nói. */
+  images?: string[] | null;
+  /** Giới hạn thời lượng ghi âm (giây); `null` = không giới hạn. */
+  record_limit_seconds?: number | null;
   options: Option[];
 };
 
@@ -47,7 +53,17 @@ export type TestDetail = {
   parts: Part[];
 };
 
-export type Answer = { question_id: number; question_option_id?: number; answer_text?: string };
+export type Answer = {
+  question_id: number;
+  question_option_id?: number;
+  answer_text?: string;
+  /**
+   * Bản ghi âm của câu Nói. Nằm chung trong Answer để `hasAnswer()` — nguồn duy nhất quyết
+   * định "câu này đã làm chưa" cho lưới câu / bộ đếm / cảnh báo nộp thiếu — thấy được nó.
+   * KHÔNG gửi lên `PUT /answers` (file đi qua endpoint audio riêng): xem buildAnswersPayload.
+   */
+  answer_file_url?: string | null;
+};
 
 /** Hành vi khi vượt số lần rời tab (theo cấu hình đề, snapshot lúc bắt đầu). */
 export type ExitAction = "log" | "warn" | "autosubmit";
@@ -107,6 +123,8 @@ export function formatClock(date: Date): string {
 export function hasAnswer(answer: Answer | undefined): boolean {
   if (!answer) return false;
   if (answer.question_option_id !== undefined) return true;
+  // Câu Nói: "đã làm" = đã có bản ghi âm nộp lên, không có chữ nào cả.
+  if (answer.answer_file_url) return true;
   return !!answer.answer_text && answer.answer_text.trim() !== "";
 }
 
@@ -143,6 +161,10 @@ export type TestAttemptState = {
   routes: TestRoutes;
   setOptionAnswer: (questionId: number, optionId: number) => void;
   setTextAnswer: (questionId: number, text: string) => void;
+  /** Ghi nhận bản ghi âm vừa nộp (hoặc `null` khi em xoá để ghi lại). */
+  setAudioAnswer: (questionId: number, url: string | null) => void;
+  /** Id lượt làm — màn Nói cần để gọi endpoint audio. */
+  attemptId: string;
   toggleMark: (questionId: number) => void;
   handleSubmit: () => void;
   goToResult: () => void;
@@ -299,6 +321,7 @@ export function useTestAttempt({
                 ? { question_option_id: a.question_option_id }
                 : {}),
               ...(a.answer_text != null ? { answer_text: a.answer_text } : {}),
+              ...(a.answer_file_url != null ? { answer_file_url: a.answer_file_url } : {}),
             };
           }
           setAnswers(restored);
@@ -352,7 +375,14 @@ export function useTestAttempt({
   }, [pauseClock, resumeClock]);
 
   function buildAnswersPayload(): Answer[] {
-    return Object.values(answersRef.current);
+    // Bỏ `answer_file_url`: file đã nằm ở server qua endpoint audio riêng, gửi lại ở đây
+    // vừa thừa vừa dễ hiểu nhầm là autosave có thể ghi đè nó.
+    return Object.values(answersRef.current).map((answer) => {
+      const payload = { ...answer };
+      delete payload.answer_file_url;
+
+      return payload;
+    });
   }
 
   const saveAnswers = useCallback(async () => {
@@ -582,6 +612,13 @@ export function useTestAttempt({
     }));
   }
 
+  function setAudioAnswer(questionId: number, url: string | null) {
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: { ...prev[questionId], question_id: questionId, answer_file_url: url },
+    }));
+  }
+
   function toggleMark(questionId: number) {
     setMarked((prev) => {
       const next = new Set(prev);
@@ -613,6 +650,8 @@ export function useTestAttempt({
     routes,
     setOptionAnswer,
     setTextAnswer,
+    setAudioAnswer,
+    attemptId,
     toggleMark,
     handleSubmit,
     goToResult,

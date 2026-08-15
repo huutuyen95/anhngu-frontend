@@ -17,7 +17,8 @@ export const SKILL_LABEL: Record<Skill, string> = {
 
 /**
  * 4 loại câu chính: trắc nghiệm · điền từ · chọn (True/False/Not Given) · viết luận.
- * `speaking` giữ lại (ẩn sau flag) cho giai đoạn sau.
+ * `speaking` = câu ghi âm: có ảnh gợi ý (`images`), gợi ý text (`hint`) và giới hạn thời
+ * lượng ghi âm (`record_limit_seconds`); cô chấm tay.
  */
 export type QuestionType = "multiple_choice" | "fill_blank" | "select" | "writing" | "speaking";
 
@@ -118,6 +119,8 @@ export type Question = {
   order: number;
   type: QuestionType;
   content: string | null;
+  /** Gợi ý hiện cho học viên NGAY LÚC làm bài (khác `explanation` = lời giải sau khi nộp). */
+  hint?: string | null;
   audio_url?: string | null;
   images: string[];
   record_limit_seconds: number | null;
