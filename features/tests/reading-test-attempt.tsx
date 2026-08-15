@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { SubmitConfirmDialog, missingNumbers } from "@/features/tests/submit-confirm";
 import { Modal } from "@/components/ui/modal";
 import {
   hasAnswer,
@@ -90,6 +90,8 @@ export function ReadingTestAttempt({
   );
 
   const answeredCount = allQuestions.filter((q) => hasAnswer(attempt.answers[q.id])).length;
+  // Danh sách câu còn trống — hiện rõ trong hộp xác nhận nộp bài để em không bỏ sót.
+  const missingList = missingNumbers(allQuestions, (q) => hasAnswer(attempt.answers[q.id]));
 
   const remainingMs = attempt.deadline ? Math.max(0, attempt.deadline - attempt.now) : null;
   const totalMs = test.duration_minutes > 0 ? test.duration_minutes * 60_000 : null;
@@ -315,20 +317,16 @@ export function ReadingTestAttempt({
         </div>
       </div>
 
-      <ConfirmDialog
+      <SubmitConfirmDialog
         open={attempt.confirmSubmit}
         onClose={() => attempt.setConfirmSubmit(false)}
         onConfirm={() => {
           attempt.setConfirmSubmit(false);
           attempt.handleSubmit();
         }}
-        title="Nộp bài?"
-        confirmLabel="Nộp bài"
-        description={
-          answeredCount < allQuestions.length
-            ? `Em còn ${allQuestions.length - answeredCount} câu chưa làm — câu bỏ trống tính 0 điểm. Nộp bài luôn?`
-            : "Em chắc chắn muốn nộp bài? Sau khi nộp sẽ không sửa được nữa."
-        }
+        missing={missingList}
+        total={allQuestions.length}
+        verb="chưa làm"
       />
 
       <Modal

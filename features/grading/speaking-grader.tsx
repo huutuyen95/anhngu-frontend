@@ -31,6 +31,18 @@ export function SpeakingGrader({ index, question, value, onChange, maxScore }: P
 
       {question.content && <p className="mt-2 text-sm text-text-secondary">{question.content}</p>}
 
+      {/* Gợi ý cô đã đưa cho em — cần thấy lại để chấm đúng theo yêu cầu của đề. */}
+      {question.hint && (
+        <div className="mt-2 rounded-xl bg-surface-alt px-3 py-2">
+          <span className="text-[11px] font-bold uppercase tracking-[0.4px] text-text-muted">
+            Gợi ý đã đưa cho em
+          </span>
+          <p className="mt-0.5 whitespace-pre-line text-[13px] leading-relaxed text-text-secondary">
+            {question.hint}
+          </p>
+        </div>
+      )}
+
       {!!question.images?.length && (
         <div className="mt-2 flex flex-wrap gap-2">
           {question.images.map((url, i) => (

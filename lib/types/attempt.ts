@@ -90,12 +90,11 @@ export type AttemptQuestion = {
   order: number;
   type: string;
   content: string | null;
+  /** Gợi ý cô đưa cho học viên lúc làm bài (câu Nói) — cô cần thấy lại lúc chấm. */
+  hint?: string | null;
   score: number;
   explanation: string | null;
-  /**
-   * Ảnh gợi ý của câu speaking — `AttemptDetailResource` hiện CHƯA trả field này (chỉ
-   * `TestDetailResource` ở editor có), nên luôn `undefined` cho tới khi BE bổ sung.
-   */
+  /** Ảnh gợi ý của câu speaking. */
   images?: string[];
   options: { id: number; label: string | null; content: string; is_correct: boolean }[];
   answer: AttemptAnswer | null;

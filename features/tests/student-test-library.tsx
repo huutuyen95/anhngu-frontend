@@ -27,7 +27,7 @@ const SKILL_COLOR: Record<Skill, { fg: string; bg: string }> = {
   reading: { fg: "#D65F27", bg: "#FDEBDD" },
   listening: { fg: "#2380A8", bg: "#E4F5FD" },
   writing: { fg: "#8A6A3A", bg: "#F5EFDF" },
-  speaking: { fg: "#8A5BB0", bg: "#F1E6FA" },
+  speaking: { fg: "#A8437F", bg: "#F9E6F2" },
   mixed: { fg: "#6B4FB8", bg: "#EFE7FD" },
 };
 

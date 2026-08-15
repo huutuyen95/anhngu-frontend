@@ -22,8 +22,12 @@ type Option = { id: number; label: string; content: string; is_correct: boolean 
 type Question = {
   id: number;
   order: number;
-  type: "multiple_choice" | "fill_blank" | "select" | "writing" | "upload";
+  type: "multiple_choice" | "fill_blank" | "select" | "writing" | "speaking" | "upload";
   content: string;
+  /** Gợi ý cô đưa lúc làm bài — hiện lại ở màn chữa bài cho câu Nói. */
+  hint?: string | null;
+  /** Ảnh gợi ý của câu Nói. */
+  images?: string[] | null;
   audio_url: string | null;
   explanation: string | null;
   options: Option[];
@@ -53,6 +57,8 @@ type ResultAnswer = {
   question_id: number;
   question_option_id: number | null;
   answer_text: string | null;
+  /** Bản ghi âm câu Nói em đã nộp — để nghe lại ở màn chữa bài. */
+  answer_file_url?: string | null;
   is_correct: boolean | null;
   // Phần cô chấm tay (câu writing) — chỉ có ở payload GET result, không có ở
   // payload lúc vừa nộp bài.
@@ -131,8 +137,9 @@ function partLabel(part: Pick<Part, "order" | "title">): string {
 }
 
 /** Câu tự luận/ghi âm chưa chấm tay → không tính vào điểm tự động. */
+/** Câu cô chấm tay — không có đúng/sai tự động, chờ điểm + nhận xét của cô. */
 function isManualType(type: Question["type"]): boolean {
-  return type === "writing" || type === "upload";
+  return type === "writing" || type === "speaking" || type === "upload";
 }
 
 function verdictOf(question: Question, answer: ResultAnswer | undefined): Verdict {
@@ -187,6 +194,10 @@ function answerLine(
     return correct
       ? `Em điền "${text}" — đáp án đúng: "${correct}"`
       : `Em điền "${text}"`;
+  }
+
+  if (question.type === "speaking") {
+    return answer?.answer_file_url ? "Bài nói em đã nộp:" : "Em chưa ghi âm câu này";
   }
 
   // Trả lời ngắn / tự luận
@@ -609,12 +620,36 @@ function ReviewCard({
         <audio controls src={question.audio_url} className="mt-2.5 w-full" />
       )}
 
+      {question.type === "speaking" && question.hint && (
+        <p className="mt-2 whitespace-pre-line text-[13px] font-medium leading-[1.55] text-text-secondary">
+          {question.hint}
+        </p>
+      )}
+
+      {question.type === "speaking" && !!question.images?.length && (
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          {question.images.map((url, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={`${url}-${i}`}
+              src={url}
+              alt={`Ảnh gợi ý ${i + 1}`}
+              className="size-20 rounded-xl border-[1.5px] border-border object-cover"
+            />
+          ))}
+        </div>
+      )}
+
       <p
         className="mt-2.5 text-[13px] font-semibold leading-[1.5]"
         style={{ color: style.fg }}
       >
         {answerLine(question, answer, verdict)}
       </p>
+
+      {question.type === "speaking" && answer?.answer_file_url && (
+        <audio controls src={answer.answer_file_url} className="mt-2 w-full" />
+      )}
 
       {verdict === "pending" && (
         <p className="mt-3 text-[13px] font-medium text-text-secondary">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Eye, Plus, Trash2, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
@@ -30,7 +30,7 @@ function fromServer(parts: TestPart[]): DraftPart[] {
     sections: p.sections.map((s: TestSection) => ({
       _cid: `s-${s.id}`, id: s.id, instruction: s.instruction, passage: s.passage, audio_url: s.audio_url, max_plays: s.max_plays,
       questions: s.questions.map((q) => ({
-        _cid: `q-${q.id}`, id: q.id, type: q.type, content: q.content, explanation: q.explanation ?? "", images: q.images ?? [],
+        _cid: `q-${q.id}`, id: q.id, type: q.type, content: q.content, hint: q.hint ?? "", explanation: q.explanation ?? "", images: q.images ?? [],
         record_limit_seconds: q.record_limit_seconds ?? null,
         options: q.options.map((o) => ({ _cid: `o-${o.id}`, id: o.id, label: o.label, content: o.content, is_correct: o.is_correct })),
       })),
@@ -56,6 +56,19 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
   const skipAutosave = useRef(true);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isWriting = initial.skill === "writing";
+  // Loại câu thêm được, loại HỢP VỚI DẠNG ĐỀ đứng đầu (được tô nổi). Đề Nói trước đây không
+  // có nút nào tạo câu "Nói" nên ô ảnh gợi ý + gợi ý text trong QuestionEditor không bao giờ hiện.
+  const skill = initial.skill;
+  const addableTypes = useMemo<QuestionType[]>(() => {
+    const base: QuestionType[] = ["multiple_choice", "fill_blank", "select", "writing", "speaking"];
+    const lead: Partial<Record<typeof skill, QuestionType>> = {
+      speaking: "speaking",
+      writing: "writing",
+    };
+    const first = lead[skill];
+
+    return first ? [first, ...base.filter((t) => t !== first)] : base;
+  }, [skill]);
   const locked = (initial.attempts_count ?? 0) > 0;
 
   const sensors = useSensors(
@@ -76,7 +89,7 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
         sections: pt.sections.map((s, si) => ({
           id: s.id, order: si, instruction: s.instruction || null, passage: s.passage || null, audio_url: s.audio_url || null, max_plays: s.max_plays ?? null,
           questions: s.questions.map((q, qi) => ({
-            id: q.id, order: qi, type: q.type, content: q.content || null, explanation: q.explanation || null,
+            id: q.id, order: qi, type: q.type, content: q.content || null, hint: q.hint || null, explanation: q.explanation || null,
             images: q.type === "speaking" ? q.images : [], record_limit_seconds: q.type === "speaking" ? q.record_limit_seconds : null, score: 1,
             options: ["multiple_choice", "select", "fill_blank"].includes(q.type) ? q.options.filter((o) => o.content.trim() !== "" || o.id).map((o) => ({ id: o.id, label: o.label, content: o.content, is_correct: o.is_correct })) : [],
           })),
@@ -295,8 +308,13 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
                   {/* Thêm câu hỏi luôn mở, kể cả đề đã có bài làm — khoá chỉ áp cho
                       câu CŨ (câu đã có `id`): không xoá / đổi thứ tự / đổi loại. */}
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {(["multiple_choice", "fill_blank", "select", "writing"] as QuestionType[]).map((t) => (
-                      <button key={t} onClick={() => addQuestion(sel, si, t)} className="inline-flex items-center gap-1 rounded-full border-[1.5px] border-border px-3 py-1.5 text-xs font-semibold text-text-secondary hover:border-brand hover:text-brand"><Plus className="size-3.5" /> {QUESTION_TYPE_LABEL[t]}</button>
+                    {addableTypes.map((t) => (
+                      <button key={t} onClick={() => addQuestion(sel, si, t)} className={cn(
+                        "inline-flex items-center gap-1 rounded-full border-[1.5px] px-3 py-1.5 text-xs font-semibold transition-colors",
+                        t === addableTypes[0]
+                          ? "border-brand bg-brand-soft text-brand hover:bg-brand hover:text-white"
+                          : "border-border text-text-secondary hover:border-brand hover:text-brand",
+                      )}><Plus className="size-3.5" /> {QUESTION_TYPE_LABEL[t]}</button>
                     ))}
                   </div>
                   </>
