@@ -130,6 +130,20 @@ Token khai ở `app/globals.css` (`@theme`). Có **hai** bảng màu, tách theo
 - Mọi `<select>` dùng chung **`components/ui/select.tsx`** (pill, đã propagate ra các page khác) —
   sửa giao diện dropdown ở 1 chỗ.
 
+### Màn LÀM BÀI của học sinh (`features/tests/*`)
+
+- **Toàn bộ vòng đời lượt làm ở hook chung `use-test-attempt.ts`** (`useTestAttempt`): tải đề +
+  trạng thái, autosave, đồng hồ, chống rời tab, nộp bài. `student-test-attempt.tsx` chỉ là bộ điều
+  phối → chọn layout theo skill: `reading-test-attempt.tsx` (sách 2 cột), `writing-test-attempt.tsx`,
+  còn lại là default trong `student-test-attempt.tsx`. Thêm màn mới thì tái dùng hook, KHÔNG chép lại logic.
+- **Chống gian lận theo cấu hình** (đọc từ `GET /attempts/{id}` snapshot): `exam.leave_limit` +
+  `exam.leave_action` (log/warn/autosubmit), `exam.block_copy` (chặn copy/paste/chuột phải),
+  `exam.autosubmit_on_timeout`. Trang kết quả (`student-test-result.tsx`) hiển thị điểm theo
+  `grading.decimals`/`pass_score`.
+- **Nguồn lượt làm** (`attempt-origin.tsx`): bài cô giao (`source='assignment'`, kèm lớp/buổi) vs
+  tự luyện (`source='library'`) → banner + nút quay lại khác nhau. Vào từ "Lớp của em" thì truyền
+  `mission_id` khi tạo lượt.
+
 ## Quản lý học sinh (`features/students/*`)
 
 - `student-detail-modal`, `assign-class-modal`, `student-form-modal` (check email khi blur +

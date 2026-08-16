@@ -3,6 +3,8 @@ import type { ClassroomRef } from "@/lib/types/student";
 
 export type { ClassroomRef };
 
+export type DeckCategory = { id: number; name: string; order?: number; decks_count?: number };
+
 export type Deck = {
   id: number;
   name: string;
@@ -12,6 +14,8 @@ export type Deck = {
   tts_repeat: string; // '1' | '2' | 'auto'
   is_published: boolean;
   owner_name?: string;
+  category: DeckCategory | null;
+  category_id: number | null;
   classrooms?: ClassroomRef[];
   classroom_ids?: number[];
   cards_count?: number;
@@ -42,10 +46,13 @@ export type LibraryDeck = {
   name: string;
   cards_count: number;
   learned_count: number;
+  category: DeckCategory | null;
+  classrooms: ClassroomRef[];
 };
 
 export type StudyDeck = {
   deck: { id: number; name: string; tts_voice: VoiceKey; tts_rate: number; tts_repeat: string };
+  progress?: { known: number; total: number };
   cards: Card[];
 };
 

@@ -156,12 +156,22 @@ export type ClassReport = {
 export type MyClassroom = {
   id: number;
   name: string;
+  code: string;
   cover_url: string | null;
   teacher_name: string | null;
   students_count: number;
+  schedule_text: string | null;
   starts_on: string | null;
   ends_on: string | null;
   status: ClassStatus;
+  progress_pct: number;
+  done_count: number;
+  total_count: number;
+  todo_count: number;
+  due_soon_count: number;
+  avg_score: number | null;
+  last_activity_at: string | null;
+  /** @deprecated dùng progress_pct */
   my_progress_pct: number;
 };
 
@@ -208,6 +218,7 @@ export type Roadmap = {
   classroom: {
     id: number;
     name: string;
+    code: string;
     description: string | null;
     teacher_name: string | null;
     students_count: number;
