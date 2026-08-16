@@ -12,6 +12,7 @@ import {
   Copy,
   Eye,
   Trash2,
+  Tags,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/api";
@@ -19,10 +20,11 @@ import {
   deleteDeck,
   duplicateDeck,
   listDecks,
+  listDeckCategories,
   publishDeck,
 } from "@/lib/api/decks";
 import { listClassrooms } from "@/lib/api/classrooms";
-import type { Deck } from "@/lib/types/deck";
+import type { Deck, DeckCategory } from "@/lib/types/deck";
 import type { ClassroomRef } from "@/lib/types/student";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
@@ -32,7 +34,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DeckFormModal } from "@/features/vocabulary/deck-form-modal";
-import { cn } from "@/lib/utils";
+import { DeckCategoryManagerModal } from "@/features/vocabulary/deck-category-manager-modal";
 
 function VocabView() {
   const router = useRouter();
@@ -40,12 +42,15 @@ function VocabView() {
   const q = params.get("q") ?? "";
   const classId = params.get("class") ?? "";
   const published = params.get("published") ?? "";
+  const categoryId = params.get("category") ?? "";
 
   const [rows, setRows] = useState<Deck[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(q);
   const [classrooms, setClassrooms] = useState<ClassroomRef[]>([]);
+  const [categories, setCategories] = useState<DeckCategory[]>([]);
+  const [categoryOpen, setCategoryOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Deck | null>(null);
   const [menuId, setMenuId] = useState<number | null>(null);
@@ -55,7 +60,10 @@ function VocabView() {
   const setParam = useCallback(
     (u: Record<string, string | null>) => {
       const next = new URLSearchParams(params.toString());
-      for (const [k, v] of Object.entries(u)) v ? next.set(k, v) : next.delete(k);
+      for (const [k, v] of Object.entries(u)) {
+        if (v) next.set(k, v);
+        else next.delete(k);
+      }
       router.replace(`/teacher/vocabulary?${next.toString()}`);
     },
     [params, router],
@@ -63,15 +71,19 @@ function VocabView() {
 
   const load = useCallback(() => {
     setLoading(true);
-    listDecks({ q, classroom_id: classId, is_published: published })
+    listDecks({ q, classroom_id: classId, category_id: categoryId, is_published: published })
       .then((r) => { setRows(r.data); setTotal(r.meta.total); })
       .catch(() => toast.error("Không tải được danh sách bộ từ."))
       .finally(() => setLoading(false));
-  }, [q, classId, published]);
+  }, [q, classId, categoryId, published]);
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => setSearch(q), [q]);
   useEffect(() => { listClassrooms().then((r) => setClassrooms(r.data)).catch(() => {}); }, []);
+  const loadCategories = useCallback(() => {
+    listDeckCategories().then((response) => setCategories(response.data)).catch(() => {});
+  }, []);
+  useEffect(() => { loadCategories(); }, [loadCategories]);
 
   function onSearchChange(v: string) {
     setSearch(v);
@@ -80,7 +92,7 @@ function VocabView() {
   }
 
   const totalCards = useMemo(() => rows.reduce((s, d) => s + (d.cards_count ?? 0), 0), [rows]);
-  const hasFilter = !!q || !!classId || !!published;
+  const hasFilter = !!q || !!classId || !!categoryId || !!published;
 
   async function togglePublish(deck: Deck) {
     const next = !deck.is_published;
@@ -123,9 +135,14 @@ function VocabView() {
             {total} bộ từ · {totalCards} thẻ · audio phát tự động bằng Web Speech API
           </p>
         </div>
-        <Button iconLeft={<Plus className="size-4" />} onClick={() => { setEditing(null); setFormOpen(true); }}>
-          Tạo bộ từ
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" iconLeft={<Tags className="size-4" />} onClick={() => setCategoryOpen(true)}>
+            Quản lý danh mục
+          </Button>
+          <Button iconLeft={<Plus className="size-4" />} onClick={() => { setEditing(null); setFormOpen(true); }}>
+            Tạo bộ từ
+          </Button>
+        </div>
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
@@ -137,6 +154,12 @@ function VocabView() {
           <Select value={classId} onChange={(e) => setParam({ class: e.target.value || null })}>
             <option value="">Mọi lớp</option>
             {classrooms.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </Select>
+        )}
+        {categories.length > 0 && (
+          <Select value={categoryId} onChange={(e) => setParam({ category: e.target.value || null })}>
+            <option value="">Mọi danh mục</option>
+            {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
           </Select>
         )}
         <Select value={published} onChange={(e) => setParam({ published: e.target.value || null })}>
@@ -189,6 +212,7 @@ function VocabView() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
+                  {d.category ? <StatusBadge tone="info">{d.category.name}</StatusBadge> : <StatusBadge tone="neutral">Chưa phân loại</StatusBadge>}
                   <StatusBadge tone={audioFull ? "success" : "warning"}>{audio}/{total} có audio</StatusBadge>
                   {(d.classrooms ?? []).slice(0, 2).map((c) => <StatusBadge key={c.id} tone="info">{c.name}</StatusBadge>)}
                   {(d.classrooms?.length ?? 0) === 0 && <StatusBadge tone="neutral">Dùng chung</StatusBadge>}
@@ -212,6 +236,12 @@ function VocabView() {
         onClose={() => setFormOpen(false)}
         editing={editing}
         onSaved={(deck, isNew) => { if (isNew) router.push(`/teacher/vocabulary/${deck.id}`); else load(); }}
+      />
+
+      <DeckCategoryManagerModal
+        open={categoryOpen}
+        onClose={() => setCategoryOpen(false)}
+        onSaved={() => { loadCategories(); load(); }}
       />
 
       <ConfirmDialog

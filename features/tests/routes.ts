@@ -41,7 +41,7 @@ export type TestRoutes = {
 function listHrefFor(basePath: string): string {
   const classId = basePath.match(/^\/classes\/([^/]+)\/tests$/)?.[1];
 
-  return classId ? `/classes?class=${classId}` : basePath;
+  return classId ? `/classes/${classId}` : basePath;
 }
 
 export function testRoutes(basePath: string): TestRoutes {

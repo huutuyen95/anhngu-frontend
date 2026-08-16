@@ -3,9 +3,9 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/api";
-import { createDeck, updateDeck } from "@/lib/api/decks";
+import { createDeck, listDeckCategories, updateDeck } from "@/lib/api/decks";
 import { listClassrooms } from "@/lib/api/classrooms";
-import { TTS_RATES, VOICE_OPTIONS, type Deck } from "@/lib/types/deck";
+import { TTS_RATES, VOICE_OPTIONS, type Deck, type DeckCategory } from "@/lib/types/deck";
 import type { ClassroomRef } from "@/lib/types/student";
 import type { VoiceKey } from "@/lib/tts";
 import { Modal } from "@/components/ui/modal";
@@ -30,11 +30,13 @@ export function DeckFormModal({
   const isEdit = !!editing;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [classIds, setClassIds] = useState<number[]>([]);
   const [voice, setVoice] = useState<VoiceKey>("en-GB-female");
   const [rate, setRate] = useState(0.9);
   const [publish, setPublish] = useState(false);
   const [classrooms, setClassrooms] = useState<ClassroomRef[]>([]);
+  const [categories, setCategories] = useState<DeckCategory[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
@@ -43,6 +45,7 @@ export function DeckFormModal({
     setErrors({});
     setName(editing?.name ?? "");
     setDescription(editing?.description ?? "");
+    setCategoryId(editing?.category_id ? String(editing.category_id) : "");
     setClassIds(editing?.classroom_ids ?? []);
     setVoice(editing?.tts_voice ?? "en-GB-female");
     setRate(editing?.tts_rate ?? 0.9);
@@ -51,6 +54,7 @@ export function DeckFormModal({
 
   useEffect(() => {
     listClassrooms().then((r) => setClassrooms(r.data)).catch(() => {});
+    listDeckCategories().then((r) => setCategories(r.data)).catch(() => {});
   }, []);
 
   async function submit(e: FormEvent) {
@@ -60,6 +64,7 @@ export function DeckFormModal({
     try {
       const payload = {
         name,
+        category_id: categoryId ? Number(categoryId) : null,
         description,
         classroom_ids: classIds,
         tts_voice: voice,
@@ -102,6 +107,13 @@ export function DeckFormModal({
       <form id="deck-form" onSubmit={submit} className="flex flex-col gap-4" noValidate>
         <FormField htmlFor="d-name" label="Tên bộ từ" required error={errors.name}>
           <Input id="d-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="VD: GRADE 6 UNIT 1" required />
+        </FormField>
+
+        <FormField htmlFor="d-category" label="Danh mục" error={errors.category_id}>
+          <Select id="d-category" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
+            <option value="">Chưa phân loại</option>
+            {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+          </Select>
         </FormField>
 
         {classrooms.length > 0 && (

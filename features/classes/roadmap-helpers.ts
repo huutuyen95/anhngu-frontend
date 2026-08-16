@@ -32,15 +32,17 @@ export function itemCta(item: RoadmapItem, classId: number | string): ItemCta {
   switch (item.type) {
     case "document":
       return {
+        // Học TRONG LỚP — không sang Thư viện.
         label: item.status === "viewed" ? "Xem lại" : "Xem bài",
-        href: `/library/documents/${item.target_id}`,
+        href: `/classes/${classId}/documents/${item.target_id}`,
         disabled: false,
       };
 
     case "deck":
       return {
-        label: item.status === "viewed" ? "Ôn lại" : item.status === "in_progress" ? "Học tiếp" : "Học tiếp",
-        href: `/library/vocab/${item.target_id}`,
+        // Mở màn chi tiết bộ từ TRONG LỚP (danh sách thẻ + học ngay).
+        label: item.status === "viewed" ? "Ôn lại" : "Học tiếp",
+        href: `/classes/${classId}/vocab/${item.target_id}`,
         disabled: false,
       };
 

@@ -4,6 +4,7 @@ import type {
   CardImportPreview,
   Deck,
   DeckListResponse,
+  DeckCategory,
   IpaResult,
   LibraryDeck,
   StudyDeck,
@@ -14,7 +15,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1
 
 // ── Admin: decks ──
 
-export type DeckFilters = { q?: string; classroom_id?: string; is_published?: string; page?: string };
+export type DeckFilters = { q?: string; classroom_id?: string; category_id?: string; is_published?: string; page?: string };
 
 export function listDecks(filters: DeckFilters = {}): Promise<DeckListResponse> {
   const qs = new URLSearchParams();
@@ -29,6 +30,7 @@ export function getDeck(id: number): Promise<{ deck: Deck }> {
 
 export type DeckPayload = {
   name?: string;
+  category_id?: number | null;
   classroom_ids?: number[];
   description?: string | null;
   tts_voice?: VoiceKey;
@@ -51,6 +53,17 @@ export function deleteDeck(id: number): Promise<{ message: string }> {
 }
 export function duplicateDeck(id: number): Promise<{ deck: Deck }> {
   return api(`/decks/${id}/duplicate`, { method: "POST" });
+}
+
+export function listDeckCategories(): Promise<{ data: DeckCategory[] }> {
+  return api('/deck-categories');
+}
+
+export function syncDeckCategories(payload: {
+  categories: { id: number | null; name: string; order: number }[];
+  deleted_ids: number[];
+}): Promise<{ data: DeckCategory[] }> {
+  return api('/deck-categories/sync', { method: 'PUT', body: JSON.stringify(payload) });
 }
 
 // ── Admin: cards ──
@@ -125,18 +138,24 @@ export function commitCardsImport(
 export function listLibraryDecks(): Promise<{ data: LibraryDeck[] }> {
   return api("/library/decks");
 }
-export function getStudyDeck(id: number): Promise<StudyDeck> {
-  return api(`/decks/${id}/study`);
+// classroomId: có = học TRONG LỚP (tiến độ tách theo lớp); không = tự luyện Thư viện.
+export function getStudyDeck(id: number, classroomId?: number): Promise<StudyDeck> {
+  const q = classroomId ? `?classroom_id=${classroomId}` : "";
+  return api(`/decks/${id}/study${q}`);
 }
-export function saveCardProgress(cardId: number, status: string): Promise<{ status: string }> {
-  return api(`/cards/${cardId}/progress`, { method: "PUT", body: JSON.stringify({ status }) });
+export function saveCardProgress(cardId: number, status: string, classroomId?: number): Promise<{ status: string }> {
+  return api(`/cards/${cardId}/progress`, {
+    method: "PUT",
+    body: JSON.stringify({ status, ...(classroomId ? { classroom_id: classroomId } : {}) }),
+  });
 }
 export function completeDeckSession(
   deckId: number,
   durationSeconds: number,
+  classroomId?: number,
 ): Promise<{ known: number; total: number; mission_done: boolean }> {
   return api(`/decks/${deckId}/session-complete`, {
     method: "POST",
-    body: JSON.stringify({ duration_seconds: durationSeconds }),
+    body: JSON.stringify({ duration_seconds: durationSeconds, ...(classroomId ? { classroom_id: classroomId } : {}) }),
   });
 }

@@ -52,7 +52,7 @@ export function hasAttemptsLeft(origin: AttemptOrigin): boolean {
 export function backHref(origin: AttemptOrigin, listHref: string): string {
   const classId = origin.mission?.classroom_id;
 
-  return isAssignment(origin) && classId ? `/classes?class=${classId}` : listHref;
+  return isAssignment(origin) && classId ? `/classes/${classId}` : listHref;
 }
 
 export function backLabel(origin: AttemptOrigin): string {

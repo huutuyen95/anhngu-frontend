@@ -41,13 +41,15 @@ export function ContentCard({
           go();
         }
       }}
-      className="flex flex-col gap-3 rounded-[var(--radius-lg)] border-[1.5px] border-divider bg-neutral-100 p-4 transition-colors hover:border-accent-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:flex-row sm:items-center"
+      className="group cursor-pointer rounded-[var(--radius-lg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >
-      <span className={cn("flex size-[52px] shrink-0 items-center justify-center rounded-full", meta.iconWrap)}>
-        <Icon className="size-6" strokeWidth={2.75} />
-      </span>
+      {/* Vùng nhận hover là thẻ ngoài (đứng yên); chỉ lớp trong này dịch lên → không rung mép. */}
+      <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border-[1.5px] border-divider bg-neutral-100 p-4 shadow-[var(--shadow-sm)] transition-[transform,box-shadow,border-color] duration-150 group-hover:-translate-y-0.5 group-hover:border-accent-300 group-hover:shadow-[var(--shadow-md)] motion-reduce:transform-none [@media(hover:none)]:group-hover:transform-none sm:flex-row sm:items-center">
+        <span className={cn("flex size-[52px] shrink-0 items-center justify-center rounded-full", meta.iconWrap)}>
+          <Icon className="size-6" strokeWidth={2.75} />
+        </span>
 
-      <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-neutral-200 px-2.5 py-0.5 text-[11px] font-bold text-neutral-700">
             {meta.chip}
@@ -91,6 +93,7 @@ export function ContentCard({
           {cta.label}
         </Link>
       )}
+      </div>
     </div>
   );
 }
