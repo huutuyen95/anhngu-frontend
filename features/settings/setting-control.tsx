@@ -170,6 +170,7 @@ function FileControl({
   const [busy, setBusy] = useState(false);
   const [name, setName] = useState<string | null>(null);
   const url = typeof value === "string" && value ? value : null;
+  const widePreview = field.key === "brand.student.banner";
 
   async function handleFile(file: File) {
     setBusy(true);
@@ -182,13 +183,16 @@ function FileControl({
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex size-16 items-center justify-center overflow-hidden rounded-2xl border-[1.5px] border-border bg-surface-alt">
+    <div className={cn("flex gap-3", widePreview ? "w-full max-w-xl flex-col items-start" : "items-center")}>
+      <div className={cn(
+        "flex items-center justify-center overflow-hidden border-[1.5px] border-border bg-surface-alt",
+        widePreview ? "aspect-[5/1] w-full rounded-xl" : "size-16 rounded-2xl",
+      )}>
         {busy ? (
           <Loader2 className="size-5 animate-spin text-text-muted" />
         ) : url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={url} alt={field.label} className="size-full object-contain" />
+          <img src={url} alt={field.label} className={cn("size-full", widePreview ? "object-cover" : "object-contain")} />
         ) : (
           <span className="text-[10px] font-medium text-text-muted">Chưa có</span>
         )}
@@ -215,8 +219,10 @@ function FileControl({
         {name && <span className="text-[11px] text-text-muted">{name}</span>}
       </div>
       <input
+        id={field.key}
         ref={inputRef}
         type="file"
+        aria-label={`Tải ${field.label}`}
         accept={field.accept?.split(",").map((e) => `.${e}`).join(",")}
         className="hidden"
         onChange={(e) => {
