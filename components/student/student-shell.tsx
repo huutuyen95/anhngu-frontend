@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ListChecks, School, Library, BarChart3, Search, Bell } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
+import { StudentMenuBanner } from "@/components/student/student-menu-banner";
 
 type NavItem = { label: string; href: string; icon: typeof Library; ready?: boolean; alsoActive?: string[] };
 
@@ -130,6 +131,7 @@ export function StudentShell({ children }: { children: ReactNode }) {
 
       {/* ── Nội dung ── */}
       <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-[calc(66px+env(safe-area-inset-bottom)+16px)] pt-6 md:px-8 md:pb-12 md:pt-10">
+        <StudentMenuBanner />
         {children}
       </main>
 

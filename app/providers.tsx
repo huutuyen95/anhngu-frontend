@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { toast } from "sonner";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
-import { BrandingLoader } from "@/components/branding-loader";
+import { BrandingProvider } from "@/components/branding-loader";
 
 /**
  * Chỉ báo toast khi phiên hết hạn. KHÔNG tự điều hướng ở đây: `AuthProvider` đã set
@@ -28,11 +28,12 @@ function SessionWatcher() {
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <AuthProvider>
-      <SessionWatcher />
-      <BrandingLoader />
-      {children}
-      <Toaster position="top-right" richColors theme="light" />
-    </AuthProvider>
+    <BrandingProvider>
+      <AuthProvider>
+        <SessionWatcher />
+        {children}
+        <Toaster position="top-right" richColors theme="light" />
+      </AuthProvider>
+    </BrandingProvider>
   );
 }
