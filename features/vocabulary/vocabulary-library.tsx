@@ -50,7 +50,7 @@ function DeckCard({ deck }: { deck: LibraryDeck }) {
         className="group flex h-full min-h-56 flex-col rounded-[var(--radius-lg)] border-[1.5px] border-divider bg-neutral-100 p-5 shadow-[var(--shadow-sm)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:border-accent-300 hover:shadow-[var(--shadow-md)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
       >
         <div className="flex items-start justify-between gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-2-200 text-accent-2-800">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-accent-100 text-accent-700">
             <BookOpen className="size-5" aria-hidden />
           </span>
           <span className="flex size-9 items-center justify-center rounded-full border border-divider text-neutral-600 transition-colors group-hover:border-accent-300 group-hover:bg-accent-100 group-hover:text-accent-800">
@@ -65,7 +65,7 @@ function DeckCard({ deck }: { deck: LibraryDeck }) {
         <div className="mt-3 flex flex-wrap gap-1.5">
           {deck.category ? <span className="tag tag-accent">{deck.category.name}</span> : null}
           {classNames.length > 0 ? (
-            classNames.slice(0, 2).map((name) => <span key={name} className="tag tag-accent-2">{name}</span>)
+            classNames.slice(0, 2).map((name) => <span key={name} className="tag tag-accent">{name}</span>)
           ) : (
             <span className="tag tag-accent">Dùng chung</span>
           )}
@@ -90,10 +90,7 @@ function DeckCard({ deck }: { deck: LibraryDeck }) {
             aria-valuenow={progress}
           >
             <div
-              className={cn(
-                "h-full rounded-full transition-[width] duration-300 motion-reduce:transition-none",
-                state === "done" ? "bg-accent-2-500" : "bg-accent-500",
-              )}
+              className="h-full rounded-full bg-accent-500 transition-[width] duration-300 motion-reduce:transition-none"
               style={{ width: `${progress}%` }}
             />
           </div>
