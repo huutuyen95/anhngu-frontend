@@ -92,7 +92,7 @@ export function DeckDetail({ deckId, classroomId, backHref, studyHref, progressL
       {data.cards.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {data.cards.map((card, index) => (
-            <VocabCard
+            <StudentVocabCard
               key={card.id}
               card={card}
               index={index + 1}
@@ -110,7 +110,7 @@ export function DeckDetail({ deckId, classroomId, backHref, studyHref, progressL
   );
 }
 
-function VocabCard({ card, index, flipped, onToggle, voiceKey, rate }: {
+export function StudentVocabCard({ card, index, flipped, onToggle, voiceKey, rate }: {
   card: Card;
   index: number;
   flipped: boolean;

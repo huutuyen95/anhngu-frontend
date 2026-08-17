@@ -1,65 +1,64 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Card, Deck } from "@/lib/types/deck";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
-import { PronounceButton } from "@/components/ui/pronounce-button";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { ExampleText } from "@/features/vocabulary/example-text";
+import { StudentVocabCard } from "@/features/vocabulary/deck-detail";
 
 export function DeckPreviewModal({ open, onClose, deck, cards }: { open: boolean; onClose: () => void; deck: Deck; cards: Card[] }) {
-  const [i, setI] = useState(0);
-  useEffect(() => { if (open) setI(0); }, [open]);
-  const c = cards[i];
+  const [index, setIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const safeIndex = cards.length ? Math.min(index, cards.length - 1) : 0;
+  const card = cards[safeIndex];
+
+  function closePreview() {
+    setIndex(0);
+    setFlipped(false);
+    onClose();
+  }
+
+  function goTo(nextIndex: number) {
+    setIndex(nextIndex);
+    setFlipped(false);
+  }
 
   return (
     <Modal
       open={open}
-      onClose={onClose}
-      size="lg"
-      title="Xem như học sinh"
+      onClose={closePreview}
+      size="xl"
+      title="Xem card như một học sinh"
+      description="Đây là đúng giao diện học sinh nhìn thấy trong Thư viện và Lớp học. Bấm card để xem mặt sau."
       footer={
-        <div className="flex w-full items-center justify-between">
-          <span className="text-xs text-text-muted">Thẻ {cards.length ? i + 1 : 0}/{cards.length} · đọc tự động {deck.tts_voice} {deck.tts_rate}×</span>
-          <Button variant="outline" onClick={onClose}>Đóng bản xem trước</Button>
+        <div className="flex w-full flex-wrap items-center justify-between gap-3">
+          <span className="text-xs text-text-muted">Card {cards.length ? safeIndex + 1 : 0}/{cards.length} · {deck.tts_voice} · {deck.tts_rate}×</span>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" iconLeft={<ChevronLeft className="size-4" />} disabled={safeIndex === 0} onClick={() => goTo(safeIndex - 1)}>Card trước</Button>
+            <Button variant="outline" size="sm" iconRight={<ChevronRight className="size-4" />} disabled={safeIndex >= cards.length - 1} onClick={() => goTo(safeIndex + 1)}>Card sau</Button>
+            <Button variant="outline" size="sm" onClick={closePreview}>Đóng</Button>
+          </div>
         </div>
       }
     >
-      {!c ? (
-        <p className="py-8 text-center text-sm text-text-muted">Bộ từ chưa có thẻ nào.</p>
+      {!card ? (
+        <p className="py-12 text-center text-sm text-text-muted">Bộ từ chưa có card nào để xem trước.</p>
       ) : (
-        <div className="py-2">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {/* Mặt trước */}
-            <div className="flex flex-col items-center gap-2 rounded-2xl border-[1.5px] border-border bg-surface-alt p-5 text-center">
-              <span className="text-xs font-semibold uppercase text-text-muted">Mặt trước</span>
-              {c.image_url && <img src={c.image_url} alt="" className="h-28 w-full rounded-xl object-cover" />}
-              <p className="font-display text-2xl font-extrabold text-text">{c.term}</p>
-              {c.ipa && <p className="font-mono text-sm text-text-secondary">{c.ipa}</p>}
-              <PronounceButton term={c.term} audioUrl={c.audio_url} voiceKey={deck.tts_voice} rate={deck.tts_rate} />
-            </div>
-            {/* Mặt sau */}
-            <div className="flex flex-col gap-2 rounded-2xl border-[1.5px] border-border bg-surface p-5">
-              <span className="text-xs font-semibold uppercase text-text-muted">Mặt sau</span>
-              <div className="flex items-center gap-2">
-                <p className="font-display text-xl font-bold text-text">{c.meaning}</p>
-                {c.pos && <StatusBadge tone="info">{c.pos}</StatusBadge>}
-              </div>
-              {c.example && (
-                <div className="flex items-start gap-2">
-                  <p className="flex-1 text-sm text-text-secondary"><ExampleText text={c.example} /></p>
-                  <PronounceButton term={c.term} voiceKey={deck.tts_voice} rate={deck.tts_rate} size="sm" />
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <Button variant="outline" size="sm" iconLeft={<ChevronLeft className="size-4" />} disabled={i === 0} onClick={() => setI(i - 1)}>Trước</Button>
-            <Button variant="outline" size="sm" iconRight={<ChevronRight className="size-4" />} disabled={i >= cards.length - 1} onClick={() => setI(i + 1)}>Sau</Button>
-          </div>
+        <div className="organic mx-auto max-w-3xl rounded-3xl bg-bg p-4 sm:p-8">
+          <p className="mb-4 text-center text-sm font-semibold text-neutral-600">
+            {flipped ? "Mặt sau · nghĩa và câu mẫu" : "Mặt trước · từ, ảnh và phát âm"}
+          </p>
+          <StudentVocabCard
+            key={card.id}
+            card={card}
+            index={safeIndex + 1}
+            flipped={flipped}
+            onToggle={() => setFlipped((current) => !current)}
+            voiceKey={deck.tts_voice}
+            rate={deck.tts_rate}
+          />
+          <p className="mt-4 text-center text-xs text-neutral-500">Bấm vào card hoặc nhấn Enter/Space để lật.</p>
         </div>
       )}
     </Modal>
