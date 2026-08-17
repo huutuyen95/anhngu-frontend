@@ -153,7 +153,7 @@ function VocabCard({ card, index, flipped, onToggle, voiceKey, rate }: {
                   Ví dụ: “<ExampleText text={card.example} />”
                 </p>
               ) : null}
-              <SpeakButton text={(card.example ?? card.term).replace(/\*/g, "")} audioUrl={card.example ? null : card.audio_url} voiceKey={voiceKey} rate={rate} label={card.example ? "Nghe cả câu" : "Nghe từ"} variant="primary" className="mt-1 min-h-10 px-4 py-1 text-sm" />
+              <SpeakButton text={card.term} audioUrl={card.audio_url} voiceKey={voiceKey} rate={rate} label="Nghe từ" variant="primary" className="mt-1 min-h-10 px-4 py-1 text-sm" />
             </CardBody>
           </CardFace>
         </div>

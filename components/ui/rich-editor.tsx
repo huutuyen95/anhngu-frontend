@@ -24,6 +24,10 @@ type Props = {
   onEmbedVideo?: (url: string) => Promise<boolean>;
 };
 
+function countWords(text: string) {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
 function Btn({ on, active, label, children }: { on: () => void; active?: boolean; label: string; children: React.ReactNode }) {
   return (
     <button
@@ -50,7 +54,7 @@ export function RichEditor({ value, onChange, onWordCount, onImageUpload, onEmbe
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit.configure({ heading: { levels: [1, 2] } }),
+      StarterKit.configure({ heading: { levels: [1, 2] }, link: false }),
       Link.configure({ openOnClick: false, HTMLAttributes: { rel: "noopener noreferrer" } }),
       Image,
       Youtube.configure({ nocookie: true, width: 640, height: 360 }),
@@ -58,7 +62,7 @@ export function RichEditor({ value, onChange, onWordCount, onImageUpload, onEmbe
     content: value,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
-      onWordCount?.(editor.state.doc.textContent.trim().split(/\s+/).filter(Boolean).length);
+      onWordCount?.(countWords(editor.state.doc.textContent));
     },
     editorProps: {
       attributes: {
@@ -72,7 +76,8 @@ export function RichEditor({ value, onChange, onWordCount, onImageUpload, onEmbe
     if (editor && value !== editor.getHTML()) {
       editor.commands.setContent(value, { emitUpdate: false });
     }
-  }, [value, editor]);
+    if (editor) onWordCount?.(countWords(editor.state.doc.textContent));
+  }, [value, editor, onWordCount]);
 
   if (!editor) return <div className="h-96 animate-pulse rounded-xl bg-surface-alt" />;
 

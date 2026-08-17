@@ -12,6 +12,7 @@ import {
   Files,
   ClipboardList,
   PenLine,
+  Newspaper,
   Settings,
   Bell,
   LogOut,
@@ -27,7 +28,7 @@ type NavItem = {
   badge?: number;
 };
 
-// IA đã chốt (Sprint 2): đúng 8 mục, KHÔNG có "Báo cáo" riêng (Báo cáo là tab trong lớp).
+// Không có "Báo cáo" riêng (Báo cáo là tab trong lớp).
 const NAV: NavItem[] = [
   { label: "Tổng quan", href: "/teacher", icon: LayoutDashboard, ready: true },
   { label: "Học sinh", href: "/teacher/students", icon: Users, ready: true },
@@ -35,6 +36,7 @@ const NAV: NavItem[] = [
   { label: "Đề thi", href: "/teacher/tests", icon: FileText, ready: true },
   { label: "Từ vựng", href: "/teacher/vocabulary", icon: BookA, ready: true },
   { label: "Tài liệu & Bài giảng", href: "/teacher/documents", icon: Files, ready: true },
+  { label: "Bài viết", href: "/teacher/articles", icon: Newspaper, ready: true },
   { label: "Kết quả làm bài", href: "/teacher/results", icon: ClipboardList, ready: true },
   { label: "Chấm bài", href: "/teacher/grading", icon: PenLine, badge: 0 },
 ];

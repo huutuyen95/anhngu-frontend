@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ImageIcon, PartyPopper, Volume2, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ChevronRight, ImageIcon, Keyboard, Mic, PartyPopper, RotateCcw, Volume2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { completeDeckSession, getStudyDeck, saveCardProgress } from "@/lib/api/decks";
 import type { Card } from "@/lib/types/deck";
@@ -12,6 +12,85 @@ import { ExampleText } from "@/features/vocabulary/example-text";
 import { SpeakButton } from "@/features/vocabulary/speak-button";
 
 type DeckCfg = { id: number; name: string; tts_voice: VoiceKey; tts_rate: number; tts_repeat: string };
+type StudyPhase = "preview" | "dictation" | "spelling" | "pronunciation";
+type AnswerState = "correct" | "incorrect" | null;
+type PronunciationState = "idle" | "listening" | "correct" | "incorrect" | "unsupported";
+
+type SpeechRecognitionResultEventLike = {
+  results: ArrayLike<{ [index: number]: { transcript: string }; length: number }>;
+};
+
+type SpeechRecognitionErrorEventLike = { error: string };
+
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onresult: ((event: SpeechRecognitionResultEventLike) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  abort: () => void;
+};
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+let feedbackAudioContext: AudioContext | null = null;
+
+function normalizeAnswer(value: string): string {
+  return value
+    .normalize("NFKC")
+    .toLocaleLowerCase("en")
+    .replaceAll("’", "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeSpokenAnswer(value: string): string {
+  return normalizeAnswer(value).replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+}
+
+function getSpeechRecognition(): SpeechRecognitionConstructor | null {
+  if (typeof window === "undefined") return null;
+  const speechWindow = window as Window & {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  };
+  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
+}
+
+function prepareFeedbackSound(): AudioContext | null {
+  if (typeof window === "undefined" || !window.AudioContext) return null;
+  feedbackAudioContext ??= new window.AudioContext();
+  if (feedbackAudioContext.state === "suspended") void feedbackAudioContext.resume();
+  return feedbackAudioContext;
+}
+
+function playCorrectSound(): void {
+  const context = prepareFeedbackSound();
+  if (!context) return;
+  const gain = context.createGain();
+  gain.connect(context.destination);
+  gain.gain.setValueAtTime(0.0001, context.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.42);
+  [659.25, 783.99].forEach((frequency, index) => {
+    const oscillator = context.createOscillator();
+    oscillator.type = "sine";
+    oscillator.frequency.value = frequency;
+    oscillator.connect(gain);
+    oscillator.start(context.currentTime + index * 0.11);
+    oscillator.stop(context.currentTime + 0.24 + index * 0.11);
+  });
+}
+
+function shuffledLetters(term: string, seed: number): string[] {
+  const letters = Array.from(term.toLocaleUpperCase("en")).filter((character) => /[\p{L}\p{N}]/u.test(character));
+  return letters
+    .map((letter, index) => ({ letter, score: ((seed + 11) * (index + 7) * 2654435761) % 2147483647 }))
+    .sort((a, b) => a.score - b.score)
+    .map(({ letter }) => letter);
+}
 
 type Props = {
   deckId: number;
@@ -32,15 +111,20 @@ export function DeckStudy({ deckId, classroomId, subtitle, backHref, doneHref, d
   const [allCards, setAllCards] = useState<Card[]>([]);
   const [queue, setQueue] = useState<Card[]>([]);
   const [flipped, setFlipped] = useState(false);
-  const [phase, setPhase] = useState<"preview" | "dictation">("preview");
+  const [phase, setPhase] = useState<StudyPhase>("preview");
   const [answer, setAnswer] = useState("");
-  const [answerState, setAnswerState] = useState<"correct" | "incorrect" | null>(null);
+  const [answerState, setAnswerState] = useState<AnswerState>(null);
+  const [pronunciationState, setPronunciationState] = useState<PronunciationState>("idle");
+  const [pronunciationAttempts, setPronunciationAttempts] = useState(0);
+  const [heardText, setHeardText] = useState("");
   const [checking, setChecking] = useState(false);
   const [knownCount, setKnownCount] = useState(0);
   const [done, setDone] = useState(false);
   const interacted = useRef(false);
   const startedAt = useRef(0);
   const answerRef = useRef<HTMLInputElement | null>(null);
+  const spellingRef = useRef<HTMLInputElement | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   const current = queue[0] ?? null;
 
@@ -56,12 +140,20 @@ export function DeckStudy({ deckId, classroomId, subtitle, backHref, doneHref, d
       setPhase("preview");
       setAnswer("");
       setAnswerState(null);
+      setPronunciationState("idle");
+      setPronunciationAttempts(0);
+      setHeardText("");
       setChecking(false);
       startedAt.current = Date.now();
     });
   }, [deckId, classroomId]);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => () => {
+    recognitionRef.current?.abort();
+    recognitionRef.current = null;
+  }, []);
 
   // Tự đọc term khi hiện thẻ mới (chỉ khi tts_repeat='auto' + đã tương tác — iOS).
   useEffect(() => {
@@ -94,6 +186,9 @@ export function DeckStudy({ deckId, classroomId, subtitle, backHref, doneHref, d
     setPhase("preview");
     setAnswer("");
     setAnswerState(null);
+    setPronunciationState("idle");
+    setPronunciationAttempts(0);
+    setHeardText("");
   }, [classroomId, current, deckId, queue]);
 
   function startDictation() {
@@ -111,32 +206,111 @@ export function DeckStudy({ deckId, classroomId, subtitle, backHref, doneHref, d
     window.setTimeout(() => answerRef.current?.focus(), 100);
   }
 
-  function normalizeAnswer(value: string): string {
-    return value
-      .normalize("NFKC")
-      .toLocaleLowerCase("en")
-      .replaceAll("’", "'")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
   async function checkAnswer(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!current || !answer.trim() || checking) return;
     if (answerState === "correct") {
-      await finishCurrent(false);
+      setPhase("spelling");
+      setAnswer("");
+      setAnswerState(null);
+      window.setTimeout(() => spellingRef.current?.focus(), 100);
       return;
     }
 
     const correct = normalizeAnswer(answer) === normalizeAnswer(current.term);
+    if (correct) playCorrectSound();
     setChecking(true);
     try {
-      await saveCardProgress(current.id, correct ? "known" : "learning", classroomId);
+      await saveCardProgress(current.id, "learning", classroomId);
       setAnswerState(correct ? "correct" : "incorrect");
     } catch {
       toast.error("Chưa chấm được đáp án, em thử lại nhé.");
     } finally {
       setChecking(false);
+    }
+  }
+
+  async function checkSpelling(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!current || !answer.trim() || checking) return;
+    if (answerState === "correct") {
+      setPhase("pronunciation");
+      setAnswer("");
+      setAnswerState(null);
+      setPronunciationState("idle");
+      return;
+    }
+
+    const correct = normalizeAnswer(answer) === normalizeAnswer(current.term);
+    if (correct) playCorrectSound();
+    setChecking(true);
+    try {
+      await saveCardProgress(current.id, "learning", classroomId);
+      setAnswerState(correct ? "correct" : "incorrect");
+    } catch {
+      toast.error("Chưa chấm được đáp án, em thử lại nhé.");
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  function startPronunciation() {
+    if (!current || !cfg || pronunciationState === "listening") return;
+    prepareFeedbackSound();
+    const Recognition = getSpeechRecognition();
+    if (!Recognition) {
+      setPronunciationState("unsupported");
+      return;
+    }
+
+    recognitionRef.current?.abort();
+    const recognition = new Recognition();
+    recognitionRef.current = recognition;
+    recognition.lang = cfg.tts_voice.startsWith("en-US") ? "en-US" : "en-GB";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 3;
+    setPronunciationState("listening");
+    setHeardText("");
+    setPronunciationAttempts((attempts) => Math.min(attempts + 1, 3));
+
+    let settled = false;
+    recognition.onresult = (event) => {
+      settled = true;
+      const transcripts = Array.from(event.results).flatMap((result) =>
+        Array.from({ length: result.length }, (_, index) => result[index]?.transcript ?? ""),
+      );
+      const matched = transcripts.some((transcript) => normalizeSpokenAnswer(transcript) === normalizeSpokenAnswer(current.term));
+      setHeardText(transcripts[0] ?? "");
+      if (!matched) {
+        setPronunciationState("incorrect");
+        return;
+      }
+      setChecking(true);
+      saveCardProgress(current.id, "known", classroomId)
+        .then(() => {
+          setPronunciationState("correct");
+          playCorrectSound();
+        })
+        .catch(() => {
+          setPronunciationState("idle");
+          toast.error("Chưa lưu được kết quả phát âm, em thử lại nhé.");
+        })
+        .finally(() => setChecking(false));
+    };
+    recognition.onerror = (event) => {
+      settled = true;
+      setPronunciationState(event.error === "not-allowed" || event.error === "service-not-allowed" ? "unsupported" : "incorrect");
+    };
+    recognition.onend = () => {
+      recognitionRef.current = null;
+      if (!settled) setPronunciationState("incorrect");
+    };
+
+    try {
+      recognition.start();
+    } catch {
+      setPronunciationState("unsupported");
     }
   }
 
@@ -228,7 +402,7 @@ export function DeckStudy({ deckId, classroomId, subtitle, backHref, doneHref, d
                 {current.example && (
                   <div className="mt-5 flex flex-col items-center gap-3">
                     <p className="max-w-lg text-lg text-neutral-700">Ví dụ : “<ExampleText text={current.example} />”</p>
-                    <SpeakButton text={current.example.replace(/\*/g, "")} voiceKey={cfg.tts_voice} rate={cfg.tts_rate} label="Nghe cả câu" variant="primary" className="min-h-[52px] px-7 text-base" />
+                    <SpeakButton text={current.term} audioUrl={current.audio_url} voiceKey={cfg.tts_voice} rate={cfg.tts_rate} label="Nghe từ" variant="primary" className="min-h-[52px] px-7 text-base" />
                   </div>
                 )}
               </StudyFace>
@@ -244,7 +418,7 @@ export function DeckStudy({ deckId, classroomId, subtitle, backHref, doneHref, d
             Bấm Tiếp tục để nghe và nhập lại từ vừa học.
           </p>
           </>
-          ) : (
+          ) : phase === "dictation" ? (
             <form onSubmit={checkAnswer} className="rounded-3xl border-[1.5px] border-divider bg-neutral-100 p-6 shadow-[var(--shadow-sm)] sm:p-10">
               <div className="flex flex-col items-center text-center">
                 <span className="flex size-20 items-center justify-center rounded-full border-[1.5px] border-divider bg-surface text-neutral-600">
@@ -288,12 +462,8 @@ export function DeckStudy({ deckId, classroomId, subtitle, backHref, doneHref, d
                 />
               </label>
 
-              <div aria-live="polite" className="mt-3 min-h-7">
-                {answerState === "correct" ? (
-                  <p className="flex items-center gap-2 font-semibold text-success">
-                    <CheckCircle2 className="size-5" /> Chính xác! Từ đúng là “{current.term}”.
-                  </p>
-                ) : null}
+              <div aria-live="polite" className="mt-4">
+                {answerState === "correct" ? <CorrectPanel card={current} /> : null}
                 {answerState === "incorrect" ? (
                   <p className="flex items-center gap-2 font-semibold text-danger">
                     <XCircle className="size-5" /> Chưa đúng, em nghe lại và thử lần nữa nhé.
@@ -303,10 +473,140 @@ export function DeckStudy({ deckId, classroomId, subtitle, backHref, doneHref, d
 
               <div className="mt-5 flex justify-end">
                 <button type="submit" disabled={!answer.trim() || checking} className="btn btn-primary min-h-14 min-w-40 px-7 text-base disabled:cursor-not-allowed disabled:opacity-50">
-                  {checking ? "Đang chấm…" : answerState === "correct" ? "Từ tiếp theo" : "Kiểm tra"}
+                  {checking ? "Đang chấm…" : answerState === "correct" ? "Tiếp tục" : "Kiểm tra"}
+                  {answerState === "correct" ? <ChevronRight className="size-5" /> : null}
                 </button>
               </div>
             </form>
+          ) : phase === "spelling" ? (
+            <form onSubmit={checkSpelling} className="rounded-3xl border-[1.5px] border-divider bg-neutral-100 p-6 shadow-[var(--shadow-sm)] sm:p-10">
+              <div className="flex flex-col items-center text-center">
+                <span className="flex size-16 items-center justify-center rounded-full border-[1.5px] border-divider bg-surface text-neutral-600">
+                  <Keyboard className="size-8" strokeWidth={2.25} />
+                </span>
+                <p className="mt-4 font-display text-2xl font-bold text-text sm:text-3xl">{current.meaning}</p>
+                <p className="mt-1 text-sm text-neutral-600">Gõ lại từ tiếng Anh theo định nghĩa trên</p>
+              </div>
+
+              <div aria-label="Các chữ cái gợi ý" className="mx-auto mt-6 flex max-w-2xl flex-wrap justify-center gap-2" aria-hidden="true">
+                {shuffledLetters(current.term, current.id).map((letter, index) => (
+                  <span key={`${letter}-${index}`} className="flex size-11 items-center justify-center rounded-xl border border-divider bg-surface font-display text-base font-bold text-text">
+                    {letter}
+                  </span>
+                ))}
+              </div>
+
+              <label className="relative mt-8 block cursor-text" onClick={() => spellingRef.current?.focus()}>
+                <span className="sr-only">Gõ từ tiếng Anh bằng bàn phím</span>
+                <input
+                  ref={spellingRef}
+                  value={answer}
+                  disabled={answerState === "correct"}
+                  onChange={(event) => {
+                    setAnswer(event.target.value.slice(0, current.term.length));
+                    if (answerState === "incorrect") setAnswerState(null);
+                  }}
+                  autoFocus
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  className="absolute inset-0 size-full cursor-text opacity-0"
+                />
+                <span className="flex flex-wrap justify-center gap-2" aria-hidden="true">
+                  {Array.from(current.term).map((character, index) => character === " " ? (
+                    <span key={`space-${index}`} className="w-4 sm:w-7" />
+                  ) : (
+                    <span
+                      key={`${character}-${index}`}
+                      className={
+                        "flex h-14 w-11 items-center justify-center rounded-xl border-2 bg-surface font-display text-xl font-bold uppercase shadow-[var(--shadow-xs)] sm:h-16 sm:w-14 " +
+                        (answerState === "correct" ? "border-success text-success" : answerState === "incorrect" ? "border-danger text-danger" : "border-divider text-text")
+                      }
+                    >
+                      {answer[index] ?? <span className="mt-5 h-0.5 w-5 rounded-full bg-neutral-300" />}
+                    </span>
+                  ))}
+                </span>
+              </label>
+
+              <div aria-live="polite" className="mt-6">
+                {answerState === "correct" ? <CorrectPanel card={current} /> : null}
+                {answerState === "incorrect" ? (
+                  <p className="flex items-center justify-center gap-2 font-semibold text-danger">
+                    <XCircle className="size-5" /> Chưa đúng, em kiểm tra lại các chữ đã gõ nhé.
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button type="submit" disabled={!answer.trim() || checking} className="btn btn-primary min-h-14 min-w-40 px-7 text-base disabled:cursor-not-allowed disabled:opacity-50">
+                  {checking ? "Đang chấm…" : answerState === "correct" ? "Tiếp tục" : "Kiểm tra"}
+                  {answerState === "correct" ? <ChevronRight className="size-5" /> : null}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <section className="rounded-3xl border-[1.5px] border-divider bg-neutral-100 p-6 shadow-[var(--shadow-sm)] sm:p-10">
+              <div className="flex flex-col items-center text-center">
+                {pronunciationAttempts > 0 ? <p className="text-sm font-semibold text-neutral-600">Số lần thử: {pronunciationAttempts}/3</p> : null}
+                <p className="mt-3 font-display text-3xl font-bold text-text sm:text-4xl">{current.term}</p>
+                {current.ipa ? <p className="mt-2 font-mono text-lg text-neutral-600">{current.ipa}</p> : null}
+                <p className="mt-4 text-lg font-semibold text-neutral-700">Phát âm từ vựng</p>
+
+                {pronunciationState === "idle" || pronunciationState === "listening" ? (
+                  <button
+                    type="button"
+                    onClick={startPronunciation}
+                    disabled={pronunciationState === "listening"}
+                    aria-label={pronunciationState === "listening" ? "Đang nghe phát âm" : "Bắt đầu phát âm"}
+                    className="mt-8 flex size-28 items-center justify-center rounded-full border-[1.5px] border-divider bg-accent-2-200 text-accent-2-800 transition-transform hover:scale-105 disabled:animate-pulse disabled:cursor-wait sm:size-32"
+                  >
+                    <Mic className="size-12" strokeWidth={2.5} />
+                  </button>
+                ) : null}
+                {pronunciationState === "listening" ? <p className="mt-3 font-semibold text-accent-700">Đang nghe… Em hãy nói rõ từ trên.</p> : null}
+              </div>
+
+              <div aria-live="polite" className="mt-8">
+                {pronunciationState === "correct" ? <CorrectPanel card={current} /> : null}
+                {pronunciationState === "incorrect" ? (
+                  <div className="rounded-2xl border border-danger/30 bg-danger-soft p-5 sm:p-6">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div>
+                        <p className="flex items-center gap-2 font-display text-xl font-bold text-danger">
+                          <XCircle className="size-6" /> Em phát âm chưa chính xác
+                        </p>
+                        {heardText ? <p className="mt-2 text-sm text-neutral-600">Hệ thống nghe được: “{heardText}”</p> : null}
+                      </div>
+                      {pronunciationAttempts < 3 ? (
+                        <button type="button" onClick={startPronunciation} className="btn min-h-12 border-danger bg-danger px-6 text-neutral-100 hover:bg-danger/90">
+                          Làm lại <RotateCcw className="size-5" />
+                        </button>
+                      ) : null}
+                    </div>
+                    <WordDetails card={current} />
+                  </div>
+                ) : null}
+                {pronunciationState === "unsupported" ? (
+                  <div className="rounded-2xl border border-divider bg-surface p-5 text-center">
+                    <p className="font-semibold text-text">Trình duyệt chưa cho phép sử dụng microphone.</p>
+                    <p className="mt-1 text-sm text-neutral-600">Em hãy cấp quyền microphone hoặc dùng Chrome/Edge để luyện phát âm.</p>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                {pronunciationState !== "correct" ? (
+                  <button type="button" onClick={() => void finishCurrent(false)} className="btn btn-secondary min-h-12 px-6">
+                    Bỏ qua <ChevronRight className="size-5" />
+                  </button>
+                ) : (
+                  <button type="button" onClick={() => void finishCurrent(false)} disabled={checking} className="btn btn-primary min-h-12 px-7">
+                    {checking ? "Đang lưu…" : "Tiếp tục"} <ChevronRight className="size-5" />
+                  </button>
+                )}
+              </div>
+            </section>
           )}
         </div>
       )}
@@ -324,6 +624,32 @@ function StudyFace({ children, back }: { children: React.ReactNode; back?: boole
       }
     >
       {children}
+    </div>
+  );
+}
+
+function CorrectPanel({ card }: { card: Card }) {
+  return (
+    <div className="rounded-2xl border border-success/30 bg-success-soft p-5 sm:p-6">
+      <p className="flex items-center gap-2 font-display text-xl font-bold text-success">
+        <CheckCircle2 className="size-6" /> Tuyệt vời!
+      </p>
+      <WordDetails card={card} />
+    </div>
+  );
+}
+
+function WordDetails({ card }: { card: Card }) {
+  return (
+    <div className="mt-4 text-left text-text">
+      <p className="font-display text-xl font-bold">{card.term}</p>
+      {(card.ipa || card.pos) ? (
+        <p className="mt-1 font-mono text-sm text-neutral-700">
+          {card.ipa} {card.pos ? <span className="ml-2 font-sans">({card.pos})</span> : null}
+        </p>
+      ) : null}
+      <p className="mt-3 font-semibold">Định nghĩa:</p>
+      <p className="text-neutral-700">{card.meaning}</p>
     </div>
   );
 }
