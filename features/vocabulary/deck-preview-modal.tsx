@@ -50,7 +50,7 @@ export function DeckPreviewModal({ open, onClose, deck, cards }: { open: boolean
               {c.example && (
                 <div className="flex items-start gap-2">
                   <p className="flex-1 text-sm text-text-secondary"><ExampleText text={c.example} /></p>
-                  <PronounceButton term={c.example.replace(/\*/g, "")} voiceKey={deck.tts_voice} rate={deck.tts_rate} size="sm" />
+                  <PronounceButton term={c.term} voiceKey={deck.tts_voice} rate={deck.tts_rate} size="sm" />
                 </div>
               )}
             </div>
