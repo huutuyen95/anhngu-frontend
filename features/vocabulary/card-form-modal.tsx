@@ -20,6 +20,7 @@ import { FormField } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { PronounceButton } from "@/components/ui/pronounce-button";
 import { cn } from "@/lib/utils";
+import { ExampleText } from "@/features/vocabulary/example-text";
 
 const POS = ["n.", "v.", "adj.", "adv.", "phr."];
 const IPA_KEYS = ["ˈ", "ˌ", "ː", "ə", "æ", "ɪ", "ʊ", "ɔ", "ʌ", "θ", "ð", "ʃ", "ʒ", "ŋ", "dʒ"];
@@ -147,7 +148,8 @@ export function CardFormModal({
       open={open}
       onClose={onClose}
       size="lg"
-      title={isEdit ? "Sửa thẻ" : "Thêm thẻ"}
+      title={isEdit ? "Sửa nội dung card từ vựng" : "Thêm card từ vựng"}
+      description="Những nội dung dưới đây sẽ hiển thị trực tiếp trên card của học sinh."
       footer={
         <>
           <Button variant="outline" onClick={onClose}>Huỷ</Button>
@@ -159,11 +161,11 @@ export function CardFormModal({
       <form id="card-form" onSubmit={submit} className="grid gap-4 md:grid-cols-2" noValidate>
         <div className="flex flex-col gap-3">
           <div className="flex gap-2">
-            <FormField htmlFor="c-term" label="Từ tiếng Anh" required error={errors.term} className="flex-1">
-              <Input id="c-term" value={term} onChange={(e) => setTerm(e.target.value)} required />
+            <FormField htmlFor="c-term" label="Từ / cụm từ tiếng Anh" required error={errors.term} className="flex-1">
+              <Input id="c-term" value={term} onChange={(e) => setTerm(e.target.value)} placeholder="Ví dụ: make a decision" required />
             </FormField>
             <label className="flex w-24 flex-col gap-1.5 text-sm">
-              <span className="font-semibold text-text">Loại</span>
+              <span className="font-semibold text-text">Từ loại</span>
               <Select value={pos} onChange={(e) => setPos(e.target.value)}>
                 <option value="">—</option>
                 {POS.map((p) => <option key={p} value={p}>{p}</option>)}
@@ -171,8 +173,8 @@ export function CardFormModal({
             </label>
           </div>
 
-          <FormField htmlFor="c-meaning" label="Nghĩa tiếng Việt" required error={errors.meaning}>
-            <Input id="c-meaning" value={meaning} onChange={(e) => setMeaning(e.target.value)} required />
+          <FormField htmlFor="c-meaning" label="Nghĩa / định nghĩa tiếng Việt" required error={errors.meaning}>
+            <Input id="c-meaning" value={meaning} onChange={(e) => setMeaning(e.target.value)} placeholder="Ví dụ: đưa ra quyết định" required />
           </FormField>
 
           <div className="flex flex-col gap-1.5">
@@ -193,9 +195,15 @@ export function CardFormModal({
             </div>
           </div>
 
-          <FormField htmlFor="c-example" label="Câu ví dụ" hint="Bọc *từ khoá* để in đậm.">
-            <textarea id="c-example" value={example} onChange={(e) => setExample(e.target.value)} rows={2} className="w-full rounded-[14px] border-[1.5px] border-border bg-surface px-3.5 py-2.5 text-sm text-text outline-none focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/30" />
+          <FormField htmlFor="c-example" label="Câu mẫu" hint="Hiển thị ở mặt sau card. Bọc *từ khoá* để in đậm; nút nghe vẫn chỉ đọc từ/cụm từ.">
+            <textarea id="c-example" value={example} onChange={(e) => setExample(e.target.value)} rows={3} placeholder="Ví dụ: I need to *make a decision* today." className="w-full rounded-[14px] border-[1.5px] border-border bg-surface px-3.5 py-2.5 text-sm text-text outline-none focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/30" />
           </FormField>
+          {example.trim() ? (
+            <div className="rounded-xl border border-border bg-surface-alt p-3">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-text-muted">Xem trước câu mẫu</p>
+              <p className="text-sm leading-relaxed text-text-secondary">“<ExampleText text={example} />”</p>
+            </div>
+          ) : null}
         </div>
 
         <div className="flex flex-col gap-3">

@@ -14,6 +14,7 @@ import {
   ChevronUp,
   ChevronDown,
   ImageOff,
+  MessageSquareQuote,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -35,6 +36,7 @@ import { PronounceButton } from "@/components/ui/pronounce-button";
 import { CardFormModal } from "@/features/vocabulary/card-form-modal";
 import { CardImportWizard } from "@/features/vocabulary/card-import-wizard";
 import { DeckPreviewModal } from "@/features/vocabulary/deck-preview-modal";
+import { ExampleText } from "@/features/vocabulary/example-text";
 
 function DeckDetail({ deckId }: { deckId: number }) {
   const params = useSearchParams();
@@ -120,9 +122,9 @@ function DeckDetail({ deckId }: { deckId: number }) {
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <div className="relative min-w-[200px] flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-muted" />
-          <Input value={search} onChange={(e) => onSearchChange(e.target.value)} placeholder="Tìm từ / nghĩa…" className="h-10 pl-9" />
+          <Input value={search} onChange={(e) => onSearchChange(e.target.value)} placeholder="Tìm từ, nghĩa hoặc câu mẫu…" className="h-10 pl-9" />
         </div>
-        {[["", "Tất cả"], ["audio", "⚠ Thiếu audio"], ["image", "Thiếu ảnh"], ["ipa", "Thiếu IPA"]].map(([k, l]) => (
+        {[["", "Tất cả"], ["audio", "⚠ Thiếu audio"], ["image", "Thiếu ảnh"], ["ipa", "Thiếu IPA"], ["example", "Thiếu câu mẫu"]].map(([k, l]) => (
           <button key={k} onClick={() => setMissing(k)} className={"rounded-full px-3 py-1.5 text-xs font-semibold transition-colors " + (missing === k ? "bg-brand text-white" : "bg-surface-alt text-text-secondary hover:bg-brand-soft")}>{l}</button>
         ))}
         <div className="ml-auto flex items-center gap-2">
@@ -148,12 +150,8 @@ function DeckDetail({ deckId }: { deckId: number }) {
               <thead className="bg-surface-alt text-text-secondary">
                 <tr>
                   <th className="px-3 py-3 text-left font-semibold">#</th>
-                  <th className="px-3 py-3 text-left font-semibold">Ảnh</th>
-                  <th className="px-3 py-3 text-left font-semibold">Từ</th>
-                  <th className="px-3 py-3 text-left font-semibold">Nghĩa</th>
-                  <th className="hidden px-3 py-3 text-left font-semibold lg:table-cell">Phiên âm</th>
-                  <th className="px-3 py-3 text-left font-semibold">Audio</th>
-                  <th className="hidden max-w-[220px] px-3 py-3 text-left font-semibold xl:table-cell">Ví dụ</th>
+                  <th className="px-3 py-3 text-left font-semibold">Nội dung học sinh nhìn thấy</th>
+                  <th className="px-3 py-3 text-left font-semibold">Ảnh & phát âm</th>
                   <th className="px-3 py-3 text-right font-semibold">Hành động</th>
                 </tr>
               </thead>
@@ -169,19 +167,37 @@ function DeckDetail({ deckId }: { deckId: number }) {
                         </div>
                       </div>
                     </td>
-                    <td className="px-3 py-2.5">
-                      {c.image_url ? <img src={c.image_url} alt="" className="h-9 w-11 rounded-lg object-cover" /> : <span className="flex h-9 w-11 items-center justify-center rounded-lg bg-surface-alt text-text-muted"><ImageOff className="size-4" /></span>}
-                    </td>
-                    <td className="px-3 py-2.5 font-semibold text-text">{c.term}</td>
-                    <td className="px-3 py-2.5 text-text-secondary">{c.meaning}{c.pos && <span className="ml-1 text-xs text-text-muted">({c.pos})</span>}</td>
-                    <td className="hidden px-3 py-2.5 font-mono text-text-secondary lg:table-cell">{c.ipa ?? "—"}</td>
-                    <td className="px-3 py-2.5">
-                      <div className="flex items-center gap-1.5">
-                        <PronounceButton term={c.term} audioUrl={c.audio_url} voiceKey={deck.tts_voice} rate={deck.tts_rate} size="sm" />
-                        <span className={"text-xs " + (c.audio_url ? "text-success" : c.ipa ? "text-text-muted" : "text-warning")}>{audioLabel(c)}</span>
+                    <td className="min-w-[320px] px-3 py-3">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                          <span className="font-display text-base font-bold text-text">{c.term}</span>
+                          {c.pos ? <StatusBadge tone="info">{c.pos}</StatusBadge> : <span className="text-xs text-warning">Chưa có từ loại</span>}
+                          <span className="font-mono text-xs text-text-muted">{c.ipa ?? "Chưa có IPA"}</span>
+                        </div>
+                        <p className="text-sm text-text-secondary"><span className="font-semibold text-text">Nghĩa:</span> {c.meaning}</p>
+                        {c.example ? (
+                          <p className="flex items-start gap-1.5 text-sm leading-relaxed text-text-muted">
+                            <MessageSquareQuote className="mt-0.5 size-4 shrink-0" />
+                            <span><span className="font-semibold text-text-secondary">Câu mẫu:</span> <ExampleText text={c.example} /></span>
+                          </p>
+                        ) : (
+                          <p className="flex items-center gap-1.5 text-xs font-medium text-warning"><MessageSquareQuote className="size-3.5" /> Chưa có câu mẫu</p>
+                        )}
                       </div>
                     </td>
-                    <td className="hidden max-w-[220px] truncate px-3 py-2.5 text-text-muted xl:table-cell">{c.example ?? "—"}</td>
+                    <td className="px-3 py-3">
+                      <div className="flex min-w-[150px] items-center gap-3">
+                        {c.image_url ? (
+                          <img src={c.image_url} alt="" className="h-12 w-16 rounded-xl object-cover" />
+                        ) : (
+                          <span className="flex h-12 w-16 items-center justify-center rounded-xl bg-surface-alt text-text-muted"><ImageOff className="size-5" /></span>
+                        )}
+                        <div>
+                          <PronounceButton term={c.term} audioUrl={c.audio_url} voiceKey={deck.tts_voice} rate={deck.tts_rate} size="sm" />
+                          <p className={"mt-1 text-xs " + (c.audio_url ? "text-success" : c.ipa ? "text-text-muted" : "text-warning")}>{audioLabel(c)}</p>
+                        </div>
+                      </div>
+                    </td>
                     <td className="px-3 py-2.5">
                       <div className="flex items-center justify-end gap-1">
                         <button onClick={() => { setEditing(c); setCardOpen(true); }} aria-label="Sửa thẻ" className="flex size-8 items-center justify-center rounded-full text-text-muted hover:bg-surface hover:text-text"><Pencil className="size-4" /></button>
