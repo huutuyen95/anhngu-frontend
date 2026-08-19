@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { SubmitConfirmDialog, missingNumbers } from "@/features/tests/submit-confirm";
+import { ExitWarnDialog, AutoSubmittedDialog } from "@/features/tests/exit-warn-dialog";
 import { Modal } from "@/components/ui/modal";
 import { OriginChip } from "@/features/tests/attempt-origin";
 import { uploadAttemptAudio, deleteAttemptAudio } from "@/lib/api/tests";
@@ -317,60 +318,19 @@ export function SpeakingTestAttempt({
         verb="chưa ghi âm"
       />
 
-      <Modal
+      <ExitWarnDialog
         open={attempt.exitWarn !== null && !attempt.autoSubmitted}
         onClose={() => attempt.setExitWarn(null)}
-        title="Em vừa rời khỏi màn thi"
-        footer={
-          <button
-            type="button"
-            onClick={() => attempt.setExitWarn(null)}
-            className="h-11 rounded-full bg-brand px-6 text-sm font-bold text-white transition-colors hover:bg-brand-bold"
-          >
-            Tiếp tục làm bài
-          </button>
-        }
-      >
-        {attempt.exitWarn && (
-          <div className="text-[14.5px] leading-relaxed text-text-secondary">
-            <p>
-              Em đã rời khỏi màn làm bài{" "}
-              <b className="text-danger">
-                {attempt.exitWarn.count}/{attempt.exitWarn.limit}
-              </b>{" "}
-              lần.
-            </p>
-            <p className="mt-2">
-              {attempt.exitWarn.count >= attempt.exitWarn.limit
-                ? "Đây là lần cuối được phép — rời thêm một lần nữa, bài sẽ TỰ ĐỘNG NỘP ngay."
-                : `Rời khỏi màn thi quá ${attempt.exitWarn.limit} lần thì bài sẽ tự động nộp. Em tập trung làm bài nhé!`}
-            </p>
-          </div>
-        )}
-      </Modal>
+        count={attempt.exitWarn?.count ?? 0}
+        limit={attempt.exitWarn?.limit ?? attempt.exitLimit}
+        action={attempt.exitAction}
+      />
 
-      <Modal
+      <AutoSubmittedDialog
         open={attempt.autoSubmitted}
         onClose={attempt.goToResult}
-        title="Bài đã được nộp"
-        footer={
-          <button
-            type="button"
-            onClick={attempt.goToResult}
-            className="h-11 rounded-full bg-brand px-6 text-sm font-bold text-white transition-colors hover:bg-brand-bold"
-          >
-            Xem kết quả
-          </button>
-        }
-      >
-        <div className="text-[14.5px] leading-relaxed text-text-secondary">
-          <p>
-            Em đã rời khỏi màn thi quá <b className="text-danger">{attempt.exitLimit}</b> lần cho
-            phép, nên hệ thống đã <b className="text-danger">tự động nộp bài</b>.
-          </p>
-          <p className="mt-2">Em xem lại kết quả nhé.</p>
-        </div>
-      </Modal>
+        limit={attempt.exitLimit}
+      />
     </div>
   );
 }
