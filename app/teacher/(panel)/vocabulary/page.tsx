@@ -15,7 +15,7 @@ import {
   Tags,
 } from "lucide-react";
 import { toast } from "sonner";
-import { ApiError } from "@/lib/api";
+import { ApiError, boolParam } from "@/lib/api";
 import {
   deleteDeck,
   duplicateDeck,
@@ -71,7 +71,7 @@ function VocabView() {
 
   const load = useCallback(() => {
     setLoading(true);
-    listDecks({ q, classroom_id: classId, category_id: categoryId, is_published: published })
+    listDecks({ q, classroom_id: classId, category_id: categoryId, is_published: boolParam(published) })
       .then((r) => { setRows(r.data); setTotal(r.meta.total); })
       .catch(() => toast.error("Không tải được danh sách bộ từ."))
       .finally(() => setLoading(false));
@@ -164,8 +164,8 @@ function VocabView() {
         )}
         <Select value={published} onChange={(e) => setParam({ published: e.target.value || null })}>
           <option value="">Thư viện: tất cả</option>
-          <option value="true">Đang hiện</option>
-          <option value="false">Đang ẩn</option>
+          <option value="1">Đang hiện</option>
+          <option value="0">Đang ẩn</option>
         </Select>
         {hasFilter && <Button variant="ghost" size="sm" onClick={() => router.replace("/teacher/vocabulary")}>Xoá bộ lọc</Button>}
       </div>

@@ -106,6 +106,8 @@ export type TestPayload = {
   shuffle_questions?: boolean;
   word_limit?: number | null;
   rubric?: string | null;
+  /** Cho AI chấm nháp bài viết/nói của đề này. */
+  ai_grading?: boolean;
   is_published?: boolean;
 };
 

@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ArticleCategoryManagerModal } from "@/features/articles/article-category-manager-modal";
+import { boolParam } from "@/lib/api";
 
 export default function TeacherArticlesPage() {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function TeacherArticlesPage() {
     listArticles({
       q: submittedQuery,
       category_id: categoryId,
-      is_published: published,
+      is_published: boolParam(published),
       page: String(page),
     })
       .then((response) => {
@@ -120,8 +121,8 @@ export default function TeacherArticlesPage() {
         </Select>
         <Select value={published} onChange={(event) => { setLoading(true); setPage(1); setPublished(event.target.value); }}>
           <option value="">Mọi trạng thái</option>
-          <option value="true">Đã xuất bản</option>
-          <option value="false">Bản nháp</option>
+          <option value="1">Đã xuất bản</option>
+          <option value="0">Bản nháp</option>
         </Select>
       </div>
 

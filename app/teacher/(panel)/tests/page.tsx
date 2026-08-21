@@ -22,6 +22,7 @@ import { TestFolderModal } from "@/features/tests/test-folder-modal";
 import { PreflightModal } from "@/features/tests/preflight-modal";
 import { WordImportWizard } from "@/features/tests/word-import-wizard";
 import { cn } from "@/lib/utils";
+import { boolParam } from "@/lib/api";
 
 function TestsView() {
   const router = useRouter();
@@ -61,7 +62,7 @@ function TestsView() {
 
   const load = useCallback(() => {
     setLoading(true);
-    listTests({ q: filters.q, skill: filters.skill, is_published: filters.is_published, category_id: filters.category, page: filters.page })
+    listTests({ q: filters.q, skill: filters.skill, is_published: boolParam(filters.is_published), category_id: filters.category, page: filters.page })
       .then((res) => { setRows(res.data); setMeta(res.meta); })
       .catch(() => toast.error("Không tải được danh sách đề thi."))
       .finally(() => setLoading(false));
@@ -135,8 +136,8 @@ function TestsView() {
             </Select>
             <Select value={filters.is_published} onChange={(e) => setParam({ published: e.target.value || null })}>
               <option value="">Thư viện: tất cả</option>
-              <option value="true">Đang hiện</option>
-              <option value="false">Nháp / ẩn</option>
+              <option value="1">Đang hiện</option>
+              <option value="0">Nháp / ẩn</option>
             </Select>
             {hasFilters && <Button variant="ghost" size="sm" onClick={() => router.replace("/teacher/tests")}>Xoá lọc</Button>}
           </div>

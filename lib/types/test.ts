@@ -46,6 +46,8 @@ export type Test = {
   scoring_method: string;
   word_limit: number | null;
   rubric: string | null;
+  /** Cho AI chấm nháp bài viết/nói của đề này. */
+  ai_grading?: boolean;
   is_published: boolean;
   shuffle_questions?: boolean;
   question_count?: number;
@@ -158,6 +160,8 @@ export type TestDetail = {
   is_published: boolean;
   shuffle_questions?: boolean;
   rubric: string | null;
+  /** Cho AI chấm nháp bài viết/nói của đề này. */
+  ai_grading?: boolean;
   scoring_method: string;
   is_combo: boolean;
   thumbnail_url: string | null;

@@ -20,7 +20,7 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { toast } from "sonner";
-import { downloadFile } from "@/lib/api";
+import { downloadFile, boolParam } from "@/lib/api";
 import {
   bulkStudents,
   deleteStudent,
@@ -100,7 +100,7 @@ function StudentsView() {
     setLoading(true);
     listStudents({
       q: filters.q,
-      is_active: filters.status,
+      is_active: boolParam(filters.status),
       classroom_id: filters.classroom_id,
       trashed: filters.trashed,
       sort: filters.sort || undefined,
@@ -296,8 +296,8 @@ function StudentsView() {
           value={filters.status}
           onChange={(e) => setParam({ status: e.target.value || null })}>
           <option value="">Mọi trạng thái</option>
-          <option value="true">Đang hoạt động</option>
-          <option value="false">Đã khoá</option>
+          <option value="1">Đang hoạt động</option>
+          <option value="0">Đã khoá</option>
         </Select>
         {classrooms.length > 0 && (
           <Select

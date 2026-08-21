@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/ui/field";
 import type { GradeDraft } from "@/features/grading/writing-grader";
+import { AiSuggestion } from "@/features/grading/ai-suggestion";
 
 const textareaClass =
   "w-full rounded-[14px] border-[1.5px] border-border bg-surface px-3.5 py-2.5 text-[15px] text-text outline-none focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/30";
@@ -64,6 +65,9 @@ export function SpeakingGrader({ index, question, value, onChange, maxScore }: P
           <p className="text-sm text-text-muted">(chưa nộp bài nói)</p>
         )}
       </div>
+
+      {/* Gợi ý của AI đặt NGAY TRÊN ô điểm để cô đọc rồi mới quyết. */}
+      <AiSuggestion question={question} value={value} onChange={onChange} />
 
       <div className="mt-3 grid gap-3 sm:grid-cols-[120px_1fr]">
         <FormField htmlFor={`score-${question.id}`} label={`Điểm (tối đa ${maxScore})`}>

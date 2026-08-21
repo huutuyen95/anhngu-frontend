@@ -19,6 +19,9 @@ type Props = {
 
 export function SettingControl({ field, value, onChange, onUpload, onDeleteFile }: Props) {
   const { key, type, options } = field;
+  // `readonly` phải khoá MỌI loại control, không riêng ô số/ô chữ: backend từ chối ghi field
+  // readonly, nên để control còn bấm được thì cô đổi xong bấm Lưu lại thấy giá trị y như cũ —
+  // trông hệt như lỗi.
   const disabled = field.readonly;
 
   // ── Bool → công tắc kèm chữ ──
@@ -26,7 +29,7 @@ export function SettingControl({ field, value, onChange, onUpload, onDeleteFile 
     const on = value === true || value === 1 || value === "1";
     return (
       <div className="flex items-center gap-3">
-        <Switch checked={on} onCheckedChange={(v) => onChange(key, v)} />
+        <Switch checked={on} onCheckedChange={(v) => onChange(key, v)} disabled={disabled} />
         <span className={cn("text-sm font-semibold", on ? "text-success-bold" : "text-text-muted")}>
           {on ? "Đang bật" : "Đã tắt"}
         </span>
@@ -37,7 +40,13 @@ export function SettingControl({ field, value, onChange, onUpload, onDeleteFile 
   // ── File → upload preview ──
   if (type === "file") {
     return (
-      <FileControl field={field} value={value} onUpload={onUpload} onDeleteFile={onDeleteFile} />
+      <FileControl
+        field={field}
+        value={value}
+        onUpload={onUpload}
+        onDeleteFile={onDeleteFile}
+        disabled={disabled}
+      />
     );
   }
 
@@ -53,8 +62,9 @@ export function SettingControl({ field, value, onChange, onUpload, onDeleteFile 
             type="button"
             aria-label={`Chọn màu ${c}`}
             onClick={() => onChange(key, c)}
+            disabled={disabled}
             className={cn(
-              "size-8 rounded-full border-2 transition-transform active:scale-90",
+              "size-8 rounded-full border-2 transition-transform active:scale-90 disabled:opacity-60",
               current.toLowerCase() === c.toLowerCase()
                 ? "border-text ring-2 ring-brand/40"
                 : "border-white shadow-[0_0_0_1.5px_var(--color-border)]",
@@ -66,7 +76,8 @@ export function SettingControl({ field, value, onChange, onUpload, onDeleteFile 
           type="text"
           value={current}
           onChange={(e) => onChange(key, e.target.value)}
-          className="h-11 w-28 rounded-full border-[1.5px] border-border bg-surface px-3 text-sm font-medium text-text outline-none focus:border-brand"
+          disabled={disabled}
+          className="h-11 w-28 rounded-full border-[1.5px] border-border bg-surface px-3 text-sm font-medium text-text outline-none focus:border-brand disabled:opacity-60"
           placeholder="#F2793B"
         />
       </div>
@@ -86,8 +97,9 @@ export function SettingControl({ field, value, onChange, onUpload, onDeleteFile 
                 type="button"
                 onClick={() => onChange(key, opt.value)}
                 aria-pressed={active}
+                disabled={disabled}
                 className={cn(
-                  "rounded-2xl border-[1.5px] px-4 py-2 text-sm font-semibold transition-colors",
+                  "rounded-2xl border-[1.5px] px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60",
                   active
                     ? "border-brand bg-brand-soft text-brand-bold"
                     : "border-border bg-surface text-text-secondary hover:border-border-strong",
@@ -101,7 +113,7 @@ export function SettingControl({ field, value, onChange, onUpload, onDeleteFile 
       );
     }
     return (
-      <Select value={String(value ?? "")} onChange={(e) => onChange(key, e.target.value)}>
+      <Select value={String(value ?? "")} onChange={(e) => onChange(key, e.target.value)} disabled={disabled}>
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
@@ -137,7 +149,8 @@ export function SettingControl({ field, value, onChange, onUpload, onDeleteFile 
         value={(value as string) ?? ""}
         onChange={(e) => onChange(key, e.target.value)}
         rows={3}
-        className="w-full max-w-md resize-none rounded-2xl border-[1.5px] border-border bg-surface px-4 py-2.5 text-sm text-text outline-none focus:border-brand"
+        disabled={disabled}
+        className="w-full max-w-md resize-none rounded-2xl border-[1.5px] border-border bg-surface px-4 py-2.5 text-sm text-text outline-none focus:border-brand disabled:opacity-60"
       />
     );
   }
@@ -160,11 +173,13 @@ function FileControl({
   value,
   onUpload,
   onDeleteFile,
+  disabled,
 }: {
   field: SettingField;
   value: SettingValue;
   onUpload: (key: string, file: File) => Promise<void>;
   onDeleteFile: (key: string) => void;
+  disabled?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -202,7 +217,8 @@ function FileControl({
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-border bg-surface px-3 py-1.5 text-xs font-semibold text-text-secondary hover:border-border-strong"
+            disabled={disabled}
+            className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-border bg-surface px-3 py-1.5 text-xs font-semibold text-text-secondary hover:border-border-strong disabled:opacity-60"
           >
             <Upload className="size-3.5" /> Tải lên
           </button>
@@ -210,7 +226,8 @@ function FileControl({
             <button
               type="button"
               onClick={() => onDeleteFile(field.key)}
-              className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-danger/30 bg-danger-soft px-3 py-1.5 text-xs font-semibold text-danger hover:border-danger/60"
+              disabled={disabled}
+              className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-danger/30 bg-danger-soft px-3 py-1.5 text-xs font-semibold text-danger hover:border-danger/60 disabled:opacity-60"
             >
               <Trash2 className="size-3.5" /> Xoá
             </button>
