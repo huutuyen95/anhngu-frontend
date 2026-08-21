@@ -6,6 +6,8 @@ import type { AttemptQuestion } from "@/lib/types/attempt";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/ui/field";
+import { AiSuggestion } from "@/features/grading/ai-suggestion";
+import { CopyForChatGpt } from "@/features/grading/copy-for-chatgpt";
 
 const textareaClass =
   "w-full rounded-[14px] border-[1.5px] border-border bg-surface px-3.5 py-2.5 text-[15px] text-text outline-none focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/30";
@@ -35,9 +37,11 @@ export function WritingGrader({ index, question, wordLimit, value, onChange, max
 
   return (
     <div className="rounded-2xl border-[1.5px] border-border bg-surface p-4">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-semibold text-text">Câu {index + 1} — Viết luận</span>
         {alreadyGraded && <StatusBadge tone="success">Đã chấm</StatusBadge>}
+        {/* Cô chấm bằng ChatGPT của mình: bấm là có sẵn cả khối để dán. */}
+        <CopyForChatGpt prompt={question.ai_prompt} />
       </div>
 
       {question.content && <p className="mt-2 text-sm text-text-secondary">{question.content}</p>}
@@ -51,6 +55,9 @@ export function WritingGrader({ index, question, wordLimit, value, onChange, max
         </div>
         <p className="whitespace-pre-wrap text-sm text-text">{answerText || "(chưa nộp bài viết)"}</p>
       </div>
+
+      {/* Gợi ý của AI đặt NGAY TRÊN ô điểm để cô đọc rồi mới quyết. */}
+      <AiSuggestion question={question} value={value} onChange={onChange} />
 
       <div className="mt-3 grid gap-3 sm:grid-cols-[120px_1fr]">
         <FormField htmlFor={`score-${question.id}`} label={`Điểm (tối đa ${maxScore})`}>

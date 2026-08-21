@@ -38,6 +38,7 @@ import { CategoryManagerModal } from "@/features/documents/category-manager-moda
 import { StorageModal } from "@/features/documents/storage-modal";
 import { CreateContentModal } from "@/features/documents/create-content-modal";
 import { cn } from "@/lib/utils";
+import { boolParam } from "@/lib/api";
 
 function DocsView() {
   const router = useRouter();
@@ -69,7 +70,7 @@ function DocsView() {
 
   const load = useCallback(() => {
     setLoading(true);
-    listDocuments({ type, q, category_id: categoryId, is_published: published, page })
+    listDocuments({ type, q, category_id: categoryId, is_published: boolParam(published), page })
       .then((r) => { setRows(r.data); setMeta(r.meta); })
       .catch(() => toast.error("Không tải được danh sách."))
       .finally(() => setLoading(false));
@@ -151,8 +152,8 @@ function DocsView() {
         {type === "document" && (
           <Select value={published} onChange={(e) => setParam({ published: e.target.value || null })}>
             <option value="">Thư viện: tất cả</option>
-            <option value="true">Đang hiện</option>
-            <option value="false">Đang ẩn</option>
+            <option value="1">Đang hiện</option>
+            <option value="0">Đang ẩn</option>
           </Select>
         )}
         {hasFilter && <Button variant="ghost" size="sm" onClick={() => setParam({ q: null, category: null, published: null })}>Xoá lọc</Button>}

@@ -49,6 +49,7 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
   const [duration, setDuration] = useState(initial.duration_minutes);
   const [published, setPublished] = useState(!!initial.is_published);
   const [shuffle, setShuffle] = useState(!!initial.shuffle_questions);
+  const [aiGrading, setAiGrading] = useState(!!initial.ai_grading);
   const [parts, setParts] = useState<DraftPart[]>(() => fromServer(initial.parts));
   const [sel, setSel] = useState(0);
   const [saveState, setSaveState] = useState<"saved" | "saving" | "dirty">("saved");
@@ -56,6 +57,8 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
   const skipAutosave = useRef(true);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isWriting = initial.skill === "writing";
+  // AI chỉ chấm câu viết / nói; đề khác bật cũng không có tác dụng nên ẩn luôn công tắc.
+  const canUseAi = initial.skill === "writing" || initial.skill === "speaking" || initial.skill === "mixed";
   // Loại câu thêm được, loại HỢP VỚI DẠNG ĐỀ đứng đầu (được tô nổi). Đề Nói trước đây không
   // có nút nào tạo câu "Nói" nên ô ảnh gợi ý + gợi ý text trong QuestionEditor không bao giờ hiện.
   const skill = initial.skill;
@@ -83,7 +86,7 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
   const save = useCallback(async (silent = true) => {
     setSaveState("saving");
     try {
-      await updateTest(id, { title, duration_minutes: duration, is_published: published, shuffle_questions: shuffle });
+      await updateTest(id, { title, duration_minutes: duration, is_published: published, shuffle_questions: shuffle, ai_grading: aiGrading });
       const payload = parts.map((pt, pi) => ({
         id: pt.id, order: pi, title: pt.title,
         sections: pt.sections.map((s, si) => ({
@@ -104,7 +107,7 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
       setSaveState("dirty");
       toast.error(err instanceof ApiError ? (err.message || "Không lưu được — kiểm tra câu hỏi/đáp án.") : "Không lưu được đề.");
     }
-  }, [id, title, duration, published, shuffle, parts]);
+  }, [id, title, duration, published, shuffle, aiGrading, parts]);
 
   useEffect(() => {
     if (skipAutosave.current) { skipAutosave.current = false; return; }
@@ -113,7 +116,7 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
     timer.current = setTimeout(() => save(true), 5000);
     return () => { if (timer.current) clearTimeout(timer.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, duration, published, shuffle, parts]);
+  }, [title, duration, published, shuffle, aiGrading, parts]);
 
   // ── mutators ──
   const patchSection = (pi: number, si: number, patch: Partial<DraftSection>) =>
@@ -220,6 +223,13 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
               </label>
               <div className="flex items-center justify-between"><span className="text-text-secondary">Tổng điểm</span><span className="font-semibold text-text">10.0</span></div>
               <label className="flex items-center justify-between"><span className="text-text-secondary">Trộn câu hỏi</span><Switch checked={shuffle} onCheckedChange={setShuffle} aria-label="Trộn câu hỏi" /></label>
+              {/* Chỉ có nghĩa với đề có câu viết/nói — đề trắc nghiệm máy tự chấm hết rồi. */}
+              {canUseAi && (
+                <label className="flex items-center justify-between">
+                  <span className="text-text-secondary">AI chấm nháp giúp cô</span>
+                  <Switch checked={aiGrading} onCheckedChange={setAiGrading} aria-label="AI chấm nháp giúp cô" />
+                </label>
+              )}
               <label className="flex items-center justify-between">
                 <span className="text-text-secondary">Hiện trong thư viện</span>
                 <Switch checked={isWriting ? false : published} onCheckedChange={isWriting ? () => {} : setPublished} disabled={isWriting} aria-label="Hiện trong thư viện" />

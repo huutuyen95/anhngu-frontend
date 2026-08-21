@@ -24,6 +24,22 @@ function tokenKey(area: AuthArea): string {
   return `${TOKEN_KEY_PREFIX}_${area}`;
 }
 
+/**
+ * Chuẩn hoá giá trị lọc kiểu boolean trước khi gửi lên API.
+ *
+ * Laravel rule `boolean` CHỈ nhận `1 · 0 · "1" · "0" · true · false` — gửi chuỗi
+ * "true"/"false" là bị 422 ("The … field must be true or false"), bộ lọc trông như
+ * hỏng. Vẫn nhận "true"/"false" ở đầu vào để link/bookmark cũ còn chạy.
+ *
+ * `undefined` = không lọc (mọi builder query đều bỏ qua giá trị rỗng).
+ */
+export function boolParam(value: string | null | undefined): string | undefined {
+  if (value === "1" || value === "true") return "1";
+  if (value === "0" || value === "false") return "0";
+
+  return undefined;
+}
+
 /** Đọc token của khu hiện tại (theo URL), hoặc của khu chỉ định. */
 export function getToken(area?: AuthArea): string | null {
   if (typeof window === "undefined") return null;

@@ -85,6 +85,16 @@ export type AttemptAnswer = {
   graded_at: string | null;
 };
 
+/** Gợi ý chấm của AI — chỉ khu cô chấm mới nhận được, học viên không bao giờ thấy. */
+export type AiSuggestion = {
+  score: number | null;
+  feedback: string | null;
+  status: "ok" | "failed";
+  error: string | null;
+  model: string | null;
+  created_at: string | null;
+};
+
 export type AttemptQuestion = {
   id: number;
   order: number;
@@ -97,6 +107,12 @@ export type AttemptQuestion = {
   /** Ảnh gợi ý của câu speaking. */
   images?: string[];
   options: { id: number; label: string | null; content: string; is_correct: boolean }[];
+  /**
+   * Khối chữ dựng sẵn (đề + tiêu chí + bài làm) để cô copy sang ChatGPT tự chấm.
+   * Chỉ có ở câu viết, và `null` khi em bỏ trống bài.
+   */
+  ai_prompt: string | null;
+  ai_suggestion: AiSuggestion | null;
   answer: AttemptAnswer | null;
 };
 
