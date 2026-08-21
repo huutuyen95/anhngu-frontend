@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Eye, Plus, Trash2, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Eye, Plus, Trash2, GripVertical, ChevronUp, ChevronDown, Send } from "lucide-react";
 import { toast } from "sonner";
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent,
@@ -13,6 +14,8 @@ import { saveTestStructure, updateTest } from "@/lib/api/tests";
 import type { Test, TestDetail, TestPart, TestSection, QuestionType } from "@/lib/types/test";
 import { QUESTION_TYPE_LABEL, SKILL_LABEL } from "@/lib/types/test";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { OperationProgressModal } from "@/components/ui/operation-progress-modal";
 import { AudioUpload } from "@/components/ui/audio-upload";
 import { newDraftQuestion, type DraftQuestion } from "@/features/tests/question-editor";
 import { SortableQuestion } from "@/features/tests/sortable-question";
@@ -20,6 +23,7 @@ import { Sortable } from "@/features/tests/sortable";
 import { PreflightModal } from "@/features/tests/preflight-modal";
 import { SKILL_CHIP } from "@/features/tests/skill";
 import { cn } from "@/lib/utils";
+import { useOperationProgress } from "@/hooks/use-operation-progress";
 
 type DraftSection = { _cid: string; id?: number; instruction: string | null; passage: string | null; audio_url: string | null; max_plays: number | null; questions: DraftQuestion[] };
 type DraftPart = { _cid: string; id?: number; title: string; sections: DraftSection[] };
@@ -45,6 +49,7 @@ function move<T>(arr: T[], i: number, dir: -1 | 1): T[] {
 }
 
 export function TestEditor({ id, initial }: { id: number; initial: TestDetail }) {
+  const router = useRouter();
   const [title, setTitle] = useState(initial.title);
   const [duration, setDuration] = useState(initial.duration_minutes);
   const [published, setPublished] = useState(!!initial.is_published);
@@ -56,6 +61,8 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
   const [preview, setPreview] = useState(false);
   const skipAutosave = useRef(true);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const operation = useOperationProgress();
+  const { start: startOperation, complete: completeOperation, reset: resetOperation } = operation;
   const isWriting = initial.skill === "writing";
   // AI chỉ chấm câu viết / nói; đề khác bật cũng không có tác dụng nên ẩn luôn công tắc.
   const canUseAi = initial.skill === "writing" || initial.skill === "speaking" || initial.skill === "mixed";
@@ -83,7 +90,9 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
   const perQ = totalQuestions > 0 ? 10 / totalQuestions : 0;
   const part = parts[Math.min(sel, parts.length - 1)];
 
-  const save = useCallback(async (silent = true) => {
+  const save = useCallback(async (silent = true, returnToList = false) => {
+    if (!silent && timer.current) clearTimeout(timer.current);
+    if (!silent) startOperation();
     setSaveState("saving");
     try {
       await updateTest(id, { title, duration_minutes: duration, is_published: published, shuffle_questions: shuffle, ai_grading: aiGrading });
@@ -102,12 +111,21 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
       skipAutosave.current = true;
       setParts(fromServer(res.test.parts));
       setSaveState("saved");
-      if (!silent) toast.success("Đã lưu đề.");
+      if (!silent) {
+        completeOperation();
+        await new Promise((resolve) => setTimeout(resolve, 650));
+        resetOperation();
+        toast.success("Đã lưu đề thi.");
+        if (returnToList) {
+          router.push(`/teacher/tests?saved=success&test_id=${id}`);
+        }
+      }
     } catch (err) {
+      if (!silent) resetOperation();
       setSaveState("dirty");
       toast.error(err instanceof ApiError ? (err.message || "Không lưu được — kiểm tra câu hỏi/đáp án.") : "Không lưu được đề.");
     }
-  }, [id, title, duration, published, shuffle, aiGrading, parts]);
+  }, [aiGrading, completeOperation, duration, id, parts, published, resetOperation, router, shuffle, startOperation, title]);
 
   useEffect(() => {
     if (skipAutosave.current) { skipAutosave.current = false; return; }
@@ -163,7 +181,14 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
         </div>
         <div className="flex gap-2">
           <button onClick={() => setPreview(true)} className="inline-flex items-center gap-1.5 rounded-full border-[1.5px] border-border bg-surface px-4 py-2 text-sm font-semibold text-text hover:border-brand hover:text-brand"><Eye className="size-4" /> Xem trước</button>
-          <button onClick={() => save(false)} className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white shadow-[0_3px_0_var(--color-brand-bold)]">Lưu &amp; giao bài</button>
+          <Button
+            onClick={() => save(false, true)}
+            loading={operation.running}
+            iconRight={<Send className="size-4 transition-transform group-hover/button:translate-x-0.5" />}
+            title="Lưu đề và quay về danh sách để tiếp tục giao bài"
+          >
+            Lưu &amp; giao bài
+          </Button>
         </div>
       </div>
 
@@ -341,6 +366,13 @@ export function TestEditor({ id, initial }: { id: number; initial: TestDetail })
       </div>
 
       <PreflightModal test={previewTest} open={preview} onClose={() => setPreview(false)} onEdit={() => setPreview(false)} onAssign={() => { setPreview(false); toast.message("Giao bài mở ở màn Lớp học › Giao bài."); }} />
+      <OperationProgressModal
+        open={operation.running}
+        progress={operation.progress}
+        title="Đang lưu đề thi"
+        description={`Hệ thống đang lưu cấu trúc và ${totalQuestions} câu hỏi.`}
+        completedDescription="Đã lưu đề. Đang quay về danh sách đề thi…"
+      />
     </div>
   );
 }

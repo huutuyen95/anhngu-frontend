@@ -4,6 +4,8 @@ import type {
   StudentTestListResponse,
   Test,
   TestCategory,
+  TestGroup,
+  TestFormat,
   TestDetail,
   TestFilters,
   TestListResponse,
@@ -100,6 +102,7 @@ export function deleteAttemptAudio(
 export type TestPayload = {
   title: string;
   skill: string;
+  format?: TestFormat;
   category_id?: number | null;
   duration_minutes?: number;
   total_score?: number;
@@ -138,10 +141,19 @@ export function getPreflight(id: number): Promise<TestPreflight> {
   return api(`/admin/tests/${id}/preflight`);
 }
 
-// ── Thư mục đề (cây theo lớp) ──
-export function listTestCategories(classroomId?: number | null): Promise<{ data: TestCategory[] }> {
-  const q = classroomId ? `?classroom_id=${classroomId}` : "";
-  return api(`/admin/test-categories${q}`);
+// ── Thư mục đề (cây theo NHÓM nội dung: exam | exercise) ──
+export function listTestCategories(group: TestGroup): Promise<{ data: TestCategory[] }> {
+  return api(`/admin/test-categories?group=${group}`);
+}
+
+/** Gộp thư mục cả 2 nhóm (đã làm phẳng cây con) để đổ vào 1 <select> có optgroup. */
+export async function listAllTestFolders(): Promise<{ id: number; name: string; group: TestGroup }[]> {
+  const flat = (list: TestCategory[], group: TestGroup): { id: number; name: string; group: TestGroup }[] =>
+    list
+      .filter((c) => c.name !== "Chưa phân loại")
+      .flatMap((c) => [{ id: c.id, name: c.name, group }, ...flat(c.children ?? [], group)]);
+  const [exam, exercise] = await Promise.all([listTestCategories("exam"), listTestCategories("exercise")]);
+  return [...flat(exam.data, "exam"), ...flat(exercise.data, "exercise")];
 }
 
 // ── Import Word (A4imp) ──
@@ -162,6 +174,7 @@ export async function importWordDryRun(file: File): Promise<WordImportPreview> {
 export function importWordCommit(payload: {
   title: string;
   skill: string;
+  format?: TestFormat;
   category_id?: number | null;
   parts: TestPart[];
 }): Promise<{ test: Test }> {
@@ -186,7 +199,7 @@ export async function downloadWordTemplate(): Promise<void> {
 }
 
 export function syncTestCategories(payload: {
-  classroom_id: number | null;
+  group: TestGroup;
   categories: { id: number | null; name: string; parent_id?: number | null; order: number }[];
   deleted_ids: number[];
 }): Promise<{ data: TestCategory[]; moved_count: number }> {

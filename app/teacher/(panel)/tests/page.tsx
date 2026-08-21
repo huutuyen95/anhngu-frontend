@@ -5,13 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FileText, FileUp, MoreHorizontal, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { duplicateTest, listTests, updateTest } from "@/lib/api/tests";
-import type { Test, TestListMeta } from "@/lib/types/test";
-import { SKILL_LABEL } from "@/lib/types/test";
+import type { Test, TestListMeta, TestGroup, TestFormat } from "@/lib/types/test";
+import { SKILL_LABEL, TEST_FORMATS } from "@/lib/types/test";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ImportResultNotice } from "@/components/ui/import-result-notice";
 import { SKILL_CHIP } from "@/features/tests/skill";
 import { TestFolderTree } from "@/features/tests/test-folder-tree";
 import { CreateTestModal } from "@/features/tests/create-test-modal";
@@ -31,6 +32,7 @@ function TestsView() {
   const filters = useMemo(() => ({
     q: params.get("q") ?? "",
     skill: params.get("skill") ?? "",
+    format: (params.get("format") as TestFormat) || "standard",
     is_published: params.get("published") ?? "",
     category: params.get("category") ?? "",
     page: params.get("page") ?? "1",
@@ -48,7 +50,7 @@ function TestsView() {
   const [moveFor, setMoveFor] = useState<Test | null>(null);
   const [previewFor, setPreviewFor] = useState<Test | null>(null);
   const [folderOpen, setFolderOpen] = useState(false);
-  const [folderClass, setFolderClass] = useState<number | null>(null);
+  const [folderGroup, setFolderGroup] = useState<TestGroup>("exam");
   const [importOpen, setImportOpen] = useState(false);
 
   const setParam = useCallback((updates: Record<string, string | null>, resetPage = true) => {
@@ -62,11 +64,11 @@ function TestsView() {
 
   const load = useCallback(() => {
     setLoading(true);
-    listTests({ q: filters.q, skill: filters.skill, is_published: boolParam(filters.is_published), category_id: filters.category, page: filters.page })
+    listTests({ q: filters.q, skill: filters.skill, format: filters.format, is_published: boolParam(filters.is_published), category_id: filters.category, page: filters.page })
       .then((res) => { setRows(res.data); setMeta(res.meta); })
       .catch(() => toast.error("Không tải được danh sách đề thi."))
       .finally(() => setLoading(false));
-  }, [filters.q, filters.skill, filters.is_published, filters.category, filters.page]);
+  }, [filters.q, filters.skill, filters.format, filters.is_published, filters.category, filters.page]);
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { setSearch(filters.q); }, [filters.q]);
@@ -107,10 +109,18 @@ function TestsView() {
 
   return (
     <div className="mx-auto max-w-7xl">
+      {params.get("import") === "success" ? (
+        <ImportResultNotice
+          title="Import đề thi hoàn tất"
+          detail={`Đã tạo ${params.get("created") ?? "1"} đề với ${params.get("questions") ?? "0"} câu hỏi. Đề mới đang hiển thị trong danh sách bên dưới.`}
+        />
+      ) : params.get("saved") === "success" ? (
+        <ImportResultNotice title="Đã lưu đề thi" detail="Mọi thay đổi đã được lưu. Bạn có thể mở menu hành động của đề để xem trước hoặc tiếp tục giao bài." />
+      ) : null}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold text-text">Quản lý đề thi</h1>
-          <p className="text-sm text-text-secondary">{meta ? `${meta.total} đề` : "Đang tải…"} · thư mục gắn theo lớp</p>
+          <p className="text-sm text-text-secondary">{meta ? `${meta.total} đề` : "Đang tải…"} · thư mục theo nhóm (Đề thi / Bài tập)</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" iconLeft={<FileUp className="size-4" />} onClick={() => setImportOpen(true)}>Import Word</Button>
@@ -118,10 +128,21 @@ function TestsView() {
         </div>
       </div>
 
+      {/* 2 dạng đề (hard-coded): Đề tiêu chuẩn / IELTS Simulation */}
+      <div className="mt-4 inline-flex rounded-full border-[1.5px] border-border bg-surface p-1">
+        {TEST_FORMATS.map((f) => (
+          <button key={f.key} onClick={() => setParam({ format: f.key === "standard" ? null : f.key })}
+            className={cn("rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
+              filters.format === f.key ? "bg-brand text-white" : "text-text-secondary hover:text-brand")}>
+            {f.label}
+          </button>
+        ))}
+      </div>
+
       <div className="mt-5 flex flex-col gap-4 lg:flex-row">
         <TestFolderTree selected={filters.category} reloadKey={treeKey}
           onSelect={(cat) => setParam({ category: cat })}
-          onManage={(cid) => { setFolderClass(cid); setFolderOpen(true); }} />
+          onManage={(g) => { setFolderGroup(g); setFolderOpen(true); }} />
 
         <div className="min-w-0 flex-1">
           {/* Thanh lọc */}
@@ -207,15 +228,15 @@ function TestsView() {
         </div>
       </div>
 
-      <CreateTestModal open={createOpen} onClose={() => setCreateOpen(false)} categoryId={filters.category ? Number(filters.category) : null} onImport={() => { setCreateOpen(false); setImportOpen(true); }} />
-      <WordImportWizard open={importOpen} onClose={() => setImportOpen(false)} />
+      <CreateTestModal open={createOpen} onClose={() => setCreateOpen(false)} categoryId={filters.category ? Number(filters.category) : null} format={filters.format} onImport={() => { setCreateOpen(false); setImportOpen(true); }} />
+      <WordImportWizard open={importOpen} onClose={() => setImportOpen(false)} onDone={load} format={filters.format} />
       <TestActionMenu test={menuFor} open={!!menuFor} onClose={() => setMenuFor(null)} onAction={onMenuAction} />
       <DeleteTestModal test={deleteFor} open={!!deleteFor} onClose={() => setDeleteFor(null)} onDone={() => { setDeleteFor(null); afterFolderChange(); }} />
       <MoveTestModal test={moveFor} open={!!moveFor} onClose={() => setMoveFor(null)} onDone={() => { setMoveFor(null); afterFolderChange(); }} />
       <PreflightModal test={previewFor} open={!!previewFor} onClose={() => setPreviewFor(null)}
         onEdit={(t) => { setPreviewFor(null); router.push(`/teacher/tests/${t.id}/edit`); }}
         onAssign={() => { setPreviewFor(null); toast.message("Giao bài mở ở màn Lớp học › Giao bài."); }} />
-      <TestFolderModal open={folderOpen} onClose={() => setFolderOpen(false)} classroomId={folderClass} onSaved={afterFolderChange} />
+      <TestFolderModal open={folderOpen} onClose={() => setFolderOpen(false)} group={folderGroup} onSaved={afterFolderChange} />
     </div>
   );
 }

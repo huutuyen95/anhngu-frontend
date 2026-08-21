@@ -5,6 +5,9 @@ import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+let openModalCount = 0;
+let bodyOverflowBeforeModal = "";
+
 type ModalProps = {
   open: boolean;
   onClose: () => void;
@@ -13,6 +16,7 @@ type ModalProps = {
   children: ReactNode;
   footer?: ReactNode;
   size?: "md" | "lg" | "xl" | "2xl";
+  closable?: boolean;
 };
 
 /** Modal Option 1: overlay + card radius 24, đóng bằng Esc / nút X / click nền. */
@@ -24,19 +28,23 @@ export function Modal({
   children,
   footer,
   size = "md",
+  closable = true,
 }: ModalProps) {
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (closable && e.key === "Escape") onClose();
     }
     document.addEventListener("keydown", onKey);
+    if (openModalCount === 0) bodyOverflowBeforeModal = document.body.style.overflow;
+    openModalCount += 1;
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      openModalCount = Math.max(0, openModalCount - 1);
+      if (openModalCount === 0) document.body.style.overflow = bodyOverflowBeforeModal;
     };
-  }, [open, onClose]);
+  }, [closable, open, onClose]);
 
   if (!open) return null;
 
@@ -44,7 +52,7 @@ export function Modal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(58,51,48,0.45)] p-4"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (closable && e.target === e.currentTarget) onClose();
       }}
     >
       <div
@@ -63,13 +71,15 @@ export function Modal({
               <p className="mt-0.5 text-sm text-text-secondary">{description}</p>
             )}
           </div>
-          <button
-            onClick={onClose}
-            aria-label="Đóng"
-            className="flex size-9 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface-alt hover:text-text"
-          >
-            <X className="size-5" />
-          </button>
+          {closable ? (
+            <button
+              onClick={onClose}
+              aria-label="Đóng"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface-alt hover:text-text"
+            >
+              <X className="size-5" />
+            </button>
+          ) : null}
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-2">{children}</div>

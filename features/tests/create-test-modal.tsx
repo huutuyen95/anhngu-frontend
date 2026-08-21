@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { createTest } from "@/lib/api/tests";
 import { Modal } from "@/components/ui/modal";
 import { SKILL_CHIP } from "@/features/tests/skill";
-import type { Skill } from "@/lib/types/test";
+import type { Skill, TestFormat } from "@/lib/types/test";
 import { cn } from "@/lib/utils";
 
 /** Dạng đề = 5 kỹ năng của `Skill` (backend nhận đúng 5 giá trị này) + lối import Word. */
@@ -23,7 +23,7 @@ const CARDS: { kind: Kind; label: string; icon: typeof ListChecks; wrap: string;
 ];
 
 /** A4new — chọn dạng đề trước khi tạo. */
-export function CreateTestModal({ open, onClose, categoryId, onImport }: { open: boolean; onClose: () => void; categoryId?: number | null; onImport?: () => void }) {
+export function CreateTestModal({ open, onClose, categoryId, format, onImport }: { open: boolean; onClose: () => void; categoryId?: number | null; format?: TestFormat; onImport?: () => void }) {
   const router = useRouter();
   const [picked, setPicked] = useState<Kind>("mixed");
   const [busy, setBusy] = useState(false);
@@ -37,7 +37,7 @@ export function CreateTestModal({ open, onClose, categoryId, onImport }: { open:
     try {
       // `picked` đã là giá trị Skill hợp lệ ("mixed" chính là nhãn "Trắc nghiệm" trong
       // SKILL_LABEL) nên gửi thẳng — không map tay để khỏi lệch nhãn như trước.
-      const { test } = await createTest({ title: "Đề thi mới", skill: picked, category_id: categoryId ?? null });
+      const { test } = await createTest({ title: "Đề thi mới", skill: picked, format: format ?? "standard", category_id: categoryId ?? null });
       router.push(`/teacher/tests/${test.id}/edit`);
     } catch {
       toast.error("Không tạo được đề thi.");

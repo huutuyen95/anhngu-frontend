@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { UploadCloud, Download, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { downloadFile } from "@/lib/api";
@@ -10,10 +11,13 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { OperationProgressModal } from "@/components/ui/operation-progress-modal";
+import { useOperationProgress } from "@/hooks/use-operation-progress";
 
 const TONE = { ok: "success", need_ipa: "warning", duplicate: "warning", error: "danger" } as const;
 
 export function CardImportWizard({ open, onClose, deckId, onDone }: { open: boolean; onClose: () => void; deckId: number; onDone: () => void }) {
+  const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<CardImportPreview | null>(null);
@@ -22,8 +26,9 @@ export function CardImportWizard({ open, onClose, deckId, onDone }: { open: bool
   const [overwrite, setOverwrite] = useState(false);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const operation = useOperationProgress();
 
-  function close() { setStep(1); setFile(null); setPreview(null); setResult(null); onClose(); }
+  function close() { setStep(1); setFile(null); setPreview(null); setResult(null); operation.reset(); onClose(); }
 
   async function handleFile(f: File) {
     setFile(f); setBusy(true);
@@ -35,12 +40,23 @@ export function CardImportWizard({ open, onClose, deckId, onDone }: { open: bool
   async function commit() {
     if (!file) return;
     setBusy(true);
-    try { setResult(await commitCardsImport(deckId, file, { auto_ipa: autoIpa, overwrite })); setStep(3); onDone(); }
-    catch (e) { toast.error(e instanceof Error ? e.message : "Import thất bại."); }
+    operation.start();
+    try {
+      const imported = await commitCardsImport(deckId, file, { auto_ipa: autoIpa, overwrite });
+      setResult(imported);
+      onDone();
+      operation.complete();
+      await new Promise((resolve) => setTimeout(resolve, 650));
+      close();
+      router.replace(`/teacher/vocabulary/${deckId}?import=success&created=${imported.created}&updated=${imported.updated}&skipped=${imported.skipped}&errors=${imported.error}`);
+      toast.success("Import thẻ từ hoàn tất. Danh sách đã được cập nhật.");
+    }
+    catch (e) { operation.reset(); toast.error(e instanceof Error ? e.message : "Import thất bại."); }
     finally { setBusy(false); }
   }
 
   return (
+    <>
     <Modal
       open={open}
       onClose={close}
@@ -120,5 +136,13 @@ export function CardImportWizard({ open, onClose, deckId, onDone }: { open: bool
         </div>
       )}
     </Modal>
+    <OperationProgressModal
+      open={operation.running}
+      progress={operation.progress}
+      title="Đang import thẻ từ"
+      description="Hệ thống đang kiểm tra và ghi các thẻ từ vào bộ từ vựng."
+      completedDescription="Import hoàn tất. Đang mở danh sách thẻ từ…"
+    />
+    </>
   );
 }

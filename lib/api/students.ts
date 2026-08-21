@@ -86,10 +86,19 @@ export function checkStudentEmail(email: string, ignoreId?: number): Promise<{ a
 }
 
 /** Import cần multipart nên gọi fetch trực tiếp (api() ép JSON). */
-async function importForm(file: File, dryRun: boolean, onDuplicate?: "skip" | "update"): Promise<Response> {
+async function importForm(
+  file: File,
+  dryRun: boolean,
+  onDuplicate?: "skip" | "update",
+  batch?: { offset: number; limit: number },
+): Promise<Response> {
   const form = new FormData();
   form.append("file", file);
   if (onDuplicate) form.append("on_duplicate", onDuplicate);
+  if (batch) {
+    form.append("offset", String(batch.offset));
+    form.append("limit", String(batch.limit));
+  }
   const token = getToken();
   return fetch(`${API_URL}/students/import?dry_run=${dryRun ? 1 : 0}`, {
     method: "POST",
@@ -113,6 +122,33 @@ export async function previewImport(file: File): Promise<ImportPreview> {
   return parseImport<ImportPreview>(await importForm(file, true));
 }
 
-export async function commitImport(file: File, onDuplicate: "skip" | "update" = "skip"): Promise<ImportResult> {
-  return parseImport<ImportResult>(await importForm(file, false, onDuplicate));
+const IMPORT_BATCH_SIZE = 100;
+
+export async function commitImport(
+  file: File,
+  totalRows: number,
+  onDuplicate: "skip" | "update" = "skip",
+  onProgress?: (completed: number, total: number) => void,
+): Promise<ImportResult> {
+  const result: ImportResult = {
+    created: [],
+    summary: { ok: 0, updated: 0, duplicate: 0, error: 0 },
+  };
+
+  for (let offset = 0; offset < totalRows; offset += IMPORT_BATCH_SIZE) {
+    const batch = await parseImport<ImportResult>(
+      await importForm(file, false, onDuplicate, {
+        offset,
+        limit: Math.min(IMPORT_BATCH_SIZE, totalRows - offset),
+      }),
+    );
+    result.created.push(...batch.created);
+    result.summary.ok += batch.summary.ok;
+    result.summary.updated = (result.summary.updated ?? 0) + (batch.summary.updated ?? 0);
+    result.summary.duplicate += batch.summary.duplicate;
+    result.summary.error += batch.summary.error;
+    onProgress?.(Math.min(offset + IMPORT_BATCH_SIZE, totalRows), totalRows);
+  }
+
+  return result;
 }

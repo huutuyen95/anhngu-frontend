@@ -31,6 +31,13 @@ export const QUESTION_TYPE_LABEL: Record<QuestionType, string> = {
 };
 
 /** Dòng danh sách đề — khớp `TestResource`. */
+export type TestFormat = "standard" | "ielts_simulation";
+
+export const TEST_FORMATS: { key: TestFormat; label: string }[] = [
+  { key: "standard", label: "Đề tiêu chuẩn" },
+  { key: "ielts_simulation", label: "IELTS Simulation" },
+];
+
 export type Test = {
   id: number;
   title: string;
@@ -39,6 +46,7 @@ export type Test = {
   category_name?: string | null;
   attempts_count?: number;
   skill: Skill;
+  format?: TestFormat;
   is_combo: boolean;
   thumbnail_url: string | null;
   duration_minutes: number;
@@ -66,6 +74,7 @@ export type TestListResponse = { data: Test[]; meta: TestListMeta };
 export type TestFilters = {
   q?: string;
   skill?: string;
+  format?: string;
   is_published?: string; // "" | "true" | "false"
   category_id?: string;
   sort?: string;
@@ -75,9 +84,17 @@ export type TestFilters = {
 };
 
 // ── Thư mục đề (cây theo lớp) ──
+export type TestGroup = "exam" | "exercise";
+
+export const TEST_GROUPS: { key: TestGroup; label: string }[] = [
+  { key: "exam", label: "Đề thi" },
+  { key: "exercise", label: "Bài tập" },
+];
+
 export type TestCategory = {
   id: number;
   name: string;
+  group?: TestGroup;
   parent_id: number | null;
   order: number;
   tests_count: number;

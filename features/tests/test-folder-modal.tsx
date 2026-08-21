@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { listTestCategories, syncTestCategories } from "@/lib/api/tests";
-import { listClassrooms } from "@/lib/api/classrooms";
+import { TEST_GROUPS, type TestGroup } from "@/lib/types/test";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,34 +14,31 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 type Row = { key: string; id: number | null; name: string; count: number };
 let uid = 0;
 
-/** A4fold — quản lý cây thư mục của một lớp. */
-export function TestFolderModal({ open, onClose, classroomId, onSaved }: {
+/** A4fold — quản lý thư mục đề theo NHÓM nội dung (Đề thi / Bài tập). */
+export function TestFolderModal({ open, onClose, group: initialGroup, onSaved }: {
   open: boolean;
   onClose: () => void;
-  classroomId: number | null;
+  group: TestGroup;
   onSaved: () => void;
 }) {
-  const [classes, setClasses] = useState<{ id: number; name: string }[]>([]);
-  const [classId, setClassId] = useState<number | null>(classroomId);
+  const [group, setGroup] = useState<TestGroup>(initialGroup);
   const [rows, setRows] = useState<Row[]>([]);
   const [deleted, setDeleted] = useState<number[]>([]);
   const [saving, setSaving] = useState(false);
   const [confirmRow, setConfirmRow] = useState<Row | null>(null);
 
   useEffect(() => {
-    if (!open) return;
-    setClassId(classroomId);
-    listClassrooms().then((r) => setClasses(r.data.map((c) => ({ id: c.id, name: c.name })))).catch(() => {});
-  }, [open, classroomId]);
+    if (open) setGroup(initialGroup);
+  }, [open, initialGroup]);
 
   useEffect(() => {
     if (!open) return;
     setDeleted([]);
-    listTestCategories(classId).then((r) => {
+    listTestCategories(group).then((r) => {
       const flat = r.data.filter((c) => c.name !== "Chưa phân loại");
       setRows(flat.map((c) => ({ key: `c${++uid}`, id: c.id, name: c.name, count: c.tests_count })));
     }).catch(() => setRows([]));
-  }, [open, classId]);
+  }, [open, group]);
 
   function move(i: number, dir: -1 | 1) {
     const j = i + dir;
@@ -64,7 +61,7 @@ export function TestFolderModal({ open, onClose, classroomId, onSaved }: {
     setSaving(true);
     try {
       const { moved_count } = await syncTestCategories({
-        classroom_id: classId,
+        group,
         categories: rows.map((r, i) => ({ id: r.id, name: r.name.trim(), order: i + 1 })),
         deleted_ids: deleted,
       });
@@ -83,10 +80,9 @@ export function TestFolderModal({ open, onClose, classroomId, onSaved }: {
         <Button onClick={save} loading={saving}>Lưu</Button>
       </>}>
       <label className="mb-3 block">
-        <span className="text-xs font-bold uppercase text-text-muted">Cây thư mục của</span>
-        <Select block wrapClassName="mt-1" value={classId ?? ""} onChange={(e) => setClassId(e.target.value ? Number(e.target.value) : null)}>
-          <option value="">Dùng chung (không theo lớp)</option>
-          {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        <span className="text-xs font-bold uppercase text-text-muted">Thư mục thuộc nhóm</span>
+        <Select block wrapClassName="mt-1" value={group} onChange={(e) => setGroup(e.target.value as TestGroup)}>
+          {TEST_GROUPS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}
         </Select>
       </label>
 
@@ -107,7 +103,7 @@ export function TestFolderModal({ open, onClose, classroomId, onSaved }: {
       </div>
 
       <div className="mt-3 rounded-xl bg-accent-soft px-4 py-2.5 text-xs text-text-secondary">
-        Xoá thư mục còn đề → các đề sẽ được dồn về “Chưa phân loại” của lớp, không mất.
+        Xoá thư mục còn đề → các đề sẽ được dồn về “Chưa phân loại” của nhóm, không mất.
       </div>
 
       <ConfirmDialog open={!!confirmRow} onClose={() => setConfirmRow(null)}

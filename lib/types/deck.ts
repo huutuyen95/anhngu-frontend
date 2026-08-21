@@ -41,6 +41,18 @@ export type Card = {
   progress_status?: "new" | "learning" | "known";
 };
 
+export type CardListResponse = {
+  data: Card[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    from: number | null;
+    to: number | null;
+    total: number;
+  };
+};
+
 export type LibraryDeck = {
   id: number;
   name: string;

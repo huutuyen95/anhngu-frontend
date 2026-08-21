@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { listTestCategories, moveTestCategory } from "@/lib/api/tests";
-import { listClassrooms } from "@/lib/api/classrooms";
+import { listAllTestFolders, moveTestCategory } from "@/lib/api/tests";
+import { TEST_GROUPS, type TestGroup } from "@/lib/types/test";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
@@ -16,22 +16,20 @@ export function MoveTestModal({ test, open, onClose, onDone }: {
   onClose: () => void;
   onDone: () => void;
 }) {
-  const [classes, setClasses] = useState<{ id: number; name: string }[]>([]);
-  const [classId, setClassId] = useState<number | null>(null);
-  const [folders, setFolders] = useState<{ id: number; name: string }[]>([]);
+  const [folders, setFolders] = useState<{ id: number; name: string; group: TestGroup }[]>([]);
   const [folderId, setFolderId] = useState<number | null>(test?.category_id ?? null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setFolderId(test?.category_id ?? null);
-    listClassrooms().then((r) => setClasses(r.data.map((c) => ({ id: c.id, name: c.name })))).catch(() => {});
+    listAllTestFolders().then(setFolders).catch(() => setFolders([]));
   }, [open, test]);
 
-  useEffect(() => {
-    if (!open) return;
-    listTestCategories(classId).then((r) => setFolders(r.data.map((c) => ({ id: c.id, name: c.name })))).catch(() => setFolders([]));
-  }, [open, classId]);
+  const byGroup = useMemo(
+    () => TEST_GROUPS.map((g) => ({ ...g, items: folders.filter((f) => f.group === g.key) })),
+    [folders],
+  );
 
   async function save() {
     if (!test) return;
@@ -54,17 +52,14 @@ export function MoveTestModal({ test, open, onClose, onDone }: {
         <Button onClick={save} loading={busy}>Lưu</Button>
       </>}>
       <label className="block">
-        <span className="text-xs font-bold uppercase text-text-muted">Lớp</span>
-        <Select block wrapClassName="mt-1" value={classId ?? ""} onChange={(e) => setClassId(e.target.value ? Number(e.target.value) : null)}>
-          <option value="">Dùng chung (không theo lớp)</option>
-          {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </Select>
-      </label>
-      <label className="mt-3 block">
         <span className="text-xs font-bold uppercase text-text-muted">Thư mục</span>
         <Select block wrapClassName="mt-1" value={folderId ?? ""} onChange={(e) => setFolderId(e.target.value ? Number(e.target.value) : null)}>
           <option value="">— Chưa phân loại —</option>
-          {folders.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+          {byGroup.map((g) => (
+            <optgroup key={g.key} label={g.label}>
+              {g.items.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+            </optgroup>
+          ))}
         </Select>
       </label>
     </Modal>

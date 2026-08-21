@@ -11,7 +11,6 @@ import {
   BookA,
   Files,
   ClipboardList,
-  PenLine,
   Newspaper,
   Settings,
   Bell,
@@ -38,7 +37,6 @@ const NAV: NavItem[] = [
   { label: "Tài liệu & Bài giảng", href: "/teacher/documents", icon: Files, ready: true },
   { label: "Bài viết", href: "/teacher/articles", icon: Newspaper, ready: true },
   { label: "Kết quả làm bài", href: "/teacher/results", icon: ClipboardList, ready: true },
-  { label: "Chấm bài", href: "/teacher/grading", icon: PenLine, badge: 0 },
 ];
 
 export function TeacherShell({ children }: { children: ReactNode }) {

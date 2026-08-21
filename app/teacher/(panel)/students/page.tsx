@@ -39,6 +39,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ImportResultNotice } from "@/components/ui/import-result-notice";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { StudentFormModal } from "@/features/students/student-form-modal";
 import { ImportWizard } from "@/features/students/import-wizard";
@@ -236,6 +237,12 @@ function StudentsView() {
 
   return (
     <div className="mx-auto max-w-6xl">
+      {params.get("import") === "success" ? (
+        <ImportResultNotice
+          title="Import học sinh hoàn tất"
+          detail={`Đã tạo ${params.get("created") ?? "0"}, cập nhật ${params.get("updated") ?? "0"}, bỏ qua ${params.get("skipped") ?? "0"} và có ${params.get("errors") ?? "0"} dòng lỗi.`}
+        />
+      ) : null}
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>

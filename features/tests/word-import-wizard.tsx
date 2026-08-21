@@ -2,29 +2,29 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileUp, Download, BookOpen, Check, AlertCircle, XCircle, Loader2, ArrowLeft } from "lucide-react";
+import { FileUp, Download, BookOpen, Check, AlertCircle, XCircle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { importWordDryRun, importWordCommit, downloadWordTemplate } from "@/lib/api/tests";
-import { listClassrooms } from "@/lib/api/classrooms";
-import { listTestCategories } from "@/lib/api/tests";
+import { listAllTestFolders } from "@/lib/api/tests";
+import { TEST_GROUPS, type TestGroup, type TestFormat } from "@/lib/types/test";
 import type { WordImportPreview, QuestionType } from "@/lib/types/test";
 import { QUESTION_TYPE_LABEL } from "@/lib/types/test";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { OperationProgressModal } from "@/components/ui/operation-progress-modal";
 import { Select } from "@/components/ui/select";
 import { WordGuideDrawer } from "@/features/tests/word-guide-drawer";
+import { useOperationProgress } from "@/hooks/use-operation-progress";
 import { cn } from "@/lib/utils";
 
 type Step = 1 | 2;
 
 /** A4imp — wizard import đề từ Word. */
-export function WordImportWizard({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function WordImportWizard({ open, onClose, onDone, format }: { open: boolean; onClose: () => void; onDone: () => void; format?: TestFormat }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
   const [guide, setGuide] = useState(false);
-  const [classes, setClasses] = useState<{ id: number; name: string }[]>([]);
-  const [classId, setClassId] = useState<number | null>(null);
-  const [folders, setFolders] = useState<{ id: number; name: string }[]>([]);
+  const [folders, setFolders] = useState<{ id: number; name: string; group: TestGroup }[]>([]);
   const [folderId, setFolderId] = useState<number | null>(null);
   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -33,17 +33,13 @@ export function WordImportWizard({ open, onClose }: { open: boolean; onClose: ()
   const [types, setTypes] = useState<Record<number, QuestionType>>({});
   const [contents, setContents] = useState<Record<number, string>>({});
   const [committing, setCommitting] = useState(false);
+  const operation = useOperationProgress();
 
   useEffect(() => {
     if (!open) return;
     setStep(1); setPreview(null); setFile(null); setTitle("");
-    listClassrooms().then((r) => setClasses(r.data.map((c) => ({ id: c.id, name: c.name })))).catch(() => {});
+    listAllTestFolders().then(setFolders).catch(() => setFolders([]));
   }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    listTestCategories(classId).then((r) => setFolders(r.data.map((c) => ({ id: c.id, name: c.name })))).catch(() => setFolders([]));
-  }, [open, classId]);
 
   async function analyze() {
     if (!file) { toast.error("Chọn file .docx trước."); return; }
@@ -75,12 +71,20 @@ export function WordImportWizard({ open, onClose }: { open: boolean; onClose: ()
   async function commit() {
     if (!title.trim()) { toast.error("Nhập tên đề."); return; }
     setCommitting(true);
+    operation.start();
     try {
-      const { test } = await importWordCommit({ title: title.trim(), skill: "reading", category_id: folderId, parts: editedParts });
-      toast.success("Đã tạo đề từ Word.");
+      const { test } = await importWordCommit({ title: title.trim(), skill: "reading", format: format ?? "standard", category_id: folderId, parts: editedParts });
+      operation.complete();
+      await new Promise((resolve) => setTimeout(resolve, 650));
+      operation.reset();
+      onDone();
       onClose();
-      router.push(`/teacher/tests/${test.id}/edit`);
-    } catch { toast.error("Không lưu được đề."); }
+      router.push(`/teacher/tests?import=success&created=1&questions=${preview?.questions.length ?? 0}&test_id=${test.id}`);
+      toast.success("Import đề thi hoàn tất. Đề mới đã có trong danh sách.");
+    } catch {
+      operation.reset();
+      toast.error("Không lưu được đề.");
+    }
     finally { setCommitting(false); }
   }
 
@@ -111,25 +115,22 @@ export function WordImportWizard({ open, onClose }: { open: boolean; onClose: ()
           ) : (
             <div className="flex w-full items-center justify-between gap-2">
               <Button variant="outline" iconLeft={<ArrowLeft className="size-4" />} onClick={() => setStep(1)}>Chọn file khác</Button>
-              <Button onClick={commit} loading={committing}>Lưu & mở trình soạn</Button>
+              <Button onClick={commit} loading={committing}>Import đề thi</Button>
             </div>
           )
         }>
         {step === 1 ? (
           <div className="flex flex-col gap-4">
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block">
-                <span className="text-xs font-bold uppercase text-text-muted">Lớp</span>
-                <Select block wrapClassName="mt-1" value={classId ?? ""} onChange={(e) => setClassId(e.target.value ? Number(e.target.value) : null)}>
-                  <option value="">Dùng chung</option>
-                  {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </Select>
-              </label>
-              <label className="block">
+              <label className="block sm:col-span-2">
                 <span className="text-xs font-bold uppercase text-text-muted">Thư mục đích</span>
                 <Select block wrapClassName="mt-1" value={folderId ?? ""} onChange={(e) => setFolderId(e.target.value ? Number(e.target.value) : null)}>
                   <option value="">Chưa phân loại</option>
-                  {folders.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+                  {TEST_GROUPS.map((g) => (
+                    <optgroup key={g.key} label={g.label}>
+                      {folders.filter((f) => f.group === g.key).map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+                    </optgroup>
+                  ))}
                 </Select>
               </label>
             </div>
@@ -197,6 +198,13 @@ export function WordImportWizard({ open, onClose }: { open: boolean; onClose: ()
       </Modal>
 
       <WordGuideDrawer open={guide} onClose={() => setGuide(false)} />
+      <OperationProgressModal
+        open={operation.running}
+        progress={operation.progress}
+        title="Đang import đề thi"
+        description={`Hệ thống đang lưu ${preview?.questions.length ?? 0} câu hỏi và cấu trúc đề.`}
+        completedDescription="Import hoàn tất. Đang mở danh sách đề thi…"
+      />
     </>
   );
 }

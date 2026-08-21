@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { UploadCloud, FileSpreadsheet, Download } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError, downloadFile } from "@/lib/api";
@@ -9,6 +10,8 @@ import type { ImportPreview, ImportResult } from "@/lib/types/student";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { OperationProgressModal } from "@/components/ui/operation-progress-modal";
+import { useOperationProgress } from "@/hooks/use-operation-progress";
 
 type Props = { open: boolean; onClose: () => void; onDone: () => void };
 
@@ -19,14 +22,17 @@ const STATUS_TONE = {
 } as const;
 
 export function ImportWizard({ open, onClose, onDone }: Props) {
+  const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null);
   const [onDuplicate, setOnDuplicate] = useState<"skip" | "update">("skip");
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const operation = useOperationProgress();
 
   function reset() {
     setStep(1);
@@ -34,7 +40,9 @@ export function ImportWizard({ open, onClose, onDone }: Props) {
     setPreview(null);
     setResult(null);
     setBusy(false);
+    setProgress(null);
     setOnDuplicate("skip");
+    operation.reset();
   }
 
   function downloadRows(rows: { row: number; name: string; email: string; class: string | null; status: string; reasons: string[] }[], name: string) {
@@ -68,21 +76,34 @@ export function ImportWizard({ open, onClose, onDone }: Props) {
   async function handleCommit() {
     if (!file) return;
     setBusy(true);
+    setProgress({ completed: 0, total: preview?.rows.length ?? 0 });
+    operation.start();
     try {
-      const r = await commitImport(file, onDuplicate);
+      const r = await commitImport(file, preview?.rows.length ?? 0, onDuplicate, (completed, total) => {
+        setProgress({ completed, total });
+        operation.update(total > 0 ? (completed / total) * 98 : 1);
+      });
       setResult(r);
-      setStep(3);
+      downloadPasswords(r);
       onDone();
+      operation.complete();
+      await new Promise((resolve) => setTimeout(resolve, 650));
+      const detail = `created=${r.summary.ok}&updated=${r.summary.updated ?? 0}&skipped=${r.summary.duplicate}&errors=${r.summary.error}`;
+      close();
+      router.replace(`/teacher/students?import=success&${detail}`);
+      toast.success("Import học sinh hoàn tất. Danh sách đã được cập nhật.");
     } catch (err) {
+      operation.reset();
       toast.error(err instanceof ApiError ? err.message : "Import thất bại.");
     } finally {
       setBusy(false);
+      setProgress(null);
     }
   }
 
-  function downloadPasswords() {
-    if (!result) return;
-    const lines = ["email,password", ...result.created.map((c) => `${c.email},${c.password}`)];
+  function downloadPasswords(importResult: ImportResult) {
+    if (!importResult.created.length) return;
+    const lines = ["email,password", ...importResult.created.map((c) => `${c.email},${c.password}`)];
     const blob = new Blob([lines.join("\n")], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -93,6 +114,7 @@ export function ImportWizard({ open, onClose, onDone }: Props) {
   }
 
   return (
+    <>
     <Modal
       open={open}
       onClose={close}
@@ -220,7 +242,9 @@ export function ImportWizard({ open, onClose, onDone }: Props) {
             </table>
           </div>
           <p className="mt-3 text-xs text-text-muted">
-            Chưa có gì được ghi vào hệ thống. Bấm Import để tạo các dòng hợp lệ.
+            {busy && progress
+              ? `Đang import ${progress.completed}/${progress.total} dòng. Vui lòng giữ cửa sổ này mở.`
+              : "Chưa có gì được ghi vào hệ thống. Bấm Import để tạo các dòng hợp lệ."}
           </p>
         </div>
       )}
@@ -235,12 +259,20 @@ export function ImportWizard({ open, onClose, onDone }: Props) {
             {(result.summary.updated ?? 0) > 0 ? `Cập nhật ${result.summary.updated} trùng · ` : `Bỏ qua ${result.summary.duplicate} trùng · `}{result.summary.error} lỗi.
           </p>
           {result.created.length > 0 && (
-            <Button variant="outline" iconLeft={<Download className="size-4" />} onClick={downloadPasswords}>
+            <Button variant="outline" iconLeft={<Download className="size-4" />} onClick={() => downloadPasswords(result)}>
               Tải danh sách mật khẩu tạm
             </Button>
           )}
         </div>
       )}
     </Modal>
+    <OperationProgressModal
+      open={operation.running}
+      progress={operation.progress}
+      title="Đang import học sinh"
+      description="Hệ thống đang kiểm tra và ghi dữ liệu theo từng đợt."
+      completedDescription="Import hoàn tất. Đang mở danh sách học sinh…"
+    />
+    </>
   );
 }

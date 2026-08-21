@@ -2,7 +2,7 @@
 
 import { Suspense, use, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Plus,
@@ -21,15 +21,16 @@ import {
   deleteCard,
   getDeck,
   listCards,
-  reorderCards,
+  moveCard,
   updateDeck,
 } from "@/lib/api/decks";
-import { TTS_RATES, VOICE_OPTIONS, type Card, type Deck } from "@/lib/types/deck";
+import { TTS_RATES, VOICE_OPTIONS, type Card, type CardListResponse, type Deck } from "@/lib/types/deck";
 import type { VoiceKey } from "@/lib/tts";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ImportResultNotice } from "@/components/ui/import-result-notice";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PronounceButton } from "@/components/ui/pronounce-button";
@@ -39,9 +40,11 @@ import { DeckPreviewModal } from "@/features/vocabulary/deck-preview-modal";
 import { ExampleText } from "@/features/vocabulary/example-text";
 
 function DeckDetail({ deckId }: { deckId: number }) {
+  const router = useRouter();
   const params = useSearchParams();
   const [deck, setDeck] = useState<Deck | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
+  const [meta, setMeta] = useState<CardListResponse["meta"] | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [q, setQ] = useState("");
@@ -52,22 +55,34 @@ function DeckDetail({ deckId }: { deckId: number }) {
   const [previewOpen, setPreviewOpen] = useState(params.get("preview") === "1");
   const [confirmDel, setConfirmDel] = useState<Card | null>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const page = Math.max(1, Number(params.get("page") ?? "1") || 1);
 
   const loadDeck = useCallback(() => {
     getDeck(deckId).then((r) => setDeck(r.deck)).catch(() => setDeck(null));
   }, [deckId]);
 
   const loadCards = useCallback(() => {
-    return listCards(deckId, { q, missing }).then((r) => setCards(r.data)).catch(() => setCards([]));
-  }, [deckId, q, missing]);
+    setLoading(true);
+    return listCards(deckId, { q, missing, page, per_page: 25 })
+      .then((r) => { setCards(r.data); setMeta(r.meta); })
+      .catch(() => { setCards([]); setMeta(null); })
+      .finally(() => setLoading(false));
+  }, [deckId, missing, page, q]);
 
   useEffect(() => { loadDeck(); }, [loadDeck]);
-  useEffect(() => { loadCards().finally(() => setLoading(false)); }, [loadCards]);
+  useEffect(() => { loadCards(); }, [loadCards]);
+
+  const setPage = useCallback((nextPage: number) => {
+    const query = new URLSearchParams(params.toString());
+    if (nextPage <= 1) query.delete("page");
+    else query.set("page", String(nextPage));
+    router.replace(`/teacher/vocabulary/${deckId}?${query.toString()}`);
+  }, [deckId, params, router]);
 
   function onSearchChange(v: string) {
     setSearch(v);
     if (searchTimer.current) clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(() => setQ(v), 350);
+    searchTimer.current = setTimeout(() => { setPage(1); setQ(v); }, 350);
   }
 
   async function saveTts(patch: { tts_voice?: VoiceKey; tts_rate?: number }) {
@@ -76,20 +91,18 @@ function DeckDetail({ deckId }: { deckId: number }) {
     await updateDeck(deck.id, patch).then(() => toast.success("Đã lưu giọng đọc")).catch(() => toast.error("Không lưu được."));
   }
 
-  async function move(i: number, dir: -1 | 1) {
-    const j = i + dir;
-    if (j < 0 || j >= cards.length) return;
-    const next = [...cards];
-    [next[i], next[j]] = [next[j], next[i]];
-    setCards(next);
-    await reorderCards(deckId, next.map((c) => c.id)).catch(() => toast.error("Không lưu được thứ tự."));
+  async function move(card: Card, direction: -1 | 1) {
+    await moveCard(card.id, direction)
+      .then(() => loadCards())
+      .catch(() => toast.error("Không lưu được thứ tự."));
   }
 
   async function doDelete(card: Card) {
     await deleteCard(card.id);
     setConfirmDel(null);
     toast.success("Đã xoá thẻ.");
-    loadCards();
+    if (cards.length === 1 && page > 1) setPage(page - 1);
+    else loadCards();
     loadDeck();
   }
 
@@ -101,6 +114,12 @@ function DeckDetail({ deckId }: { deckId: number }) {
 
   return (
     <div className="mx-auto max-w-6xl">
+      {params.get("import") === "success" ? (
+        <ImportResultNotice
+          title="Import thẻ từ hoàn tất"
+          detail={`Đã tạo ${params.get("created") ?? "0"}, cập nhật ${params.get("updated") ?? "0"}, bỏ qua ${params.get("skipped") ?? "0"} và có ${params.get("errors") ?? "0"} dòng lỗi.`}
+        />
+      ) : null}
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Link href="/teacher/vocabulary" aria-label="Về danh sách bộ từ" className="flex size-11 shrink-0 items-center justify-center rounded-2xl border-[1.5px] border-border bg-surface text-text-secondary hover:border-brand hover:text-brand">
           <ArrowLeft className="size-5" />
@@ -125,7 +144,7 @@ function DeckDetail({ deckId }: { deckId: number }) {
           <Input value={search} onChange={(e) => onSearchChange(e.target.value)} placeholder="Tìm từ, nghĩa hoặc câu mẫu…" className="h-10 pl-9" />
         </div>
         {[["", "Tất cả"], ["audio", "⚠ Thiếu audio"], ["image", "Thiếu ảnh"], ["ipa", "Thiếu IPA"], ["example", "Thiếu câu mẫu"]].map(([k, l]) => (
-          <button key={k} onClick={() => setMissing(k)} className={"rounded-full px-3 py-1.5 text-xs font-semibold transition-colors " + (missing === k ? "bg-brand text-white" : "bg-surface-alt text-text-secondary hover:bg-brand-soft")}>{l}</button>
+          <button key={k} onClick={() => { setPage(1); setMissing(k); }} className={"rounded-full px-3 py-1.5 text-xs font-semibold transition-colors " + (missing === k ? "bg-brand text-white" : "bg-surface-alt text-text-secondary hover:bg-brand-soft")}>{l}</button>
         ))}
         <div className="ml-auto flex items-center gap-2">
           <Select value={deck.tts_voice} onChange={(e) => saveTts({ tts_voice: e.target.value as VoiceKey })} aria-label="Giọng đọc">
@@ -160,10 +179,10 @@ function DeckDetail({ deckId }: { deckId: number }) {
                   <tr key={c.id} className="border-t border-border hover:bg-surface-alt">
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-1 text-text-muted">
-                        <span className="w-5 text-center">{i + 1}</span>
+                        <span className="w-7 text-center">{(meta?.from ?? 1) + i}</span>
                         <div className="flex flex-col">
-                          <button onClick={() => move(i, -1)} disabled={i === 0} aria-label="Lên" className="text-text-muted hover:text-brand disabled:opacity-30"><ChevronUp className="size-3.5" /></button>
-                          <button onClick={() => move(i, 1)} disabled={i === cards.length - 1} aria-label="Xuống" className="text-text-muted hover:text-brand disabled:opacity-30"><ChevronDown className="size-3.5" /></button>
+                          <button onClick={() => move(c, -1)} disabled={!!q || !!missing || (meta?.from ?? 1) + i <= 1} aria-label={`Đưa ${c.term} lên`} className="text-text-muted hover:text-brand disabled:opacity-30"><ChevronUp className="size-3.5" /></button>
+                          <button onClick={() => move(c, 1)} disabled={!!q || !!missing || (meta?.from ?? 1) + i >= (meta?.total ?? cards.length)} aria-label={`Đưa ${c.term} xuống`} className="text-text-muted hover:text-brand disabled:opacity-30"><ChevronDown className="size-3.5" /></button>
                         </div>
                       </div>
                     </td>
@@ -211,7 +230,21 @@ function DeckDetail({ deckId }: { deckId: number }) {
           </div>
         )}
       </div>
-      <p className="mt-2 text-xs text-text-muted">Thứ tự thẻ = thứ tự học sinh gặp khi học. Dùng ↑/↓ để đổi.</p>
+      {meta && meta.last_page > 1 ? (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-text-muted">
+            Hiển thị {meta.from ?? 0}–{meta.to ?? 0} trong tổng số {meta.total} thẻ
+          </p>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" disabled={meta.current_page <= 1} onClick={() => setPage(meta.current_page - 1)}>Trước</Button>
+            <span className="min-w-24 text-center text-sm font-semibold text-text-secondary">Trang {meta.current_page}/{meta.last_page}</span>
+            <Button variant="outline" size="sm" disabled={meta.current_page >= meta.last_page} onClick={() => setPage(meta.current_page + 1)}>Sau</Button>
+          </div>
+        </div>
+      ) : null}
+      <p className="mt-2 text-xs text-text-muted">
+        {q || missing ? "Xoá tìm kiếm/bộ lọc để thay đổi thứ tự thẻ." : "Thứ tự thẻ = thứ tự học sinh gặp khi học. Dùng ↑/↓ để đổi, kể cả giữa hai trang."}
+      </p>
 
       <CardFormModal open={cardOpen} onClose={() => setCardOpen(false)} deck={deck} editing={editing} onSaved={() => { loadCards(); loadDeck(); }} />
       <CardImportWizard open={importOpen} onClose={() => setImportOpen(false)} deckId={deckId} onDone={() => { loadCards(); loadDeck(); }} />

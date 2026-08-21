@@ -1,6 +1,7 @@
 import { api, apiForm } from "@/lib/api";
 import type {
   Card,
+  CardListResponse,
   CardImportPreview,
   Deck,
   DeckListResponse,
@@ -68,10 +69,12 @@ export function syncDeckCategories(payload: {
 
 // ── Admin: cards ──
 
-export function listCards(deckId: number, opts: { q?: string; missing?: string } = {}): Promise<{ data: Card[] }> {
+export function listCards(deckId: number, opts: { q?: string; missing?: string; page?: number; per_page?: number } = {}): Promise<CardListResponse> {
   const qs = new URLSearchParams();
   if (opts.q) qs.set("q", opts.q);
   if (opts.missing) qs.set("missing", opts.missing);
+  if (opts.page && opts.page > 1) qs.set("page", String(opts.page));
+  if (opts.per_page) qs.set("per_page", String(opts.per_page));
   const q = qs.toString();
   return api(`/decks/${deckId}/cards${q ? `?${q}` : ""}`);
 }
@@ -89,6 +92,9 @@ export function deleteCard(id: number): Promise<{ message: string }> {
 }
 export function reorderCards(deckId: number, ids: number[]): Promise<{ message: string }> {
   return api(`/decks/${deckId}/cards/reorder`, { method: "PUT", body: JSON.stringify({ ids }) });
+}
+export function moveCard(id: number, direction: -1 | 1): Promise<{ message: string }> {
+  return api(`/cards/${id}/move`, { method: "PATCH", body: JSON.stringify({ direction }) });
 }
 export function deleteCardAudio(id: number): Promise<{ message: string }> {
   return api(`/cards/${id}/audio`, { method: "DELETE" });
