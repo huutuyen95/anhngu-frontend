@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { BookmarkPlus, Check, X, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { saveVocab, type DictResult } from "@/lib/api/dictionary";
+import { X, Loader2 } from "lucide-react";
+import type { DictResult } from "@/lib/api/dictionary";
 import { PronounceButton } from "@/components/ui/pronounce-button";
 import type { SelectionPopup } from "@/hooks/useSelectionDictionary";
 
 /**
- * Popover tra từ (desktop) / bottom-sheet (mobile) khi bôi đen từ trong tài liệu.
- * Hiện từ + IPA + nút nghe + nghĩa tiếng Việt + "Lưu vào bộ từ".
+ * Popover tra từ (desktop) / bottom-sheet (mobile) khi bôi đen từ.
+ * Hiện từ + IPA + nút nghe + nghĩa tiếng Việt.
+ *
+ * TẠM ẨN nút "Lưu vào bộ từ": từ lưu xuống bảng `user_vocab` nhưng chưa có màn nào cho em
+ * xem lại hay xoá, nên bấm xong là mất hút — thà không có nút còn hơn hứa suông. Backend
+ * (`POST /me/vocab`) vẫn còn nguyên; khi nào làm màn "Sổ từ của em" thì gắn nút lại.
  */
 export function DictionaryPopover({ popup, result, loading, onClose }: {
   popup: SelectionPopup;
@@ -17,18 +19,6 @@ export function DictionaryPopover({ popup, result, loading, onClose }: {
   loading: boolean;
   onClose: () => void;
 }) {
-  const [saved, setSaved] = useState(false);
-  useEffect(() => { setSaved(false); }, [popup.word]);
-
-  async function save() {
-    if (!result) return;
-    try {
-      await saveVocab({ word: result.word, meaning: result.meaning_vi, ipa: result.ipa });
-      setSaved(true);
-      toast.success(`Đã lưu "${result.word}".`);
-    } catch { toast.error("Không lưu được từ."); }
-  }
-
   const body = (
     <>
       {loading ? (
@@ -46,10 +36,6 @@ export function DictionaryPopover({ popup, result, loading, onClose }: {
             <p className="text-xs text-text-muted">dạng gốc của “{popup.word}”</p>
           )}
           <p className="mt-1 text-[15px] text-text">{result.meaning_vi ?? "—"}</p>
-          <button onClick={save} disabled={saved}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-1.5 text-sm font-semibold text-white shadow-[0_3px_0_var(--color-brand-bold)] disabled:opacity-60 disabled:shadow-none">
-            {saved ? <><Check className="size-4" /> Đã lưu</> : <><BookmarkPlus className="size-4" /> Lưu vào bộ từ</>}
-          </button>
         </>
       )}
     </>

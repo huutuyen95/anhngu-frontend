@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -14,6 +14,7 @@ import {
   type TestDetail,
   type TestAttemptState,
 } from "@/features/tests/use-test-attempt";
+import { AttemptDictionary } from "@/features/tests/attempt-dictionary";
 
 /* ────────────────────────────────────────────────────────────────────────────
    Màn làm bài ĐỀ WRITING (S8) — một cột, mỗi câu hỏi là một khung khép kín bao
@@ -62,8 +63,11 @@ export function WritingTestAttempt({
     setWordCounts((prev) => (prev[questionId] === count ? prev : { ...prev, [questionId]: count }));
   }
 
+  // Vùng cho phép bôi đen tra từ — server quyết bật/tắt qua `dictionaryEnabled`.
+  const dictRef = useRef<HTMLDivElement | null>(null);
+
   return (
-    <div className="mx-auto flex max-w-[920px] flex-col gap-[18px] pb-2">
+    <div ref={dictRef} className="mx-auto flex max-w-[920px] flex-col gap-[18px] pb-2">
       {/* ── Hàng tiêu đề ── */}
       <div className="flex items-center gap-3.5">
         <Link
@@ -235,6 +239,9 @@ export function WritingTestAttempt({
         onClose={attempt.goToResult}
         limit={attempt.exitLimit}
       />
+
+      {/* Bôi đen một từ → hiện nghĩa + phiên âm. Bài cô giao ở lớp thì server tắt sẵn. */}
+      <AttemptDictionary enabled={attempt.dictionaryEnabled} containerRef={dictRef} />
     </div>
   );
 }

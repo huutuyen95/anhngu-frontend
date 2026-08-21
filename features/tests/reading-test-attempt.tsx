@@ -13,6 +13,7 @@ import {
   type TestDetail,
   type TestAttemptState,
 } from "@/features/tests/use-test-attempt";
+import { AttemptDictionary } from "@/features/tests/attempt-dictionary";
 
 /* ────────────────────────────────────────────────────────────────────────────
    Màn làm bài ĐỀ READING (S7d) — "trang sách" 2 cột, toàn màn hình:
@@ -107,8 +108,12 @@ export function ReadingTestAttempt({
     scroller.scrollTo({ top: Math.max(0, el.offsetTop - 18), behavior: "smooth" });
   }
 
+  // Vùng cho phép bôi đen tra từ — server quyết bật/tắt qua `dictionaryEnabled`.
+  const dictRef = useRef<HTMLDivElement | null>(null);
+
   return (
     <div
+      ref={dictRef}
       className="fixed inset-0 z-50 flex flex-col overflow-hidden rounded-[26px]"
       style={{ background: "#FBF7EA", fontFamily: "var(--font-sans)" }}
     >
@@ -342,6 +347,9 @@ export function ReadingTestAttempt({
         onClose={attempt.goToResult}
         limit={attempt.exitLimit}
       />
+
+      {/* Bôi đen một từ → hiện nghĩa + phiên âm. Bài cô giao ở lớp thì server tắt sẵn. */}
+      <AttemptDictionary enabled={attempt.dictionaryEnabled} containerRef={dictRef} />
     </div>
   );
 }

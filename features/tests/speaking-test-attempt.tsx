@@ -21,6 +21,7 @@ import {
   type TestDetail,
   type TestAttemptState,
 } from "@/features/tests/use-test-attempt";
+import { AttemptDictionary } from "@/features/tests/attempt-dictionary";
 
 /* ────────────────────────────────────────────────────────────────────────────
    Màn làm bài ĐỀ NÓI (S8s) — một cột 920px, mỗi câu là MỘT khung khép kín 4 tầng:
@@ -161,8 +162,11 @@ export function SpeakingTestAttempt({
     setSavedAt((prev) => ({ ...prev, [question.id]: "" }));
   }
 
+  // Vùng cho phép bôi đen tra từ — server quyết bật/tắt qua `dictionaryEnabled`.
+  const dictRef = useRef<HTMLDivElement | null>(null);
+
   return (
-    <div className="mx-auto flex max-w-[920px] flex-col gap-[18px] pb-2">
+    <div ref={dictRef} className="mx-auto flex max-w-[920px] flex-col gap-[18px] pb-2">
       {/* ── Hàng tiêu đề ── */}
       <div className="flex flex-wrap items-center gap-3.5">
         <Link
@@ -331,6 +335,9 @@ export function SpeakingTestAttempt({
         onClose={attempt.goToResult}
         limit={attempt.exitLimit}
       />
+
+      {/* Bôi đen một từ → hiện nghĩa + phiên âm. Bài cô giao ở lớp thì server tắt sẵn. */}
+      <AttemptDictionary enabled={attempt.dictionaryEnabled} containerRef={dictRef} />
     </div>
   );
 }

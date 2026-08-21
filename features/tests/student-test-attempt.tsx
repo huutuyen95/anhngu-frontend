@@ -19,6 +19,7 @@ import { OriginChip } from "@/features/tests/attempt-origin";
 import { ReadingTestAttempt } from "@/features/tests/reading-test-attempt";
 import { SpeakingTestAttempt } from "@/features/tests/speaking-test-attempt";
 import { WritingTestAttempt } from "@/features/tests/writing-test-attempt";
+import { AttemptDictionary } from "@/features/tests/attempt-dictionary";
 
 /* ────────────────────────────────────────────────────────────────────────────
    Màn làm bài (S7). Đề hỗn hợp: 3 dạng câu dùng CHUNG một cấu trúc card, chỉ
@@ -166,8 +167,11 @@ function DefaultTestAttempt({ attempt, test }: { attempt: TestAttemptState; test
     remainingMs !== null && totalMs ? Math.min(1, Math.max(0, remainingMs / totalMs)) : null;
   const urgent = remainingMs !== null && remainingMs < 5 * 60_000;
 
+  // Vùng cho phép bôi đen tra từ — server quyết bật/tắt qua `dictionaryEnabled`.
+  const dictRef = useRef<HTMLDivElement | null>(null);
+
   return (
-    <div className="flex items-start gap-7 pb-2">
+    <div ref={dictRef} className="flex items-start gap-7 pb-2">
       {/* ── Cột trái: tiêu đề + khung cuộn câu hỏi ── */}
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex items-center gap-3.5">
@@ -407,6 +411,9 @@ function DefaultTestAttempt({ attempt, test }: { attempt: TestAttemptState; test
         onClose={attempt.goToResult}
         limit={attempt.exitLimit}
       />
+
+      {/* Bôi đen một từ → hiện nghĩa + phiên âm. Bài cô giao ở lớp thì server tắt sẵn. */}
+      <AttemptDictionary enabled={attempt.dictionaryEnabled} containerRef={dictRef} />
     </div>
   );
 }

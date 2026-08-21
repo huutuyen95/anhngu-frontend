@@ -90,6 +90,8 @@ type AttemptState = ClockState & {
   tab_exit_limit: number;
   tab_exit_action?: ExitAction;
   block_copy?: boolean;
+  /** Có cho bôi đen tra từ điển không — bài cô giao ở lớp luôn `false`. */
+  dictionary_enabled?: boolean;
   autosubmit_on_timeout?: boolean;
   answers: Answer[];
 };
@@ -158,6 +160,8 @@ export type TestAttemptState = {
   autoSubmitted: boolean;
   /** Bài cô giao (kèm lớp/buổi) hay em tự luyện — để header nói rõ em đang làm bài nào. */
   origin: AttemptOrigin;
+  /** Cho bôi đen tra từ điển không (Thư viện + Nhiệm vụ: có; bài giao ở lớp: không). */
+  dictionaryEnabled: boolean;
   routes: TestRoutes;
   setOptionAnswer: (questionId: number, optionId: number) => void;
   setTextAnswer: (questionId: number, text: string) => void;
@@ -216,6 +220,9 @@ export function useTestAttempt({
   const [autoSubmitted, setAutoSubmitted] = useState(false); // popup "đã bị nộp vì rời quá số lần"
   const [exitAction, setExitAction] = useState<ExitAction>("warn");
   const [blockCopy, setBlockCopy] = useState(true); // chặn sao chép khi làm bài
+  // Mặc định TẮT cho tới khi server trả lời: thà lỡ không tra được còn hơn lỡ cho tra
+  // trong bài kiểm tra ở lớp.
+  const [dictionaryEnabled, setDictionaryEnabled] = useState(false);
 
   const submittedRef = useRef(false);
   const submitTriggeredRef = useRef(false); // đã kích hoạt nộp (chặn gọi nộp 2 lần)
@@ -309,6 +316,7 @@ export function useTestAttempt({
         setExitAction(state.tab_exit_action ?? "warn");
         autosubmitTimeoutRef.current = state.autosubmit_on_timeout ?? true;
         setBlockCopy(state.block_copy ?? true);
+        setDictionaryEnabled(state.dictionary_enabled ?? false);
         exitCountRef.current = state.tab_exit_count;
         setExitCount(state.tab_exit_count);
         // Khôi phục đáp án đã lưu (làm tiếp sau khi reload / vào lại).
@@ -647,6 +655,7 @@ export function useTestAttempt({
     setExitWarn,
     autoSubmitted,
     origin,
+    dictionaryEnabled,
     routes,
     setOptionAnswer,
     setTextAnswer,
