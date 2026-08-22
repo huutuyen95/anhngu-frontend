@@ -104,15 +104,29 @@ function VocabView() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Quan sát sentinel ở cuối lưới; hiện trong khung nhìn thì nạp thêm.
+  // Nạp thêm khi sentinel (cuối lưới) chạm đáy khung nhìn. Dùng IntersectionObserver,
+  // kèm fallback scroll/resize cho chắc, và tự kiểm khi nội dung chưa lấp đầy màn hình.
   useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el || !hasMore) return;
-    const io = new IntersectionObserver((entries) => {
-      if (entries[0]?.isIntersecting) loadMore();
-    }, { rootMargin: "0px" });
-    io.observe(el);
-    return () => io.disconnect();
+    if (!hasMore) return;
+    const check = () => {
+      const el = sentinelRef.current;
+      if (!el) return;
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      if (el.getBoundingClientRect().top <= vh) loadMore();
+    };
+    let io: IntersectionObserver | null = null;
+    if (sentinelRef.current && "IntersectionObserver" in window) {
+      io = new IntersectionObserver((entries) => { if (entries[0]?.isIntersecting) loadMore(); }, { rootMargin: "0px" });
+      io.observe(sentinelRef.current);
+    }
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    check(); // nội dung ngắn hơn màn hình → nạp tiếp cho tới khi có thể cuộn
+    return () => {
+      io?.disconnect();
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
   }, [hasMore, loadMore]);
   useEffect(() => setSearch(q), [q]);
   useEffect(() => { listClassrooms().then((r) => setClassrooms(r.data)).catch(() => {}); }, []);
