@@ -36,6 +36,8 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DeckFormModal } from "@/features/vocabulary/deck-form-modal";
 import { DeckCategoryManagerModal } from "@/features/vocabulary/deck-category-manager-modal";
 
+const PER_PAGE = 20;
+
 function VocabView() {
   const router = useRouter();
   const params = useSearchParams();
@@ -47,6 +49,10 @@ function VocabView() {
   const [rows, setRows] = useState<Deck[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
   const [search, setSearch] = useState(q);
   const [classrooms, setClassrooms] = useState<ClassroomRef[]>([]);
   const [categories, setCategories] = useState<DeckCategory[]>([]);
@@ -69,15 +75,45 @@ function VocabView() {
     [params, router],
   );
 
+  // Tải trang đầu (20 bộ) — mỗi khi bộ lọc đổi.
   const load = useCallback(() => {
     setLoading(true);
-    listDecks({ q, classroom_id: classId, category_id: categoryId, is_published: boolParam(published) })
-      .then((r) => { setRows(r.data); setTotal(r.meta.total); })
+    listDecks({ q, classroom_id: classId, category_id: categoryId, is_published: boolParam(published), page: "1", per_page: String(PER_PAGE) })
+      .then((r) => { setRows(r.data); setTotal(r.meta.total); setPage(1); setHasMore(r.meta.current_page < r.meta.last_page); })
       .catch(() => toast.error("Không tải được danh sách bộ từ."))
       .finally(() => setLoading(false));
   }, [q, classId, categoryId, published]);
 
+  // Cuộn tới đáy → tải thêm 20 bộ kế tiếp (nối vào danh sách).
+  const loadMore = useCallback(() => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    const next = page + 1;
+    listDecks({ q, classroom_id: classId, category_id: categoryId, is_published: boolParam(published), page: String(next), per_page: String(PER_PAGE) })
+      .then((r) => {
+        setRows((prev) => {
+          const seen = new Set(prev.map((d) => d.id));
+          return [...prev, ...r.data.filter((d) => !seen.has(d.id))];
+        });
+        setPage(next);
+        setHasMore(r.meta.current_page < r.meta.last_page);
+      })
+      .catch(() => toast.error("Không tải thêm được bộ từ."))
+      .finally(() => setLoadingMore(false));
+  }, [loadingMore, hasMore, page, q, classId, categoryId, published]);
+
   useEffect(() => { load(); }, [load]);
+
+  // Quan sát sentinel ở cuối lưới; hiện trong khung nhìn thì nạp thêm.
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore) return;
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting) loadMore();
+    }, { rootMargin: "320px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasMore, loadMore]);
   useEffect(() => setSearch(q), [q]);
   useEffect(() => { listClassrooms().then((r) => setClassrooms(r.data)).catch(() => {}); }, []);
   const loadCategories = useCallback(() => {
@@ -183,13 +219,16 @@ function VocabView() {
           )}
         </div>
       ) : (
+        <>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {rows.map((d) => {
+          {rows.map((d, i) => {
             const total = d.cards_count ?? 0;
             const audio = d.audio_ready_count ?? 0;
             const audioFull = total > 0 && audio >= total;
             return (
-              <div key={d.id} className="flex flex-col gap-3 rounded-2xl border-[1.5px] border-border bg-surface p-4 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(58,51,48,0.08)]">
+              <div key={d.id}
+                style={{ animationDelay: `${(i % PER_PAGE) * 30}ms` }}
+                className="card-enter flex flex-col gap-3 rounded-2xl border-[1.5px] border-border bg-surface p-4 transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(58,51,48,0.08)]">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className="flex size-9 items-center justify-center rounded-xl bg-brand-soft text-brand"><BookA className="size-5" /></span>
@@ -229,6 +268,18 @@ function VocabView() {
             );
           })}
         </div>
+
+        {/* Điểm chạm để nạp thêm + báo đang tải/đã hết */}
+        <div ref={sentinelRef} aria-hidden className="h-px w-full" />
+        {loadingMore && (
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-48 animate-pulse rounded-2xl bg-surface-alt" />)}
+          </div>
+        )}
+        {!hasMore && rows.length > 0 && (
+          <p className="mt-6 text-center text-xs text-text-muted">Đã hiển thị hết {total} bộ từ.</p>
+        )}
+        </>
       )}
 
       <DeckFormModal

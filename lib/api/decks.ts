@@ -16,7 +16,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1
 
 // ── Admin: decks ──
 
-export type DeckFilters = { q?: string; classroom_id?: string; category_id?: string; is_published?: string; page?: string };
+export type DeckFilters = { q?: string; classroom_id?: string; category_id?: string; is_published?: string; page?: string; per_page?: string };
 
 export function listDecks(filters: DeckFilters = {}): Promise<DeckListResponse> {
   const qs = new URLSearchParams();

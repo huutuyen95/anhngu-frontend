@@ -237,6 +237,15 @@
   }
 }
 
+/* Card xuất hiện: mờ + trượt nhẹ lên, xếp so le theo animation-delay (đặt inline) */
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.card-enter {
+  animation: card-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition-duration: 0.01ms !important;
