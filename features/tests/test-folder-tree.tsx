@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight, FolderPlus, Layers, Search } from "lucide-re
 import { listTestCategories } from "@/lib/api/tests";
 import { TEST_GROUPS, type TestCategory, type TestGroup } from "@/lib/types/test";
 import { cn } from "@/lib/utils";
+import { useSlidingIndicator } from "@/lib/use-sliding-indicator";
 
 /**
  * Cột trái — cây thư mục theo NHÓM nội dung (Đề thi / Bài tập), độc lập với lớp.
@@ -42,6 +43,9 @@ export function TestFolderTree({ selected, onSelect, onManage, reloadKey }: {
     (q ? list.filter((c) => c.name.toLowerCase().includes(q.toLowerCase())) : list)
       .filter((c) => c.name !== "Chưa phân loại");
 
+  // Pill trượt khi đổi thư mục; đo lại khi mở/thu nhóm, nạp thư mục, hoặc lọc.
+  const { box, setRef } = useSlidingIndicator(selected, [expanded, cats, q]);
+
   return (
     <aside className="flex w-full flex-col gap-3 lg:w-[250px] lg:shrink-0">
       <div className="relative">
@@ -50,10 +54,16 @@ export function TestFolderTree({ selected, onSelect, onManage, reloadKey }: {
           className="h-9 w-full rounded-full border-[1.5px] border-border bg-surface pl-9 pr-3 text-sm outline-none focus-visible:border-brand" />
       </div>
 
-      <div className="rounded-2xl border-[1.5px] border-border bg-surface p-2">
-        <button onClick={() => onSelect(null)}
-          className={cn("mb-1 flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-semibold transition-colors",
-            selected === "" ? "bg-brand-soft text-brand" : "text-text hover:bg-surface-alt")}>
+      <div className="relative rounded-2xl border-[1.5px] border-border bg-surface p-2">
+        {box && (
+          <span aria-hidden
+            className={cn("pointer-events-none absolute top-0 rounded-xl bg-brand-soft",
+              box.animate && "transition-[transform,width,height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]")}
+            style={{ transform: `translate(${box.left}px, ${box.top}px)`, width: box.width, height: box.height }} />
+        )}
+        <button onClick={() => onSelect(null)} ref={setRef("")}
+          className={cn("relative z-10 mb-1 flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-semibold transition-colors",
+            selected === "" ? "text-brand" : "text-text hover:bg-surface-alt")}>
           <Layers className="size-4" /> Tất cả đề
         </button>
 
@@ -76,7 +86,7 @@ export function TestFolderTree({ selected, onSelect, onManage, reloadKey }: {
                   {list.length === 0 ? (
                     <span className="px-2.5 py-1.5 text-xs text-text-muted">Chưa có thư mục</span>
                   ) : list.map((c) => (
-                    <FolderNode key={c.id} cat={c} selected={selected} onSelect={onSelect} />
+                    <FolderNode key={c.id} cat={c} selected={selected} onSelect={onSelect} setRef={setRef} />
                   ))}
                 </div>
               )}
@@ -93,23 +103,24 @@ export function TestFolderTree({ selected, onSelect, onManage, reloadKey }: {
 }
 
 /** Một thư mục (kèm thư mục con nếu có). */
-function FolderNode({ cat, selected, onSelect }: {
+function FolderNode({ cat, selected, onSelect, setRef }: {
   cat: TestCategory;
   selected: string;
   onSelect: (id: string) => void;
+  setRef: (key: string | number) => (el: HTMLElement | null) => void;
 }) {
   return (
     <>
-      <button onClick={() => onSelect(String(cat.id))}
-        className={cn("flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors",
-          selected === String(cat.id) ? "bg-brand-soft font-semibold text-brand" : "text-text hover:bg-surface-alt")}>
+      <button onClick={() => onSelect(String(cat.id))} ref={setRef(String(cat.id))}
+        className={cn("relative z-10 flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors",
+          selected === String(cat.id) ? "font-semibold text-brand" : "text-text hover:bg-surface-alt")}>
         <span className="truncate">{cat.name}</span>
         <span className="shrink-0 rounded-full bg-surface-alt px-1.5 text-xs text-text-muted">{cat.tests_count}</span>
       </button>
       {cat.children?.length > 0 && (
         <div className="ml-3 flex flex-col border-l border-border pl-2">
           {cat.children.map((child) => (
-            <FolderNode key={child.id} cat={child} selected={selected} onSelect={onSelect} />
+            <FolderNode key={child.id} cat={child} selected={selected} onSelect={onSelect} setRef={setRef} />
           ))}
         </div>
       )}

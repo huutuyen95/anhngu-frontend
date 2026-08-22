@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -53,6 +53,18 @@ export function TeacherShell({ children }: { children: ReactNode }) {
     nav.filter((n) => pathname === n.href || pathname.startsWith(n.href + "/"))
       .sort((a, b) => b.href.length - a.href.length)[0]?.href ?? "/teacher";
 
+  // Pill chỉ báo mục đang chọn — trượt mượt từ mục A sang B (đo vị trí item active).
+  // Lần đo đầu (mới vào trang) đặt chỗ tức thì; đổi mục sau đó mới bật transition để trượt.
+  const itemRefs = useRef<Record<string, HTMLElement | null>>({});
+  const firstRun = useRef(true);
+  const [indicator, setIndicator] = useState<{ top: number; height: number; animate: boolean } | null>(null);
+  useEffect(() => {
+    const el = itemRefs.current[active];
+    if (!el) return;
+    setIndicator({ top: el.offsetTop, height: el.offsetHeight, animate: !firstRun.current });
+    firstRun.current = false;
+  }, [active, nav.length]);
+
   async function handleLogout() {
     await logout();
     router.replace("/teacher/login");
@@ -71,7 +83,18 @@ export function TeacherShell({ children }: { children: ReactNode }) {
           </span>
         </div>
 
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-2 xl:p-3">
+        <nav className="relative flex flex-1 flex-col gap-1 overflow-y-auto p-2 xl:p-3">
+          {/* Pill trượt: nằm sau các mục (link vẽ đè lên) */}
+          {indicator && (
+            <div
+              aria-hidden
+              className={cn(
+                "pointer-events-none absolute inset-x-2 top-0 rounded-xl bg-brand-soft xl:inset-x-3",
+                indicator.animate && "transition-[transform,height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+              )}
+              style={{ transform: `translateY(${indicator.top}px)`, height: indicator.height }}
+            />
+          )}
           {nav.map((item) => {
             const isActive = active === item.href;
             const Icon = item.icon;
@@ -87,7 +110,7 @@ export function TeacherShell({ children }: { children: ReactNode }) {
               </>
             );
             const base =
-              "relative flex items-center gap-3 rounded-xl px-2.5 py-2.5 text-sm font-medium transition-colors xl:px-3";
+              "relative z-10 flex items-center gap-3 rounded-xl px-2.5 py-2.5 text-sm font-medium transition-colors xl:px-3";
             if (!item.ready) {
               return (
                 <span
@@ -104,10 +127,11 @@ export function TeacherShell({ children }: { children: ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
+                ref={(el) => { itemRefs.current[item.href] = el; }}
                 className={cn(
                   base,
                   isActive
-                    ? "bg-brand-soft text-brand"
+                    ? "text-brand"
                     : "text-text-secondary hover:bg-surface-alt hover:text-text"
                 )}
                 aria-current={isActive ? "page" : undefined}

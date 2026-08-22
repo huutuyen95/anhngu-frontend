@@ -24,6 +24,7 @@ import { PreflightModal } from "@/features/tests/preflight-modal";
 import { WordImportWizard } from "@/features/tests/word-import-wizard";
 import { cn } from "@/lib/utils";
 import { boolParam } from "@/lib/api";
+import { useSlidingIndicator } from "@/lib/use-sliding-indicator";
 
 function TestsView() {
   const router = useRouter();
@@ -37,6 +38,8 @@ function TestsView() {
     category: params.get("category") ?? "",
     page: params.get("page") ?? "1",
   }), [params]);
+
+  const fmtIndicator = useSlidingIndicator(filters.format);
 
   const [rows, setRows] = useState<Test[]>([]);
   const [meta, setMeta] = useState<TestListMeta | null>(null);
@@ -129,11 +132,18 @@ function TestsView() {
       </div>
 
       {/* 2 dạng đề (hard-coded): Đề tiêu chuẩn / IELTS Simulation */}
-      <div className="mt-4 inline-flex rounded-full border-[1.5px] border-border bg-surface p-1">
+      <div className="relative mt-4 inline-flex rounded-full border-[1.5px] border-border bg-surface p-1">
+        {fmtIndicator.box && (
+          <span aria-hidden
+            className={cn("pointer-events-none absolute top-0 rounded-full bg-brand",
+              fmtIndicator.box.animate && "transition-[transform,width,height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]")}
+            style={{ transform: `translate(${fmtIndicator.box.left}px, ${fmtIndicator.box.top}px)`, width: fmtIndicator.box.width, height: fmtIndicator.box.height }} />
+        )}
         {TEST_FORMATS.map((f) => (
-          <button key={f.key} onClick={() => setParam({ format: f.key === "standard" ? null : f.key })}
-            className={cn("rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
-              filters.format === f.key ? "bg-brand text-white" : "text-text-secondary hover:text-brand")}>
+          <button key={f.key} ref={fmtIndicator.setRef(f.key)}
+            onClick={() => setParam({ format: f.key === "standard" ? null : f.key })}
+            className={cn("relative z-10 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
+              filters.format === f.key ? "text-white" : "text-text-secondary hover:text-brand")}>
             {f.label}
           </button>
         ))}

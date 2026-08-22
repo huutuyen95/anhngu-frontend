@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { SettingControl } from "@/features/settings/setting-control";
 import { SettingsHistoryModal } from "@/features/settings/settings-history-modal";
 import { applyPrimaryColor } from "@/components/branding-loader";
+import { useSlidingIndicator } from "@/lib/use-sliding-indicator";
 
 const GROUP_ICON: Record<string, typeof Palette> = {
   palette: Palette,
@@ -91,6 +92,9 @@ function SettingsInner() {
   const [mailError, setMailError] = useState<string | null>(null);
 
   const activeGroup = searchParams.get("group") ?? "brand";
+
+  // Pill trượt cho menu nhóm bên trái (đo lại khi dữ liệu nhóm sẵn sàng).
+  const groupNav = useSlidingIndicator(activeGroup, [data]);
 
   const applyData = useCallback((res: SettingsResponse) => {
     setData(res);
@@ -333,7 +337,13 @@ function SettingsInner() {
 
       <div className="mt-5 flex gap-6">
         {/* Cột trái */}
-        <aside className="hidden w-[250px] shrink-0 flex-col gap-2 lg:flex">
+        <aside className="relative hidden w-[250px] shrink-0 flex-col gap-2 lg:flex">
+          {groupNav.box && (
+            <span aria-hidden
+              className={cn("pointer-events-none absolute left-0 top-0 rounded-2xl bg-brand-soft",
+                groupNav.box.animate && "transition-[transform,width,height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]")}
+              style={{ transform: `translate(${groupNav.box.left}px, ${groupNav.box.top}px)`, width: groupNav.box.width, height: groupNav.box.height }} />
+          )}
           {data.groups.map((g) => {
             const Icon = GROUP_ICON[g.icon] ?? SettingsIcon;
             const isActive = g.key === activeGroup;
@@ -341,10 +351,11 @@ function SettingsInner() {
             return (
               <button
                 key={g.key}
+                ref={groupNav.setRef(g.key)}
                 onClick={() => switchGroup(g.key)}
                 className={cn(
-                  "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors",
-                  isActive ? "bg-brand-soft" : "hover:bg-surface-alt",
+                  "relative z-10 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors",
+                  isActive ? "" : "hover:bg-surface-alt",
                 )}
               >
                 <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-xl", ICON_BG[g.key] ?? "bg-surface-alt text-text-secondary")}>

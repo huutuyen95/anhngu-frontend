@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { CLASS_STATUS_LABEL, type Classroom } from "@/lib/types/classroom";
 import { cn } from "@/lib/utils";
+import { useSlidingIndicator } from "@/lib/use-sliding-indicator";
 
 export type ClassTab = "overview" | "assign" | "comments" | "report" | "students";
 
@@ -31,6 +32,7 @@ export function ClassHeader({
   tab: ClassTab;
   onTab: (t: ClassTab) => void;
 }) {
+  const { box, setRef } = useSlidingIndicator(tab);
   const start = fmtDate(classroom.starts_on);
   const end = fmtDate(classroom.ends_on);
   const dateRange = start && end ? `${start} → ${end}` : start ? `Từ ${start}` : null;
@@ -57,20 +59,28 @@ export function ClassHeader({
       {/* Tabs dạng pill, đặt trong khối nền mờ, căn phải */}
       <nav
         aria-label="Các mục của lớp"
-        className="flex flex-wrap items-center gap-1 rounded-full bg-surface/55 p-1 backdrop-blur-sm"
+        className="relative flex flex-wrap items-center gap-1 rounded-full bg-surface/55 p-1 backdrop-blur-sm"
       >
+        {box && (
+          <span aria-hidden
+            className={cn(
+              "pointer-events-none absolute top-0 rounded-full bg-surface shadow-[0_2px_10px_rgba(58,51,48,0.10)]",
+              box.animate && "transition-[transform,width,height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+            )}
+            style={{ transform: `translate(${box.left}px, ${box.top}px)`, width: box.width, height: box.height }}
+          />
+        )}
         {TABS.map((t) => {
           const active = tab === t.key;
           return (
             <button
               key={t.key}
+              ref={setRef(t.key)}
               onClick={() => onTab(t.key)}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
-                active
-                  ? "bg-surface text-brand shadow-[0_2px_10px_rgba(58,51,48,0.10)]"
-                  : "text-text-secondary hover:text-text"
+                "relative z-10 rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+                active ? "text-brand" : "text-text-secondary hover:text-text"
               )}
             >
               {t.label}
