@@ -291,7 +291,12 @@ export function StudentTestResult({
       .catch((err) => {
         // Còn bản chụp lúc nộp thì cứ hiện, đừng ném lỗi ra màn hình.
         if (readStoredResult(attemptId)) return;
-        setError(err instanceof ApiError ? err.message : "Không tải được kết quả.");
+        // Lượt làm bài đã bị xoá/không tồn tại (vd link cũ trong thông báo) → chữ thân thiện.
+        setError(
+          err instanceof ApiError && err.status === 404
+            ? "Lượt làm bài không còn nữa."
+            : err instanceof ApiError ? err.message : "Không tải được kết quả.",
+        );
       });
   }, [attemptId]);
 
@@ -310,7 +315,12 @@ export function StudentTestResult({
   }
 
   if (error && !result) {
-    return <p className="text-sm font-semibold text-[#C1442F]">{error}</p>;
+    return (
+      <div className="mx-auto max-w-md rounded-[var(--radius-lg)] border-[1.5px] border-divider bg-neutral-100 px-6 py-12 text-center">
+        <p className="text-sm font-semibold text-text">{error}</p>
+        <Link href={routes.list} className="btn btn-secondary mt-4">Về danh sách đề</Link>
+      </div>
+    );
   }
 
   if (!result) {

@@ -3,7 +3,8 @@
 import { type ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ListChecks, School, Library, BarChart3, Search, Bell } from "lucide-react";
+import { ListChecks, School, Library, BarChart3, Search } from "lucide-react";
+import { NotificationBell } from "@/features/notifications/notification-bell";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { StudentMenuBanner } from "@/components/student/student-menu-banner";
@@ -86,10 +87,7 @@ export function StudentShell({ children }: { children: ReactNode }) {
             <input placeholder="Tìm đề, từ vựng…" className="min-w-0 flex-1 bg-transparent text-sm text-text outline-none placeholder:text-text-muted" />
             <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] font-semibold text-text-muted">⌘K</span>
           </label>
-          <button aria-label="Thông báo" className="relative flex size-11 items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-text transition-colors hover:border-brand hover:text-brand-bold">
-            <Bell className="size-[18px]" strokeWidth={2.75} />
-            <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-brand" />
-          </button>
+          <NotificationBell />
           <Link
             href="/profile"
             aria-label="Hồ sơ cá nhân"
@@ -118,7 +116,7 @@ export function StudentShell({ children }: { children: ReactNode }) {
         <span className="font-display text-base font-bold text-text">{screenTitle || "Anh ngữ Mrs Uyên"}</span>
         <div className="ml-auto flex items-center gap-2">
           <button aria-label="Tìm kiếm" className="flex size-10 items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-text"><Search className="size-[18px]" strokeWidth={2.75} /></button>
-          <button aria-label="Thông báo" className="relative flex size-10 items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-text"><Bell className="size-[18px]" strokeWidth={2.75} /><span className="absolute right-2 top-2 size-2 rounded-full bg-brand" /></button>
+          <NotificationBell compact />
           <Link href="/profile" aria-label="Hồ sơ cá nhân" aria-current={onProfile ? "page" : undefined}
             className={cn("flex size-10 items-center justify-center overflow-hidden rounded-full font-display text-sm font-bold", onProfile ? "bg-accent text-bg" : "bg-accent-2-200 text-accent-2-800")}>
             {avatarUrl ? (
