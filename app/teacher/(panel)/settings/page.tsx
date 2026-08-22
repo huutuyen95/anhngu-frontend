@@ -34,6 +34,7 @@ import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { SettingControl } from "@/features/settings/setting-control";
 import { SettingsHistoryModal } from "@/features/settings/settings-history-modal";
+import { applyPrimaryColor } from "@/components/branding-loader";
 
 const GROUP_ICON: Record<string, typeof Palette> = {
   palette: Palette,
@@ -136,6 +137,17 @@ function SettingsInner() {
     for (const g of data.groups) out[g.key] = g.fields.filter((f) => dirtyKeys.includes(f.key)).length;
     return out;
   }, [data, dirtyKeys]);
+
+  // Xem thử màu hệ thống ngay khi chọn (chưa cần Lưu). Rời trang / reload mà không lưu →
+  // cleanup áp lại màu đã lưu (initial), nên màu preview không dính lại.
+  const previewColor = draft["brand.primary_color"];
+  const savedColor = initial["brand.primary_color"];
+  useEffect(() => {
+    if (typeof previewColor === "string") applyPrimaryColor(previewColor);
+    return () => {
+      if (typeof savedColor === "string") applyPrimaryColor(savedColor);
+    };
+  }, [previewColor, savedColor]);
 
   // Cảnh báo khi rời trang còn thay đổi chưa lưu.
   useEffect(() => {
