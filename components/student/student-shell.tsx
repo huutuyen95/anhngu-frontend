@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ListChecks, School, Library, BarChart3, Search } from "lucide-react";
 import { NotificationBell } from "@/features/notifications/notification-bell";
+import { SearchCommand } from "@/features/search/search-command";
+import { HeaderSearch } from "@/features/search/header-search";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { StudentMenuBanner } from "@/components/student/student-menu-banner";
@@ -46,6 +48,8 @@ export function StudentShell({ children }: { children: ReactNode }) {
   const onProfile = pathname.startsWith("/profile");
   const screenTitle = SCREEN_TITLE[Object.keys(SCREEN_TITLE).find((k) => pathname.startsWith(k)) ?? ""] ?? "";
 
+  const [searchOpen, setSearchOpen] = useState(false); // modal tìm kiếm cho mobile
+
   return (
     <div className="organic flex min-h-screen flex-col bg-bg">
       {/* ── Header desktop (menu ngang) ── */}
@@ -82,11 +86,7 @@ export function StudentShell({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
-          <label className="flex h-11 w-[280px] items-center gap-2 rounded-full border-[1.5px] border-border bg-surface-alt px-4">
-            <Search className="size-[18px] shrink-0 text-text-muted" strokeWidth={2.75} />
-            <input placeholder="Tìm đề, từ vựng…" className="min-w-0 flex-1 bg-transparent text-sm text-text outline-none placeholder:text-text-muted" />
-            <span className="rounded-md border border-border px-1.5 py-0.5 text-[11px] font-semibold text-text-muted">⌘K</span>
-          </label>
+          <HeaderSearch />
           <NotificationBell />
           <Link
             href="/profile"
@@ -115,7 +115,7 @@ export function StudentShell({ children }: { children: ReactNode }) {
         <span className="flex size-9 items-center justify-center rounded-full bg-brand font-display text-sm font-extrabold text-white">AU</span>
         <span className="font-display text-base font-bold text-text">{screenTitle || "Anh ngữ Mrs Uyên"}</span>
         <div className="ml-auto flex items-center gap-2">
-          <button aria-label="Tìm kiếm" className="flex size-10 items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-text"><Search className="size-[18px]" strokeWidth={2.75} /></button>
+          <button onClick={() => setSearchOpen(true)} aria-label="Tìm kiếm" className="flex size-10 items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-text"><Search className="size-[18px]" strokeWidth={2.75} /></button>
           <NotificationBell compact />
           <Link href="/profile" aria-label="Hồ sơ cá nhân" aria-current={onProfile ? "page" : undefined}
             className={cn("flex size-10 items-center justify-center overflow-hidden rounded-full font-display text-sm font-bold", onProfile ? "bg-accent text-bg" : "bg-accent-2-200 text-accent-2-800")}>
@@ -157,6 +157,8 @@ export function StudentShell({ children }: { children: ReactNode }) {
           })}
         </nav>
       )}
+
+      <SearchCommand open={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   );
 }

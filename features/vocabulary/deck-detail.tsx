@@ -47,6 +47,20 @@ export function DeckDetail({ deckId, classroomId, backHref, studyHref, progressL
     });
   }, []);
 
+  // Vào từ ô tìm kiếm (?term=cardId) → cuộn tới + tô sáng đúng từ.
+  const [highlightId, setHighlightId] = useState<number | null>(null);
+  useEffect(() => {
+    if (!data || typeof window === "undefined") return;
+    const termId = Number(new URLSearchParams(window.location.search).get("term")) || null;
+    if (!termId) return;
+    const el = document.getElementById(`card-${termId}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    setHighlightId(termId);
+    const timer = setTimeout(() => setHighlightId(null), 2600);
+    return () => clearTimeout(timer);
+  }, [data]);
+
   if (error) {
     return (
       <div className="rounded-[var(--radius-lg)] border-[1.5px] border-danger/30 bg-danger-soft p-6 text-center">
@@ -92,15 +106,18 @@ export function DeckDetail({ deckId, classroomId, backHref, studyHref, progressL
       {data.cards.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {data.cards.map((card, index) => (
-            <StudentVocabCard
-              key={card.id}
-              card={card}
-              index={index + 1}
-              flipped={flipped.has(card.id)}
-              onToggle={() => toggle(card.id)}
-              voiceKey={data.deck.tts_voice}
-              rate={data.deck.tts_rate}
-            />
+            <div key={card.id} id={`card-${card.id}`}
+              className={cn("scroll-mt-24 rounded-[var(--radius-lg)] transition-shadow",
+                highlightId === card.id && "ring-2 ring-accent ring-offset-2 ring-offset-bg")}>
+              <StudentVocabCard
+                card={card}
+                index={index + 1}
+                flipped={flipped.has(card.id)}
+                onToggle={() => toggle(card.id)}
+                voiceKey={data.deck.tts_voice}
+                rate={data.deck.tts_rate}
+              />
+            </div>
           ))}
         </div>
       ) : (
