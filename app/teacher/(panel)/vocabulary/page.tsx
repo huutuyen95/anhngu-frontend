@@ -36,7 +36,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DeckFormModal } from "@/features/vocabulary/deck-form-modal";
 import { DeckCategoryManagerModal } from "@/features/vocabulary/deck-category-manager-modal";
 
-const PER_PAGE = 20;
+const PER_PAGE = 12;
 
 function VocabView() {
   const router = useRouter();
@@ -110,7 +110,7 @@ function VocabView() {
     if (!el || !hasMore) return;
     const io = new IntersectionObserver((entries) => {
       if (entries[0]?.isIntersecting) loadMore();
-    }, { rootMargin: "320px" });
+    }, { rootMargin: "0px" });
     io.observe(el);
     return () => io.disconnect();
   }, [hasMore, loadMore]);
